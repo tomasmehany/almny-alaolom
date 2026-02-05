@@ -10,6 +10,9 @@ export default function PlatformPage() {
   const [loading, setLoading] = useState(true)
   const [courses, setCourses] = useState<any[]>([])
   const [coursesLoading, setCoursesLoading] = useState(false)
+  
+  // 🆕 حالة للفولدرات (لتانية ثانوي فقط)
+  const [activeCategory, setActiveCategory] = useState<string>('all')
 
   // ⭐ روابط التواصل
   const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
@@ -127,7 +130,17 @@ export default function PlatformPage() {
       'ثالثة إعدادي': '3-prep',
       'ثالثه اعدادي': '3-prep',
       'الصف الثالث الإعدادي': '3-prep',
-      '3-prep': '3-prep'
+      '3-prep': '3-prep',
+      
+      'أولى ثانوي': '1-secondary',
+      'اولى ثانوي': '1-secondary',
+      'الصف الأول الثانوي': '1-secondary',
+      '1-secondary': '1-secondary',
+      
+      'ثانية ثانوي': '2-secondary',
+      'ثانيه ثانوي': '2-secondary',
+      'الصف الثاني الثانوي': '2-secondary',
+      '2-secondary': '2-secondary'
     }
     
     return yearMap[yearName] || yearName
@@ -138,15 +151,66 @@ export default function PlatformPage() {
       '1-prep': 'أولى إعدادي',
       '2-prep': 'ثانية إعدادي', 
       '3-prep': 'ثالثة إعدادي',
+      '1-secondary': 'أولى ثانوي',
+      '2-secondary': 'ثانية ثانوي',
       'first-prep': 'أولى إعدادي',
       'second-prep': 'ثانية إعدادي',
       'third-prep': 'ثالثة إعدادي',
       'أولى إعدادي': 'أولى إعدادي',
       'ثانية إعدادي': 'ثانية إعدادي',
-      'ثالثة إعدادي': 'ثالثة إعدادي'
+      'ثالثة إعدادي': 'ثالثة إعدادي',
+      'أولى ثانوي': 'أولى ثانوي',
+      'ثانية ثانوي': 'ثانية ثانوي'
     }
     
     return yearMap[yearCode] || yearCode || 'غير محدد'
+  }
+
+  // 🆕 دالة لتصنيف الكورسات حسب الفولدر (لتانية ثانوي فقط)
+  const categorizeCourses = () => {
+    if (userYear !== 'ثانية ثانوي') {
+      return null
+    }
+    
+    const categories: { [key: string]: any[] } = {
+      'all': courses,
+      'كيمياء': [],
+      'فيزياء': []
+    }
+    
+    courses.forEach(course => {
+      if (course.category === 'كيمياء') {
+        categories['كيمياء'].push(course)
+      } else if (course.category === 'فيزياء') {
+        categories['فيزياء'].push(course)
+      }
+    })
+    
+    return categories
+  }
+  
+  // 🆕 الحصول على الكورسات المعروضة بناءً على الفولدر النشط
+  const getDisplayedCourses = () => {
+    if (userYear !== 'ثانية ثانوي' || activeCategory === 'all') {
+      return courses
+    }
+    
+    const categories = categorizeCourses()
+    return categories ? categories[activeCategory] : courses
+  }
+  
+  // 🆕 الحصول على إحصائيات الفولدرات
+  const getCategoryStats = () => {
+    if (userYear !== 'ثانية ثانوي') return null
+    
+    const categories = categorizeCourses()
+    if (!categories) return null
+    
+    return {
+      chemistry: categories['كيمياء'].length,
+      physics: categories['فيزياء'].length,
+      total: courses.length
+    }
   }
 
   if (loading) {
@@ -175,6 +239,8 @@ export default function PlatformPage() {
   }
 
   const userYear = getYearName(user.year || user.grade || '')
+  const categoryStats = getCategoryStats()
+  const displayedCourses = getDisplayedCourses()
 
   return (
     <div style={styles.container}>
@@ -221,16 +287,68 @@ export default function PlatformPage() {
             </div>
           </div>
 
+          {/* 🆕 عرض الفولدرات لتانية ثانوي */}
+          {userYear === 'ثانية ثانوي' && categoryStats && (
+            <div style={styles.foldersCard}>
+              <h3 style={styles.foldersTitle}>📂 فولدرات المواد</h3>
+              <p style={styles.foldersSubtitle}>كيمياء وفيزياء  </p>
+              
+              <div style={styles.folderTabs}>
+                <button
+                  onClick={() => setActiveCategory('all')}
+                  style={{
+                    ...styles.folderTab,
+                    background: activeCategory === 'all' ? '#3b82f6' : '#f3f4f6',
+                    color: activeCategory === 'all' ? 'white' : '#4b5563'
+                  }}
+                >
+                  📚 الكل ({categoryStats.total})
+                </button>
+                <button
+                  onClick={() => setActiveCategory('كيمياء')}
+                  style={{
+                    ...styles.folderTab,
+                    background: activeCategory === 'كيمياء' ? '#8b5cf6' : '#f3f4f6',
+                    color: activeCategory === 'كيمياء' ? 'white' : '#4b5563'
+                  }}
+                >
+                  ⚗️ كيمياء ({categoryStats.chemistry})
+                </button>
+                <button
+                  onClick={() => setActiveCategory('فيزياء')}
+                  style={{
+                    ...styles.folderTab,
+                    background: activeCategory === 'فيزياء' ? '#ef4444' : '#f3f4f6',
+                    color: activeCategory === 'فيزياء' ? 'white' : '#4b5563'
+                  }}
+                >
+                  ⚛️ فيزياء ({categoryStats.physics})
+                </button>
+              </div>
+              
+              <div style={styles.folderStats}>
+                <div style={styles.folderStat}>
+                  <div style={styles.folderStatNumber}>{categoryStats.chemistry}</div>
+                  <div style={styles.folderStatLabel}>كورس كيمياء</div>
+                </div>
+                <div style={styles.folderStat}>
+                  <div style={styles.folderStatNumber}>{categoryStats.physics}</div>
+                  <div style={styles.folderStatLabel}>كورس فيزياء</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* الإحصائيات */}
           <div style={styles.statsCard}>
             <h3 style={styles.statsTitle}>📊 إحصائياتي</h3>
             <div style={styles.statsGrid}>
               <div style={styles.statItem}>
-                <div style={styles.statNumber}>{courses.length}</div>
+                <div style={styles.statNumber}>{displayedCourses.length}</div>
                 <div style={styles.statLabel}>كورسات متاحة</div>
               </div>
               <div style={styles.statItem}>
-                <div style={styles.statNumber}>{courses.filter(c => c.isOpened).length}</div>
+                <div style={styles.statNumber}>{displayedCourses.filter(c => c.isOpened).length}</div>
                 <div style={styles.statLabel}>كورسات مفتوحة</div>
               </div>
               <div style={styles.statItem}>
@@ -287,16 +405,60 @@ export default function PlatformPage() {
           <div style={styles.welcomeCard}>
             <h2 style={styles.welcomeTitle}>🚀 أهلاً بك في منصتك التعليمية</h2>
             <p style={styles.welcomeText}>
-              هذه الكورسات المتاحة لسنتك الدراسية ({userYear})، 
-              الكورسات المفتوحة <span style={{color: '#10b981', fontWeight: 'bold'}}>✅</span> يمكنك الدخول إليها مباشرة.<br/>
-              الكورسات المقفولة <span style={{color: '#ef4444', fontWeight: 'bold'}}>🔒</span> تحتاج للتواصل مع الدعم لتفعيلها.
+              {userYear === 'ثانية ثانوي' ? (
+                <>
+                  هذه الكورسات الخاصة بثانية ثانوي، مقسمة حسب المادة (كيمياء/فيزياء)<br/>
+                  الكورسات المفتوحة <span style={{color: '#10b981', fontWeight: 'bold'}}>✅</span> يمكنك الدخول إليها مباشرة.
+                  الكورسات المقفولة <span style={{color: '#ef4444', fontWeight: 'bold'}}>🔒</span> تحتاج للتواصل مع الدعم.
+                </>
+              ) : (
+                <>
+                  هذه الكورسات المتاحة لسنتك الدراسية ({userYear})، 
+                  الكورسات المفتوحة <span style={{color: '#10b981', fontWeight: 'bold'}}>✅</span> يمكنك الدخول إليها مباشرة.<br/>
+                  الكورسات المقفولة <span style={{color: '#ef4444', fontWeight: 'bold'}}>🔒</span> تحتاج للتواصل مع الدعم لتفعيلها.
+                </>
+              )}
             </p>
           </div>
+
+          {/* 🆕 شريط الفولدر النشط لتانية ثانوي */}
+          {userYear === 'ثانية ثانوي' && activeCategory !== 'all' && (
+            <div style={{
+              ...styles.activeFolderBar,
+              background: activeCategory === 'كيمياء' ? '#8b5cf6' : '#ef4444'
+            }}>
+              <div style={styles.folderBarContent}>
+                <div style={styles.folderBarIcon}>
+                  {activeCategory === 'كيمياء' ? '⚗️' : '⚛️'}
+                </div>
+                <div>
+                  <h3 style={styles.folderBarTitle}>
+                    {activeCategory === 'كيمياء' ? 'كيمياء' : 'فيزياء'} - ثانية ثانوي
+                  </h3>
+                  <p style={styles.folderBarText}>
+                    {displayedCourses.length} كورس متاح في هذه المادة
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setActiveCategory('all')}
+                  style={styles.showAllButton}
+                >
+                  عرض كل الكورسات
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* الكورسات الخاصة بالسنة */}
           <div style={styles.coursesCard}>
             <div style={styles.cardHeader}>
-              <h2 style={styles.cardTitle}>📚 الكورسات المتاحة لـ {userYear}</h2>
+              <h2 style={styles.cardTitle}>
+                {userYear === 'ثانية ثانوي' && activeCategory !== 'all' ? (
+                  <>📚 {activeCategory} - ثانية ثانوي</>
+                ) : (
+                  <>📚 الكورسات المتاحة لـ {userYear}</>
+                )}
+              </h2>
               <div style={styles.yearBadge}>{userYear}</div>
             </div>
 
@@ -306,22 +468,38 @@ export default function PlatformPage() {
                 <div style={styles.loadingIcon}>🔄</div>
                 <p>جاري تحميل الكورسات...</p>
               </div>
-            ) : courses.length === 0 ? (
+            ) : displayedCourses.length === 0 ? (
               <div style={styles.noCourses}>
-                <div style={styles.noCoursesIcon}>📭</div>
-                <h3 style={styles.noCoursesTitle}>لا توجد كورسات متاحة</h3>
+                <div style={styles.noCoursesIcon}>
+                  {userYear === 'ثانية ثانوي' && activeCategory !== 'all' ? '🧪' : '📭'}
+                </div>
+                <h3 style={styles.noCoursesTitle}>
+                  {userYear === 'ثانية ثانوي' && activeCategory !== 'all' 
+                    ? `لا توجد كورسات في ${activeCategory} بعد` 
+                    : 'لا توجد كورسات متاحة'}
+                </h3>
                 <p style={styles.noCoursesText}>
-                  لا توجد كورسات مسجلة لسنتك الدراسية ({userYear}) بعد.
+                  {userYear === 'ثانية ثانوي' && activeCategory !== 'all'
+                    ? `لم يتم إضافة كورسات في مادة ${activeCategory} لثانية ثانوي بعد.`
+                    : `لا توجد كورسات مسجلة لسنتك الدراسية (${userYear}) بعد.`}
                 </p>
-                <p style={styles.noCoursesSubtext}>
-                  يمكن للإدارة إضافة كورسات جديدة من لوحة التحكم.
-                </p>
+                {userYear === 'ثانية ثانوي' && activeCategory !== 'all' && (
+                  <button 
+                    onClick={() => setActiveCategory('all')}
+                    style={styles.browseAllButton}
+                  > {/* ✅ إضافة السطر المطلوب هنا */}
+  <p style={styles.noCoursesSubtext}>
+    يمكن للإدارة إضافة كورسات جديدة من لوحة التحكم.
+  </p>
+                    استعراض كل الكورسات
+                  </button>
+                )}
               </div>
             ) : (
               <>
                 {/* قائمة الكورسات مع روابط */}
                 <div style={styles.coursesGrid}>
-                  {courses.map(course => (
+                  {displayedCourses.map(course => (
                     <div key={course.id} style={{
                       ...styles.courseItem,
                       borderColor: course.isOpened ? '#10b981' : '#e5e7eb'
@@ -329,6 +507,14 @@ export default function PlatformPage() {
                       <div style={styles.courseHeader}>
                         <div style={styles.courseIcon}>
                           {course.isOpened ? '📖' : '📚'}
+                          {course.category && userYear === 'ثانية ثانوي' && (
+                            <span style={{
+                              ...styles.categoryBadge,
+                              background: course.category === 'كيمياء' ? '#8b5cf6' : '#ef4444'
+                            }}>
+                              {course.category === 'كيمياء' ? '⚗️' : '⚛️'}
+                            </span>
+                          )}
                         </div>
                         <h3 style={styles.courseName}>{course.title}</h3>
                       </div>
@@ -338,6 +524,9 @@ export default function PlatformPage() {
                       <div style={styles.courseDetails}>
                         <span>📅 تم الإضافة: {new Date(course.createdAt).toLocaleDateString('ar-EG')}</span>
                         {course.price && <span>💰 السعر: {course.price} ج.م</span>}
+                        {course.category && userYear === 'ثانية ثانوي' && (
+                          <span>📂 {course.category}</span>
+                        )}
                       </div>
                       <div style={styles.courseStatus}>
                         {course.isOpened ? (
@@ -375,8 +564,11 @@ export default function PlatformPage() {
 
                 {/* معلومات */}
                 <div style={styles.coursesInfo}>
-                  <p>📌 <strong>عدد الكورسات:</strong> {courses.length} كورس</p>
-                  <p>✅ <strong>الكورسات المفتوحة:</strong> {courses.filter(c => c.isOpened).length} كورس</p>
+                  <p>📌 <strong>عدد الكورسات:</strong> {displayedCourses.length} كورس</p>
+                  <p>✅ <strong>الكورسات المفتوحة:</strong> {displayedCourses.filter(c => c.isOpened).length} كورس</p>
+                  {userYear === 'ثانية ثانوي' && activeCategory === 'all' && categoryStats && (
+                    <p>📂 <strong>التصنيف:</strong> كيمياء: {categoryStats.chemistry} | فيزياء: {categoryStats.physics}</p>
+                  )}
                   <p>ℹ️ <strong>ملاحظة:</strong> الكورسات المفتوحة يمكن الدخول إليها مباشرة</p>
                 </div>
               </>
@@ -385,7 +577,15 @@ export default function PlatformPage() {
             {/* ملاحظة الدفع */}
             <div style={styles.paymentNote}>
               <p>📞 <strong>لطلب التفعيل:</strong> تواصل مع الدعم عبر واتساب أو تليجرام</p>
-              <p>💳 <strong>طرق الدفع:</strong> تحويل بنكي، فودافون كاش، أو أي طريقة أخرى</p>
+              <p>💳 <strong>طرق الدفع:</strong> اي طريقة دفع الكتروني، أو أي طريقة أخرى</p>
+              {userYear === 'ثانية ثانوي' && activeCategory !== 'all' && (
+                <button 
+                  onClick={() => setActiveCategory('all')}
+                  style={styles.backToAllButton}
+                >
+                  ← العودة لكل الكورسات
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -405,7 +605,7 @@ export default function PlatformPage() {
           <div style={styles.footerSupport}>
             <p style={styles.supportInfo}>
               {/* ⭐⭐ تم تغيير الإدارة ⭐⭐ */}
-              تطوير وإدارة: <a href="mailto:tomasmehany@gmail.com" style={styles.footerSupportLink}>tomasmehany@gmail.com</a>
+              تطوير: <a href="mailto:tomasmehany@gmail.com" style={styles.footerSupportLink}>tomasmehany@gmail.com</a>
             </p>
             <p style={styles.supportInfo}>
               للدعم: 
@@ -565,6 +765,106 @@ const styles = {
     fontSize: '13px',
     opacity: 0.8,
     margin: 0
+  },
+  // 🆕 أنماط الفولدرات
+  foldersCard: {
+    background: 'white',
+    borderRadius: '12px',
+    padding: '20px',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+    border: '2px solid #e5e7eb'
+  },
+  foldersTitle: {
+    fontSize: '18px',
+    fontWeight: '600' as const,
+    color: '#1f2937',
+    margin: '0 0 5px 0',
+    textAlign: 'center' as const
+  },
+  foldersSubtitle: {
+    fontSize: '14px',
+    color: '#6b7280',
+    textAlign: 'center' as const,
+    marginBottom: '15px'
+  },
+  folderTabs: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '10px',
+    marginBottom: '15px'
+  },
+  folderTab: {
+    padding: '12px',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: '600' as const,
+    fontSize: '14px',
+    transition: 'all 0.3s',
+    textAlign: 'right' as const,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+  },
+  folderStats: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    padding: '10px 0',
+    borderTop: '1px solid #e5e7eb'
+  },
+  folderStat: {
+    textAlign: 'center' as const
+  },
+  folderStatNumber: {
+    fontSize: '20px',
+    fontWeight: 'bold' as const,
+    color: '#3b82f6'
+  },
+  folderStatLabel: {
+    fontSize: '12px',
+    color: '#6b7280'
+  },
+  activeFolderBar: {
+    borderRadius: '12px',
+    color: 'white',
+    padding: '15px 20px',
+    marginBottom: '20px'
+  },
+  folderBarContent: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px'
+  },
+  folderBarIcon: {
+    fontSize: '32px',
+    background: 'rgba(255,255,255,0.2)',
+    width: '50px',
+    height: '50px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  folderBarTitle: {
+    fontSize: '18px',
+    fontWeight: 'bold' as const,
+    margin: 0,
+    flex: 1
+  },
+  folderBarText: {
+    fontSize: '14px',
+    opacity: 0.9,
+    margin: 0
+  },
+  showAllButton: {
+    padding: '8px 16px',
+    background: 'rgba(255,255,255,0.2)',
+    color: 'white',
+    border: '1px solid rgba(255,255,255,0.3)',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: '600' as const,
+    fontSize: '14px'
   },
   statsCard: {
     background: 'white',
@@ -731,10 +1031,15 @@ const styles = {
     color: '#6b7280',
     marginBottom: '10px'
   },
-  noCoursesSubtext: {
-    color: '#9ca3af',
-    fontSize: '14px',
-    fontStyle: 'italic' as const
+  browseAllButton: {
+    padding: '10px 20px',
+    background: '#3b82f6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: '600' as const,
+    marginTop: '15px'
   },
   coursesGrid: {
     display: 'grid',
@@ -758,7 +1063,23 @@ const styles = {
     marginBottom: '15px'
   },
   courseIcon: {
-    fontSize: '24px'
+    fontSize: '24px',
+    position: 'relative' as const,
+    display: 'flex',
+    alignItems: 'center'
+  },
+  categoryBadge: {
+    position: 'absolute' as const,
+    top: '-8px',
+    right: '-8px',
+    fontSize: '12px',
+    color: 'white',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   courseName: {
     fontSize: '18px',
@@ -856,7 +1177,18 @@ const styles = {
     background: '#f0f9ff',
     borderRadius: '8px',
     padding: '20px',
-    marginTop: '20px'
+    marginTop: '20px',
+    position: 'relative' as const
+  },
+  backToAllButton: {
+    padding: '10px 20px',
+    background: '#3b82f6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: '600' as const,
+    marginTop: '15px'
   },
   footer: {
     background: '#1f2937',
