@@ -4,6 +4,7 @@ import { useState } from 'react'
 export default function RegisterPage() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false) // حالة إظهار/إخفاء كلمة السر
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -108,10 +109,13 @@ export default function RegisterPage() {
     }
   }
 
+  // دالة إظهار/إخفاء كلمة السر
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
+
   // دالة للتواصل مع الأدمن على واتساب
   const contactAdmin = () => {
-    const phoneNumber = "00994405872619" // غير الرقم ده لرقم الأدمن
-    const message = "مرحباً، أود الاستفسار عن المنصة التعليمية"
     const whatsappUrl = `https://wa.me/message/UKASWZCU5BNLN1?src=qr`
     window.open(whatsappUrl, '_blank')
   }
@@ -168,14 +172,27 @@ export default function RegisterPage() {
           
           <div style={styles.inputGroup}>
             <label style={styles.label}>كلمة السر</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="6 أحرف على الأقل"
-              required
-              minLength={6}
-              style={styles.input}
-            />
+            <div style={styles.passwordContainer}>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="6 أحرف على الأقل"
+                required
+                minLength={6}
+                style={styles.passwordInput}
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                style={styles.passwordToggle}
+                title={showPassword ? "إخفاء كلمة السر" : "إظهار كلمة السر"}
+              >
+                {showPassword ? "🔒" : "👁️"}
+              </button>
+            </div>
+            <div style={styles.passwordHint}>
+              {showPassword ? "كلمة السر مرئية" : "انقر على العين 👁️ لإظهار كلمة السر"}
+            </div>
           </div>
           
           {/* زر تواصل مع الأدمن */}
@@ -306,6 +323,49 @@ const styles = {
     transition: 'all 0.3s',
     background: '#f9fafb',
     boxSizing: 'border-box' as const
+  },
+  // الأنماط الجديدة لحقل كلمة السر
+  passwordContainer: {
+    position: 'relative' as const,
+    display: 'flex',
+    alignItems: 'center'
+  },
+  passwordInput: {
+    width: '100%',
+    padding: '14px 45px 14px 14px', // مساحة لزر العين
+    border: '2px solid #e5e7eb',
+    borderRadius: '10px',
+    fontSize: '16px',
+    transition: 'all 0.3s',
+    background: '#f9fafb',
+    boxSizing: 'border-box' as const,
+    fontFamily: 'Arial, sans-serif'
+  },
+  passwordToggle: {
+    position: 'absolute' as const,
+    left: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '18px',
+    padding: '8px',
+    color: '#6b7280',
+    transition: 'color 0.3s',
+    '&:hover': {
+      color: '#3b82f6',
+      background: 'rgba(59, 130, 246, 0.1)',
+      borderRadius: '50%'
+    }
+  },
+  passwordHint: {
+    fontSize: '12px',
+    color: '#6b7280',
+    marginTop: '5px',
+    textAlign: 'right' as const,
+    fontStyle: 'italic' as const,
+    minHeight: '18px'
   },
   contactSection: {
     margin: '25px 0',
