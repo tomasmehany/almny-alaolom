@@ -20,7 +20,7 @@ export default function Home() {
             <span style={styles.logoIcon}>🎓</span>
             <h1 style={styles.logoText}>علمني العلوم</h1>
           </div>
-          <p style={styles.tagline}>منصة التعلم الذكي - مستر بيشوي</p>
+          <p style={styles.tagline}>منصة التعلم الذكي - مستر بيشوي مالك </p>
         </div>
       </header>
 
