@@ -609,7 +609,7 @@ function StudentsTab() {
 }
 
 // ============================================
-// 📚 CoursesTab مع نظام الفولدرات المعدل
+// 📚 CoursesTab مع نظام تبويبات المراحل الجديد
 // ============================================
 function CoursesTab() {
   const [courses, setCourses] = useState<any[]>([])
@@ -624,6 +624,9 @@ function CoursesTab() {
     isActive: true
   })
   const [editingCourse, setEditingCourse] = useState<any>(null)
+  
+  // 🆕 حالة المرحلة النشطة
+  const [activeGrade, setActiveGrade] = useState<string>('all')
   
   // 🆕 قائمة الفولدرات/التصنيفات لتانية ثانوي فقط
   const secondSecondaryCategories = ['كيمياء', 'فيزياء']
@@ -800,38 +803,57 @@ function CoursesTab() {
       '2-prep': 'ثانية إعدادي',
       '3-prep': 'ثالثة إعدادي',
       '1-secondary': 'أولى ثانوي',
-      '2-secondary': 'ثانية ثانوي'
+      '2-secondary': 'ثانية ثانوي',
+      'all': 'كل الكورسات'
     }
     return grades[gradeCode] || gradeCode
   }
 
-  // 🆕 دالة لترتيب الكورسات حسب الفولدر (لتانية ثانوي فقط)
-  const getCoursesByCategory = () => {
-    const categories: { [key: string]: any[] } = {
-      'غير مصنف': []
+  // 🆕 الحصول على الكورسات حسب المرحلة المختارة
+  const getFilteredCourses = () => {
+    if (activeGrade === 'all') {
+      return courses
     }
     
-    // إضافة فولدرات تانية ثانوي
+    return courses.filter(course => course.grade === activeGrade)
+  }
+
+  // 🆕 الحصول على كورسات تانية ثانوي حسب الفولدر
+  const getCoursesByGradeAndCategory = () => {
+    const filtered = getFilteredCourses()
+    
+    // إذا كانت المرحلة ليست تانية ثانوي، نرجع الكورسات في مصفوفة واحدة
+    if (activeGrade !== '2-secondary') {
+      return { [getGradeName(activeGrade)]: filtered }
+    }
+    
+    // فقط لتانية ثانوي
+    const categories: { [key: string]: any[] } = {}
+    
+    // تهيئة الفولدرات
     secondSecondaryCategories.forEach(category => {
       categories[category] = []
     })
     
-    courses.forEach(course => {
-      if (course.grade === '2-secondary' && course.category && secondSecondaryCategories.includes(course.category)) {
+    // إضافة فئة "أخرى" للكورسات بدون فولدر
+    categories['أخرى'] = []
+    
+    filtered.forEach(course => {
+      if (course.category && secondSecondaryCategories.includes(course.category)) {
         // تصنيف كورسات تانية ثانوي حسب الفولدر
         if (!categories[course.category]) {
           categories[course.category] = []
         }
         categories[course.category].push(course)
       } else {
-        // باقي الكورسات تحت "غير مصنف"
-        categories['غير مصنف'].push(course)
+        // كورسات تانية ثانوي بدون فولدر
+        categories['أخرى'].push(course)
       }
     })
     
     // إزالة الفئات الفارغة
     Object.keys(categories).forEach(key => {
-      if (categories[key].length === 0 && key !== 'غير مصنف') {
+      if (categories[key].length === 0) {
         delete categories[key]
       }
     })
@@ -839,7 +861,24 @@ function CoursesTab() {
     return categories
   }
 
-  const coursesByCategory = getCoursesByCategory()
+  // 🆕 إحصائيات المراحل
+  const getGradeStats = () => {
+    const stats: { [key: string]: number } = {
+      'all': courses.length,
+      '1-prep': courses.filter(c => c.grade === '1-prep').length,
+      '2-prep': courses.filter(c => c.grade === '2-prep').length,
+      '3-prep': courses.filter(c => c.grade === '3-prep').length,
+      '1-secondary': courses.filter(c => c.grade === '1-secondary').length,
+      '2-secondary': courses.filter(c => c.grade === '2-secondary').length
+    }
+    
+    return stats
+  }
+
+  const gradeStats = getGradeStats()
+  const filteredCourses = getFilteredCourses()
+  const categorizedCourses = getCoursesByGradeAndCategory()
+  const isSecondSecondary = activeGrade === '2-secondary'
 
   return (
     <div style={styles.tabContent}>
@@ -859,6 +898,70 @@ function CoursesTab() {
           {message}
         </div>
       )}
+
+      {/* 🆕 تبويبات المراحل */}
+      <div style={styles.viewTabs}>
+        <button
+          onClick={() => setActiveGrade('all')}
+          style={{
+            ...styles.viewTabButton,
+            background: activeGrade === 'all' ? '#3b82f6' : '#f3f4f6',
+            color: activeGrade === 'all' ? 'white' : '#4b5563'
+          }}
+        >
+          📚 الكل ({gradeStats.all})
+        </button>
+        <button
+          onClick={() => setActiveGrade('1-prep')}
+          style={{
+            ...styles.viewTabButton,
+            background: activeGrade === '1-prep' ? '#10b981' : '#f3f4f6',
+            color: activeGrade === '1-prep' ? 'white' : '#4b5563'
+          }}
+        >
+          🏫 أولى إعدادي ({gradeStats['1-prep']})
+        </button>
+        <button
+          onClick={() => setActiveGrade('2-prep')}
+          style={{
+            ...styles.viewTabButton,
+            background: activeGrade === '2-prep' ? '#0ea5e9' : '#f3f4f6',
+            color: activeGrade === '2-prep' ? 'white' : '#4b5563'
+          }}
+        >
+          🏫 ثانية إعدادي ({gradeStats['2-prep']})
+        </button>
+        <button
+          onClick={() => setActiveGrade('3-prep')}
+          style={{
+            ...styles.viewTabButton,
+            background: activeGrade === '3-prep' ? '#8b5cf6' : '#f3f4f6',
+            color: activeGrade === '3-prep' ? 'white' : '#4b5563'
+          }}
+        >
+          🏫 ثالثة إعدادي ({gradeStats['3-prep']})
+        </button>
+        <button
+          onClick={() => setActiveGrade('1-secondary')}
+          style={{
+            ...styles.viewTabButton,
+            background: activeGrade === '1-secondary' ? '#f59e0b' : '#f3f4f6',
+            color: activeGrade === '1-secondary' ? 'white' : '#4b5563'
+          }}
+        >
+          🎓 أولى ثانوي ({gradeStats['1-secondary']})
+        </button>
+        <button
+          onClick={() => setActiveGrade('2-secondary')}
+          style={{
+            ...styles.viewTabButton,
+            background: activeGrade === '2-secondary' ? '#ef4444' : '#f3f4f6',
+            color: activeGrade === '2-secondary' ? 'white' : '#4b5563'
+          }}
+        >
+          🎓 ثانية ثانوي ({gradeStats['2-secondary']})
+        </button>
+      </div>
 
       <div style={styles.formSection}>
         <h3 style={styles.sectionTitle}>
@@ -992,28 +1095,39 @@ function CoursesTab() {
 
       <div style={styles.listSection}>
         <div style={styles.coursesHeader}>
-          <h3 style={styles.sectionTitle}>📖 الكورسات ({courses.length})</h3>
+          <h3 style={styles.sectionTitle}>
+            {activeGrade === 'all' ? '📖 كل الكورسات' : `📖 كورسات ${getGradeName(activeGrade)}`} 
+            ({filteredCourses.length} كورس)
+          </h3>
           <div style={styles.coursesStats}>
-            <span style={styles.statBadge}>✅ مفعل: {courses.filter(c => c.isActive).length}</span>
-            <span style={styles.statBadge}>⏸️ غير مفعل: {courses.filter(c => !c.isActive).length}</span>
+            <span style={styles.statBadge}>✅ مفعل: {filteredCourses.filter(c => c.isActive).length}</span>
+            <span style={styles.statBadge}>⏸️ غير مفعل: {filteredCourses.filter(c => !c.isActive).length}</span>
           </div>
         </div>
         
         {loading ? (
           <p style={styles.loadingText}>جاري تحميل الكورسات...</p>
-        ) : courses.length === 0 ? (
-          <p style={styles.emptyText}>لا توجد كورسات بعد. أضف كورساً جديداً!</p>
+        ) : filteredCourses.length === 0 ? (
+          <p style={styles.emptyText}>
+            {activeGrade === 'all' 
+              ? 'لا توجد كورسات بعد. أضف كورساً جديداً!' 
+              : `لا توجد كورسات لـ ${getGradeName(activeGrade)} بعد. أضف كورساً جديداً لهذه المرحلة!`}
+          </p>
         ) : (
           <>
-            {/* 🆕 عرض الكورسات حسب التصنيف */}
-            {Object.keys(coursesByCategory).map(category => (
+            {/* 🆕 عرض الكورسات حسب المرحلة والفولدر */}
+            {Object.keys(categorizedCourses).map(category => (
               <div key={category} style={styles.categorySection}>
                 <h4 style={styles.categoryTitle}>
-                  {category === 'غير مصنف' ? '📚 جميع الكورسات' : `📁 ${category} (ثانية ثانوي)`} 
-                  ({coursesByCategory[category].length} كورس)
+                  {isSecondSecondary ? (
+                    category === 'أخرى' ? '📁 كورسات أخرى (ثانية ثانوي)' : `📁 ${category} (ثانية ثانوي)`
+                  ) : (
+                    `📚 ${getGradeName(activeGrade)}`
+                  )}
+                  ({categorizedCourses[category].length} كورس)
                 </h4>
                 <div style={styles.coursesGrid}>
-                  {coursesByCategory[category].map(course => (
+                  {categorizedCourses[category].map(course => (
                     <div key={course.id} style={styles.courseCard}>
                       <div style={styles.courseHeader}>
                         <div>
@@ -1084,12 +1198,42 @@ function CoursesTab() {
             ))}
           </>
         )}
+        
+        {/* 🆕 إحصائيات المراحل */}
+        <div style={styles.gradeStatsSection}>
+          <h4 style={styles.sectionTitle}>📊 إحصائيات المراحل</h4>
+          <div style={styles.statsGrid}>
+            <div style={styles.statCard}>
+              <div style={styles.statNumber}>{gradeStats['1-prep']}</div>
+              <div style={styles.statLabel}>أولى إعدادي</div>
+            </div>
+            <div style={styles.statCard}>
+              <div style={styles.statNumber}>{gradeStats['2-prep']}</div>
+              <div style={styles.statLabel}>ثانية إعدادي</div>
+            </div>
+            <div style={styles.statCard}>
+              <div style={styles.statNumber}>{gradeStats['3-prep']}</div>
+              <div style={styles.statLabel}>ثالثة إعدادي</div>
+            </div>
+            <div style={styles.statCard}>
+              <div style={styles.statNumber}>{gradeStats['1-secondary']}</div>
+              <div style={styles.statLabel}>أولى ثانوي</div>
+            </div>
+            <div style={styles.statCard}>
+              <div style={styles.statNumber}>{gradeStats['2-secondary']}</div>
+              <div style={styles.statLabel}>ثانية ثانوي</div>
+            </div>
+            <div style={styles.statCard}>
+              <div style={styles.statNumber}>{gradeStats.all}</div>
+              <div style={styles.statLabel}>إجمالي الكورسات</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-// ... باقي المكونات كما هي بدون تغيير ...
 // ============================================
 // 🎓 OpenCourseTab
 // ============================================
@@ -2069,5 +2213,13 @@ const styles = {
     '&:hover': {
       background: '#059669'
     }
+  },
+  // 🆕 أنماط إضافية للمراحل
+  gradeStatsSection: {
+    marginTop: '40px',
+    padding: '20px',
+    background: '#f9fafb',
+    borderRadius: '10px',
+    border: '2px solid #e5e7eb'
   }
 }
