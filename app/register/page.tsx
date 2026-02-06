@@ -155,7 +155,7 @@ export default function RegisterPage() {
               onChange={handlePhoneChange}
               style={styles.input}
             />
-            <div style={styles.hint}>رقم الهاتف مرتبط بحساب واحد فقط</div>
+            <div style={styles.hint}>رقم الهاتف يجب ان يكون مرتبط بحساب واحد فقط</div>
           </div>
           
           <div style={styles.inputGroup}>
@@ -198,7 +198,7 @@ export default function RegisterPage() {
           {/* زر تواصل مع الأدمن */}
           <div style={styles.contactSection}>
             <div style={styles.contactInfo}>
-              <p style={styles.contactText}>للأسئلة أو المساعدة:</p>
+              <p style={styles.contactText}>للمساعدة:</p>
               <button 
                 type="button"
                 onClick={contactAdmin}
@@ -452,3 +452,4 @@ const styles = {
     textDecoration: 'none'
   }
 }
+
