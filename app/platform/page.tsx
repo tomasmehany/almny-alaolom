@@ -275,8 +275,8 @@ export default function PlatformPage() {
 
       {/* المحتوى الرئيسي */}
       <main style={styles.main}>
-        {/* القسم الأيسر */}
-        <div style={styles.sidebar}>
+        {/* القسم الأيسر - على الموبايل يصبح أفقي */}
+        <div style={styles.mobileSidebarContainer}>
           {/* السنة الدراسية */}
           <div style={styles.yearCard}>
             <div style={styles.yearIcon}>📚</div>
@@ -361,15 +361,6 @@ export default function PlatformPage() {
               </div>
             </div>
           </div>
-
-          {/* زر تحديث الكورسات */}
-          <button 
-            onClick={() => fetchCourses(user.year || user.grade, userId)}
-            style={styles.refreshButton}
-            disabled={coursesLoading}
-          >
-            {coursesLoading ? '🔄 جاري التحديث...' : '🔄 تحديث قائمة الكورسات'}
-          </button>
 
           {/* مربع التواصل */}
           <div style={styles.telegramCard}>
@@ -483,14 +474,14 @@ export default function PlatformPage() {
                     ? `لم يتم إضافة كورسات في مادة ${activeCategory} لثانية ثانوي بعد.`
                     : `لا توجد كورسات مسجلة لسنتك الدراسية (${userYear}) بعد.`}
                 </p>
+                <p style={styles.noCoursesSubtext}>
+                  يمكن للإدارة إضافة كورسات جديدة من لوحة التحكم.
+                </p>
                 {userYear === 'ثانية ثانوي' && activeCategory !== 'all' && (
                   <button 
                     onClick={() => setActiveCategory('all')}
                     style={styles.browseAllButton}
-                  > {/* ✅ إضافة السطر المطلوب هنا */}
-  <p style={styles.noCoursesSubtext}>
-    يمكن للإدارة إضافة كورسات جديدة من لوحة التحكم.
-  </p>
+                  >
                     استعراض كل الكورسات
                   </button>
                 )}
@@ -619,7 +610,7 @@ export default function PlatformPage() {
   )
 }
 
-// الأنماط
+// الأنماط الكاملة المعدلة
 const styles = {
   container: {
     minHeight: '100vh',
@@ -646,87 +637,77 @@ const styles = {
   header: {
     background: 'white',
     boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-    padding: '0 20px'
+    padding: '0 15px'
   },
   headerContent: {
     maxWidth: '1400px',
     margin: '0 auto',
     display: 'flex',
+    flexDirection: 'column' as const,
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '20px 0'
+    alignItems: 'flex-start',
+    padding: '15px 0',
+    gap: '15px'
   },
   logo: {
-    fontSize: '28px',
+    fontSize: '22px',
     fontWeight: 'bold' as const,
     color: '#1f2937',
     margin: 0
   },
   subLogo: {
     color: '#6b7280',
-    fontSize: '14px',
+    fontSize: '12px',
     margin: 0
   },
   userInfo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '15px'
+    gap: '15px',
+    flexWrap: 'wrap' as const,
+    width: '100%'
   },
   avatar: {
-    width: '50px',
-    height: '50px',
+    width: '40px',
+    height: '40px',
     background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
     color: 'white',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: 'bold' as const
   },
   userName: {
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: '600' as const,
     color: '#1f2937'
   },
   userGrade: {
-    fontSize: '14px',
+    fontSize: '12px',
     color: '#3b82f6',
     fontWeight: '600' as const
   },
   logoutButton: {
-    padding: '10px 20px',
+    padding: '8px 16px',
     background: '#ef4444',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: '600' as const
-  },
-  refreshButton: {
-    padding: '12px',
-    background: '#3b82f6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '14px',
     fontWeight: '600' as const,
-    cursor: 'pointer',
-    width: '100%',
-    '&:disabled': {
-      background: '#9ca3af',
-      cursor: 'not-allowed'
-    }
+    fontSize: '12px'
   },
   main: {
     maxWidth: '1400px',
-    margin: '30px auto',
-    padding: '0 20px',
-    display: 'grid',
-    gridTemplateColumns: '350px 1fr',
-    gap: '30px'
+    margin: '20px auto',
+    padding: '0 15px',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '20px'
   },
-  sidebar: {
+  mobileSidebarContainer: {
     display: 'flex',
     flexDirection: 'column' as const,
     gap: '20px'
@@ -735,54 +716,54 @@ const styles = {
     background: 'linear-gradient(to right, #3b82f6, #8b5cf6)',
     color: 'white',
     borderRadius: '12px',
-    padding: '25px',
+    padding: '20px',
     display: 'flex',
     gap: '15px',
     alignItems: 'center'
   },
   yearIcon: {
-    fontSize: '36px',
+    fontSize: '24px',
     background: 'rgba(255,255,255,0.2)',
-    width: '60px',
-    height: '60px',
+    width: '50px',
+    height: '50px',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    flexShrink: 0
   },
   yearTitle: {
-    fontSize: '18px',
+    fontSize: '16px',
     fontWeight: '600' as const,
     margin: '0 0 5px 0',
     opacity: 0.9
   },
   yearValue: {
-    fontSize: '22px',
+    fontSize: '18px',
     fontWeight: 'bold' as const,
     margin: '0 0 5px 0'
   },
   yearNote: {
-    fontSize: '13px',
+    fontSize: '12px',
     opacity: 0.8,
     margin: 0
   },
-  // 🆕 أنماط الفولدرات
   foldersCard: {
     background: 'white',
     borderRadius: '12px',
-    padding: '20px',
+    padding: '15px',
     boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
     border: '2px solid #e5e7eb'
   },
   foldersTitle: {
-    fontSize: '18px',
+    fontSize: '16px',
     fontWeight: '600' as const,
     color: '#1f2937',
     margin: '0 0 5px 0',
     textAlign: 'center' as const
   },
   foldersSubtitle: {
-    fontSize: '14px',
+    fontSize: '13px',
     color: '#6b7280',
     textAlign: 'center' as const,
     marginBottom: '15px'
@@ -794,12 +775,12 @@ const styles = {
     marginBottom: '15px'
   },
   folderTab: {
-    padding: '12px',
+    padding: '10px',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '600' as const,
-    fontSize: '14px',
+    fontSize: '13px',
     transition: 'all 0.3s',
     textAlign: 'right' as const,
     display: 'flex',
@@ -816,73 +797,31 @@ const styles = {
     textAlign: 'center' as const
   },
   folderStatNumber: {
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: 'bold' as const,
     color: '#3b82f6'
   },
   folderStatLabel: {
-    fontSize: '12px',
+    fontSize: '11px',
     color: '#6b7280'
-  },
-  activeFolderBar: {
-    borderRadius: '12px',
-    color: 'white',
-    padding: '15px 20px',
-    marginBottom: '20px'
-  },
-  folderBarContent: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px'
-  },
-  folderBarIcon: {
-    fontSize: '32px',
-    background: 'rgba(255,255,255,0.2)',
-    width: '50px',
-    height: '50px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  folderBarTitle: {
-    fontSize: '18px',
-    fontWeight: 'bold' as const,
-    margin: 0,
-    flex: 1
-  },
-  folderBarText: {
-    fontSize: '14px',
-    opacity: 0.9,
-    margin: 0
-  },
-  showAllButton: {
-    padding: '8px 16px',
-    background: 'rgba(255,255,255,0.2)',
-    color: 'white',
-    border: '1px solid rgba(255,255,255,0.3)',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: '600' as const,
-    fontSize: '14px'
   },
   statsCard: {
     background: 'white',
     borderRadius: '12px',
-    padding: '25px',
+    padding: '20px',
     boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
   },
   statsTitle: {
-    fontSize: '18px',
+    fontSize: '16px',
     fontWeight: '600' as const,
     color: '#1f2937',
-    margin: '0 0 20px 0',
+    margin: '0 0 15px 0',
     textAlign: 'center' as const
   },
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '15px'
+    gap: '10px'
   },
   statItem: {
     textAlign: 'center' as const,
@@ -891,51 +830,50 @@ const styles = {
     borderRadius: '8px'
   },
   statNumber: {
-    fontSize: '24px',
+    fontSize: '20px',
     fontWeight: 'bold' as const,
     color: '#3b82f6',
     marginBottom: '5px'
   },
   statLabel: {
-    fontSize: '12px',
+    fontSize: '11px',
     color: '#6b7280'
   },
   telegramCard: {
     background: 'linear-gradient(to right, #dbeafe, #93c5fd)',
     borderRadius: '12px',
-    padding: '20px',
+    padding: '15px',
     display: 'flex',
     gap: '15px',
     alignItems: 'flex-start'
   },
   telegramIcon: {
-    fontSize: '24px'
+    fontSize: '20px'
   },
   telegramTitle: {
-    fontSize: '16px',
+    fontSize: '15px',
     fontWeight: '600' as const,
     color: '#1e40af',
     margin: '0 0 5px 0'
   },
   telegramText: {
-    fontSize: '14px',
+    fontSize: '13px',
     color: '#1e40af',
     margin: '0 0 10px 0'
   },
   contactButtons: {
     display: 'flex',
-    gap: '10px',
-    marginTop: '10px'
+    gap: '10px'
   },
   whatsappButton: {
     flex: 1,
     display: 'inline-block',
     background: '#25D366',
     color: 'white',
-    padding: '8px 15px',
+    padding: '8px 12px',
     borderRadius: '6px',
     textDecoration: 'none',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '600' as const,
     textAlign: 'center' as const
   },
@@ -944,49 +882,94 @@ const styles = {
     display: 'inline-block',
     background: '#0088cc',
     color: 'white',
-    padding: '8px 15px',
+    padding: '8px 12px',
     borderRadius: '6px',
     textDecoration: 'none',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '600' as const,
     textAlign: 'center' as const
   },
   content: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '20px'
+    gap: '15px'
   },
   welcomeCard: {
     background: 'linear-gradient(to right, #10b981, #34d399)',
     color: 'white',
     borderRadius: '12px',
-    padding: '25px'
+    padding: '20px'
   },
   welcomeTitle: {
-    fontSize: '22px',
+    fontSize: '18px',
     fontWeight: 'bold' as const,
     margin: '0 0 10px 0'
   },
   welcomeText: {
-    fontSize: '15px',
+    fontSize: '13px',
     opacity: 0.9,
     margin: 0,
     lineHeight: '1.6'
   },
+  activeFolderBar: {
+    borderRadius: '12px',
+    color: 'white',
+    padding: '12px 15px',
+    marginBottom: '15px'
+  },
+  folderBarContent: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'flex-start',
+    gap: '10px'
+  },
+  folderBarIcon: {
+    fontSize: '28px',
+    background: 'rgba(255,255,255,0.2)',
+    width: '45px',
+    height: '45px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  folderBarTitle: {
+    fontSize: '16px',
+    fontWeight: 'bold' as const,
+    margin: 0,
+    flex: 1
+  },
+  folderBarText: {
+    fontSize: '13px',
+    opacity: 0.9,
+    margin: 0
+  },
+  showAllButton: {
+    padding: '6px 12px',
+    background: 'rgba(255,255,255,0.2)',
+    color: 'white',
+    border: '1px solid rgba(255,255,255,0.3)',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: '600' as const,
+    fontSize: '12px',
+    width: '100%'
+  },
   coursesCard: {
     background: 'white',
     borderRadius: '12px',
-    padding: '25px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
+    padding: '20px',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+    marginBottom: '20px'
   },
   cardHeader: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '25px'
+    flexDirection: 'column' as const,
+    gap: '10px',
+    marginBottom: '20px'
   },
   cardTitle: {
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: '600' as const,
     color: '#1f2937',
     margin: 0
@@ -994,63 +977,71 @@ const styles = {
   yearBadge: {
     background: '#3b82f6',
     color: 'white',
-    padding: '5px 15px',
+    padding: '3px 10px',
     borderRadius: '20px',
-    fontSize: '14px',
-    fontWeight: 'bold' as const
+    fontSize: '12px',
+    fontWeight: 'bold' as const,
+    alignSelf: 'flex-start'
   },
   loadingCourses: {
-    padding: '50px',
+    padding: '40px',
     textAlign: 'center' as const,
     background: '#f9fafb',
     borderRadius: '8px',
     marginBottom: '20px'
   },
   loadingIcon: {
-    fontSize: '3rem',
-    marginBottom: '20px'
+    fontSize: '2rem',
+    marginBottom: '15px'
   },
   noCourses: {
-    padding: '50px',
+    padding: '40px',
     textAlign: 'center' as const,
     background: '#f9fafb',
     borderRadius: '8px',
     marginBottom: '20px'
   },
   noCoursesIcon: {
-    fontSize: '3rem',
+    fontSize: '2rem',
     color: '#9ca3af',
-    marginBottom: '20px'
+    marginBottom: '15px'
   },
   noCoursesTitle: {
-    fontSize: '22px',
+    fontSize: '18px',
     color: '#1f2937',
-    marginBottom: '15px'
+    marginBottom: '10px'
   },
   noCoursesText: {
     color: '#6b7280',
-    marginBottom: '10px'
+    marginBottom: '10px',
+    fontSize: '14px'
+  },
+  noCoursesSubtext: {
+    color: '#9ca3af',
+    fontSize: '12px',
+    fontStyle: 'italic' as const,
+    marginBottom: '15px'
   },
   browseAllButton: {
-    padding: '10px 20px',
+    padding: '8px 16px',
     background: '#3b82f6',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '600' as const,
-    marginTop: '15px'
+    fontSize: '13px'
   },
   coursesGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: '20px',
-    marginBottom: '25px'
+    gridTemplateColumns: '1fr',
+    gap: '15px',
+    marginBottom: '20px'
   },
   courseItem: {
     border: '2px solid #e5e7eb',
     borderRadius: '10px',
-    padding: '20px',
+    padding: '15px',
     transition: 'all 0.3s',
     '&:hover': {
       borderColor: '#3b82f6'
@@ -1060,10 +1051,10 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    marginBottom: '15px'
+    marginBottom: '10px'
   },
   courseIcon: {
-    fontSize: '24px',
+    fontSize: '22px',
     position: 'relative' as const,
     display: 'flex',
     alignItems: 'center'
@@ -1072,128 +1063,137 @@ const styles = {
     position: 'absolute' as const,
     top: '-8px',
     right: '-8px',
-    fontSize: '12px',
+    fontSize: '10px',
     color: 'white',
-    width: '20px',
-    height: '20px',
+    width: '18px',
+    height: '18px',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
   },
   courseName: {
-    fontSize: '18px',
+    fontSize: '16px',
     fontWeight: '600' as const,
     color: '#1f2937',
     margin: 0,
     flex: 1
   },
   courseDescription: {
-    fontSize: '14px',
+    fontSize: '13px',
     color: '#6b7280',
-    margin: '0 0 15px 0',
+    margin: '0 0 12px 0',
     lineHeight: '1.5'
   },
   courseDetails: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '8px',
-    fontSize: '13px',
+    gap: '6px',
+    fontSize: '12px',
     color: '#9ca3af',
-    marginBottom: '15px'
+    marginBottom: '12px'
   },
   courseStatus: {
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
+    flexDirection: 'column' as const,
+    gap: '10px'
   },
   openedBadge: {
     background: '#d1fae5',
     color: '#065f46',
     padding: '6px 12px',
     borderRadius: '20px',
-    fontSize: '13px',
-    fontWeight: '600' as const
+    fontSize: '12px',
+    fontWeight: '600' as const,
+    textAlign: 'center' as const
   },
   lockedBadge: {
     background: '#fee2e2',
     color: '#991b1b',
     padding: '6px 12px',
     borderRadius: '20px',
-    fontSize: '13px',
-    fontWeight: '600' as const
+    fontSize: '12px',
+    fontWeight: '600' as const,
+    textAlign: 'center' as const
   },
   requestButtons: {
     display: 'flex',
+    flexDirection: 'column' as const,
     gap: '8px'
   },
   whatsappRequestButton: {
-    padding: '8px 16px',
+    padding: '8px 12px',
     background: '#25D366',
     color: 'white',
     borderRadius: '6px',
     textDecoration: 'none',
     fontWeight: '600' as const,
-    fontSize: '14px',
+    fontSize: '13px',
     display: 'inline-block',
+    textAlign: 'center' as const,
     '&:hover': {
       background: '#1da851'
     }
   },
   telegramRequestButton: {
-    padding: '8px 16px',
+    padding: '8px 12px',
     background: '#0088cc',
     color: 'white',
     borderRadius: '6px',
     textDecoration: 'none',
     fontWeight: '600' as const,
-    fontSize: '14px',
+    fontSize: '13px',
     display: 'inline-block',
+    textAlign: 'center' as const,
     '&:hover': {
       background: '#0077b3'
     }
   },
   courseLink: {
-    padding: '8px 16px',
+    padding: '8px 12px',
     background: '#10b981',
     color: 'white',
     borderRadius: '6px',
     textDecoration: 'none',
     fontWeight: '600' as const,
-    fontSize: '14px',
+    fontSize: '13px',
+    display: 'block',
+    textAlign: 'center' as const,
     '&:hover': {
       background: '#059669'
     }
   },
   coursesInfo: {
     background: '#f0f9ff',
-    padding: '15px',
+    padding: '12px',
     borderRadius: '8px',
-    marginBottom: '20px',
-    fontSize: '14px',
+    marginBottom: '15px',
+    fontSize: '13px',
     color: '#0369a1'
   },
   paymentNote: {
     background: '#f0f9ff',
     borderRadius: '8px',
-    padding: '20px',
-    marginTop: '20px',
+    padding: '15px',
+    marginTop: '15px',
     position: 'relative' as const
   },
   backToAllButton: {
-    padding: '10px 20px',
+    padding: '8px 16px',
     background: '#3b82f6',
     color: 'white',
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '600' as const,
-    marginTop: '15px'
+    fontSize: '13px',
+    marginTop: '10px',
+    width: '100%'
   },
   footer: {
     background: '#1f2937',
-    marginTop: '50px',
-    padding: '40px 20px'
+    marginTop: '30px',
+    padding: '30px 15px'
   },
   footerContent: {
     maxWidth: '1400px',
@@ -1203,27 +1203,27 @@ const styles = {
   footerText: {
     color: '#d1d5db',
     marginBottom: '15px',
-    fontSize: '16px'
+    fontSize: '14px'
   },
   footerLinks: {
     display: 'flex',
     justifyContent: 'center',
-    gap: '30px',
-    marginBottom: '25px',
+    gap: '15px',
+    marginBottom: '20px',
     flexWrap: 'wrap' as const
   },
   footerLink: {
     color: '#9ca3af',
     textDecoration: 'none',
-    fontSize: '14px'
+    fontSize: '13px'
   },
   footerSupport: {
     marginTop: '20px'
   },
   supportInfo: {
     color: '#9ca3af',
-    fontSize: '14px',
-    marginTop: '10px'
+    fontSize: '12px',
+    marginTop: '8px'
   },
   footerSupportLink: {
     color: '#60a5fa',
@@ -1231,6 +1231,22 @@ const styles = {
     margin: '0 5px',
     '&:hover': {
       textDecoration: 'underline'
+    }
+  },
+  refreshButton: {
+    padding: '12px',
+    background: '#3b82f6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '13px',
+    fontWeight: '600' as const,
+    cursor: 'pointer',
+    width: '100%',
+    marginTop: '10px',
+    '&:disabled': {
+      background: '#9ca3af',
+      cursor: 'not-allowed'
     }
   }
 }
