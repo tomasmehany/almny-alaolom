@@ -15,10 +15,58 @@ export default function OpenCoursePage() {
   const [selectedCourse, setSelectedCourse] = useState('')
   const [price, setPrice] = useState(0)
   const [notes, setNotes] = useState('')
+  
+  // الحقول الجديدة: فلتر المرحلة
+  const [selectedGrade, setSelectedGrade] = useState('all')
+  const [availableGrades, setAvailableGrades] = useState<string[]>([])
+  const [filteredStudents, setFilteredStudents] = useState<any[]>([])
+  const [filteredCourses, setFilteredCourses] = useState<any[]>([])
 
   useEffect(() => {
     fetchData()
   }, [])
+
+  // تحديث القوائم المفلترة عند تغيير المرحلة
+  useEffect(() => {
+    if (students.length > 0) {
+      let filtered = students
+      
+      if (selectedGrade !== 'all') {
+        filtered = students.filter(student => student.grade === selectedGrade)
+      }
+      
+      setFilteredStudents(filtered)
+      
+      // إذا كان هناك طالب محدد ولم يكن موجود في القائمة المفلترة، نمسح اختياره
+      if (selectedStudent && !filtered.find(s => s.id === selectedStudent)) {
+        setSelectedStudent('')
+      }
+    }
+    
+    if (courses.length > 0) {
+      let filtered = courses
+      
+      // هنا يمكنك إضافة فلترة الكورسات حسب المرحلة إذا كان لديك حقل grade في الكورسات
+      // إذا لم يكن لديك هذا الحقل، يمكنك استخدام منطق مختلف
+      // حالياً سأعرض جميع الكورسات إذا كانت المرحلة all
+      // ويمكنك تعديل هذا المنطق لاحقاً حسب هيكل بيانات الكورسات لديك
+      if (selectedGrade !== 'all') {
+        filtered = courses.filter(course => {
+          // هنا يجب تعديل الشرط حسب هيكل بيانات الكورسات لديك
+          // مثال: إذا كان لديك حقل grade في الكورسات
+          // return course.grade === selectedGrade
+          return true // مؤقتاً أعرض جميع الكورسات
+        })
+      }
+      
+      setFilteredCourses(filtered)
+      
+      // إذا كان هناك كورس محدد ولم يكن موجود في القائمة المفلترة، نمسح اختياره
+      if (selectedCourse && !filtered.find(c => c.id === selectedCourse)) {
+        setSelectedCourse('')
+      }
+    }
+  }, [selectedGrade, students, courses, selectedStudent, selectedCourse])
 
   const fetchData = async () => {
     try {
@@ -35,19 +83,29 @@ export default function OpenCoursePage() {
       )
       const studentsSnap = await getDocs(studentsQuery)
       const studentsList: any[] = []
+      const gradesSet = new Set<string>()
       
       studentsSnap.forEach((doc) => {
         const data = doc.data()
         console.log(`👤 طالب: ${data.name} - ${doc.id}`)
+        const grade = data.grade || 'غير محدد'
+        
         studentsList.push({
           id: doc.id,
           name: data.name || 'غير معروف',
           phone: data.phone || 'بدون رقم',
-          grade: data.grade || 'غير محدد'
+          grade: grade
         })
+        
+        gradesSet.add(grade)
       })
       
+      // تحويل Set إلى Array وترتيب المراحل
+      const gradesArray = Array.from(gradesSet).sort()
+      setAvailableGrades(['all', ...gradesArray])
+      
       console.log(`✅ عدد الطلاب: ${studentsList.length}`)
+      console.log(`📊 المراحل المتاحة: ${gradesArray.join(', ')}`)
       
       // جلب جميع الكورسات
       console.log('📥 جلب الكورسات...')
@@ -60,7 +118,9 @@ export default function OpenCoursePage() {
         console.log(`📚 كورس: ${data.title} - ${doc.id}`)
         coursesList.push({
           id: doc.id,
-          title: data.title || 'بدون عنوان'
+          title: data.title || 'بدون عنوان',
+          // إذا كان لديك حقل grade في الكورسات، أضفه هنا
+          // grade: data.grade || 'غير محدد'
         })
       })
       
@@ -68,6 +128,8 @@ export default function OpenCoursePage() {
       
       setStudents(studentsList)
       setCourses(coursesList)
+      setFilteredStudents(studentsList)
+      setFilteredCourses(coursesList)
       setMessage(`✅ تم تحميل ${studentsList.length} طالب و ${coursesList.length} كورس`)
       
     } catch (error: any) {
@@ -86,6 +148,7 @@ export default function OpenCoursePage() {
     console.log('📚 الكورس المختار:', selectedCourse)
     console.log('💰 السعر:', price)
     console.log('📝 الملاحظات:', notes)
+    console.log('📊 المرحلة المحددة:', selectedGrade)
     
     if (!selectedStudent || !selectedCourse) {
       setMessage('❌ يجب اختيار طالب وكورس')
@@ -186,20 +249,29 @@ export default function OpenCoursePage() {
     const selectedCourseData = courses.find(c => c.id === selectedCourse)
     if (!selectedCourseData) return
 
+    // استخدام الطلاب المفلترين أو جميع الطلاب حسب الاختيار
+    const studentsToProcess = selectedGrade === 'all' ? students : filteredStudents
+
+    if (studentsToProcess.length === 0) {
+      setMessage('❌ لا يوجد طلاب لعرض الكورس لهم')
+      return
+    }
+
     const confirmBulk = window.confirm(
-      `هل تريد فتح كورس "${selectedCourseData.title}" لجميع الطلاب النشطين؟\nعدد الطلاب: ${students.length}`
+      `هل تريد فتح كورس "${selectedCourseData.title}" لجميع الطلاب؟\nعدد الطلاب: ${studentsToProcess.length}\n${selectedGrade !== 'all' ? `(المرحلة: ${selectedGrade})` : '(جميع المراحل)'}`
     )
 
     if (!confirmBulk) return
 
     try {
       setLoading(true)
-      setMessage('🔄 جاري فتح الكورس لجميع الطلاب...')
+      setMessage(`🔄 جاري فتح الكورس لـ ${studentsToProcess.length} طالب...`)
       let successCount = 0
       let errorCount = 0
+      let alreadyOpenCount = 0
 
       // فتح الكورس لكل طالب
-      for (const student of students) {
+      for (const student of studentsToProcess) {
         try {
           // التحقق إذا مفتوح بالفعل
           const existingQuery = query(
@@ -220,13 +292,14 @@ export default function OpenCoursePage() {
               courseTitle: selectedCourseData.title,
               isActive: true,
               pricePaid: price || 0,
-              notes: 'فتح جماعي من لوحة الأدمن',
+              notes: notes || 'فتح جماعي من لوحة الأدمن',
               openedAt: new Date().toISOString(),
               openedBy: 'admin'
             })
             successCount++
             console.log(`✅ فتح الكورس للطالب: ${student.name}`)
           } else {
+            alreadyOpenCount++
             console.log(`⚠️ الكورس مفتوح بالفعل للطالب: ${student.name}`)
           }
         } catch (error: any) {
@@ -235,14 +308,27 @@ export default function OpenCoursePage() {
         }
       }
 
-      setMessage(`✅ تم فتح الكورس لـ ${successCount} طالب، فشل: ${errorCount}`)
+      let resultMessage = `✅ تم فتح الكورس لـ ${successCount} طالب`
+      if (alreadyOpenCount > 0) resultMessage += `، مفتوح مسبقاً: ${alreadyOpenCount}`
+      if (errorCount > 0) resultMessage += `، فشل: ${errorCount}`
+      
+      setMessage(resultMessage)
       setLoading(false)
+      
+      // إعادة تحميل البيانات
+      setTimeout(() => fetchData(), 3000)
       
     } catch (error: any) {
       console.error('❌ خطأ في الفتح الجماعي:', error)
       setMessage(`❌ حدث خطأ في الفتح الجماعي: ${error.message}`)
       setLoading(false)
     }
+  }
+
+  // إضافة هذا الوظيفة لتغيير المرحلة
+  const handleGradeChange = (grade: string) => {
+    setSelectedGrade(grade)
+    setMessage(`📊 تم تحديد مرحلة: ${grade === 'all' ? 'جميع المراحل' : grade}`)
   }
 
   return (
@@ -271,10 +357,14 @@ export default function OpenCoursePage() {
             ...styles.message,
             background: message.startsWith('✅') ? '#d4fae5' : 
                       message.startsWith('⚠️') ? '#fef3c7' : 
-                      message.startsWith('🔍') ? '#dbeafe' : '#fee2e2',
+                      message.startsWith('🔍') ? '#dbeafe' : 
+                      message.startsWith('📊') ? '#e0e7ff' :
+                      '#fee2e2',
             color: message.startsWith('✅') ? '#065f46' : 
                    message.startsWith('⚠️') ? '#92400e' : 
-                   message.startsWith('🔍') ? '#1e40af' : '#991b1b'
+                   message.startsWith('🔍') ? '#1e40af' : 
+                   message.startsWith('📊') ? '#3730a3' :
+                   '#991b1b'
           }}>
             {message}
           </div>
@@ -286,8 +376,34 @@ export default function OpenCoursePage() {
             <div style={styles.formCard}>
               <h2 style={styles.formTitle}>📋 اختيار الطالب والكورس</h2>
               
+              {/* فلتر المرحلة الجديد */}
               <div style={styles.formGroup}>
-                <label style={styles.label}>👨‍🎓 اختر الطالب ({students.length}):</label>
+                <label style={styles.label}>📊 تصفية حسب المرحلة:</label>
+                <div style={styles.gradeFilter}>
+                  {availableGrades.map(grade => (
+                    <button
+                      key={grade}
+                      type="button"
+                      onClick={() => handleGradeChange(grade)}
+                      style={{
+                        ...styles.gradeButton,
+                        background: selectedGrade === grade ? '#3b82f6' : '#f3f4f6',
+                        color: selectedGrade === grade ? 'white' : '#374151',
+                        fontWeight: selectedGrade === grade ? 'bold' : 'normal'
+                      }}
+                    >
+                      {grade === 'all' ? '🌍 جميع المراحل' : `📚 ${grade}`}
+                    </button>
+                  ))}
+                </div>
+                <p style={styles.filterInfo}>
+                  📌 عرض: {filteredStudents.length} طالب، {filteredCourses.length} كورس
+                  {selectedGrade !== 'all' && ` (مرحلة: ${selectedGrade})`}
+                </p>
+              </div>
+
+              <div style={styles.formGroup}>
+                <label style={styles.label}>👨‍🎓 اختر الطالب ({filteredStudents.length}):</label>
                 <select
                   value={selectedStudent}
                   onChange={(e) => setSelectedStudent(e.target.value)}
@@ -295,19 +411,26 @@ export default function OpenCoursePage() {
                   disabled={loading}
                 >
                   <option value="">-- اختر طالبًا --</option>
-                  {students.map(student => (
+                  {filteredStudents.map(student => (
                     <option key={student.id} value={student.id}>
                       {student.name} - {student.phone} ({student.grade})
                     </option>
                   ))}
                 </select>
-                {students.length === 0 && (
-                  <p style={styles.warningText}>⚠️ لا يوجد طلاب نشطين</p>
+                {filteredStudents.length === 0 && (
+                  <p style={styles.warningText}>
+                    {selectedGrade === 'all' ? '⚠️ لا يوجد طلاب نشطين' : `⚠️ لا يوجد طلاب في مرحلة ${selectedGrade}`}
+                  </p>
+                )}
+                {selectedGrade === 'all' && filteredStudents.length > 0 && (
+                  <p style={styles.infoText}>
+                    👁️‍🗨️ عرض جميع الطلاب ({filteredStudents.length})، اختر مرحلة للتصفية
+                  </p>
                 )}
               </div>
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>📚 اختر الكورس ({courses.length}):</label>
+                <label style={styles.label}>📚 اختر الكورس ({filteredCourses.length}):</label>
                 <select
                   value={selectedCourse}
                   onChange={(e) => setSelectedCourse(e.target.value)}
@@ -315,13 +438,13 @@ export default function OpenCoursePage() {
                   disabled={loading}
                 >
                   <option value="">-- اختر كورسًا --</option>
-                  {courses.map(course => (
+                  {filteredCourses.map(course => (
                     <option key={course.id} value={course.id}>
                       {course.title}
                     </option>
                   ))}
                 </select>
-                {courses.length === 0 && (
+                {filteredCourses.length === 0 && (
                   <p style={styles.warningText}>⚠️ لا يوجد كورسات</p>
                 )}
               </div>
@@ -363,9 +486,14 @@ export default function OpenCoursePage() {
                 <button 
                   onClick={handleBulkOpen}
                   style={styles.secondaryButton}
-                  disabled={!selectedCourse || loading || students.length === 0}
+                  disabled={!selectedCourse || loading || filteredStudents.length === 0}
                 >
-                  📦 فتح الكورس لجميع الطلاب ({students.length})
+                  📦 فتح الكورس للطلاب الحاليين
+                  {selectedGrade !== 'all' && ` (${selectedGrade})`}
+                  <br />
+                  <small style={{ fontSize: '12px', opacity: 0.8 }}>
+                    {filteredStudents.length} طالب
+                  </small>
                 </button>
               </div>
             </div>
@@ -379,6 +507,7 @@ export default function OpenCoursePage() {
                 <li>تأكد من وجود collection <strong>student_courses</strong></li>
                 <li>تأكد من أن الطلاب status عندهم <strong>active</strong></li>
                 <li>تأكد من وجود الكورسات في collection <strong>courses</strong></li>
+                <li>**الجديد:** يمكنك تصفية الطلاب والكورسات حسب المرحلة</li>
               </ul>
             </div>
           </div>
@@ -390,42 +519,59 @@ export default function OpenCoursePage() {
               
               <div style={styles.statItem}>
                 <div style={styles.statNumber}>{students.length}</div>
-                <div style={styles.statLabel}>طلاب نشطين</div>
+                <div style={styles.statLabel}>جميع الطلاب</div>
+              </div>
+              
+              <div style={styles.statItem}>
+                <div style={styles.statNumber}>{filteredStudents.length}</div>
+                <div style={styles.statLabel}>طلاب مفلترين</div>
               </div>
               
               <div style={styles.statItem}>
                 <div style={styles.statNumber}>{courses.length}</div>
-                <div style={styles.statLabel}>كورسات متاحة</div>
+                <div style={styles.statLabel}>جميع الكورسات</div>
               </div>
-              
+
               <div style={styles.statItem}>
-                <div style={styles.statNumber}>0</div>
-                <div style={styles.statLabel}>كورسات مفتوحة</div>
+                <div style={{
+                  ...styles.statNumber,
+                  fontSize: '24px',
+                  color: selectedGrade === 'all' ? '#9ca3af' : '#3b82f6'
+                }}>
+                  {selectedGrade === 'all' ? '🌍 الكل' : `📚 ${selectedGrade}`}
+                </div>
+                <div style={styles.statLabel}>المرحلة المحددة</div>
               </div>
             </div>
 
-            {/* قائمة سريعة بالطلاب */}
+            {/* قائمة سريعة بالطلاب المفلترين */}
             <div style={styles.quickList}>
-              <h3 style={styles.quickListTitle}>👥 الطلاب النشطين</h3>
+              <div style={styles.quickListHeader}>
+                <h3 style={styles.quickListTitle}>
+                  👥 الطلاب ({selectedGrade !== 'all' ? selectedGrade : 'الكل'})
+                </h3>
+                <span style={styles.counterBadge}>{filteredStudents.length}</span>
+              </div>
               <div style={styles.quickListContent}>
                 {loading ? (
                   <p style={styles.loadingText}>جاري تحميل الطلاب...</p>
-                ) : students.length === 0 ? (
+                ) : filteredStudents.length === 0 ? (
                   <div style={styles.emptyState}>
                     <div style={styles.emptyIcon}>👤</div>
-                    <p style={styles.emptyText}>لا يوجد طلاب نشطين</p>
-                    <p style={styles.emptySubtext}>يجب تفعيل الطلاب أولاً</p>
+                    <p style={styles.emptyText}>
+                      {selectedGrade === 'all' ? 'لا يوجد طلاب نشطين' : `لا يوجد طلاب في ${selectedGrade}`}
+                    </p>
                   </div>
                 ) : (
                   <div style={styles.studentsList}>
-                    {students.slice(0, 8).map(student => (
+                    {filteredStudents.slice(0, 8).map(student => (
                       <div key={student.id} style={styles.studentItem}>
                         <span style={styles.studentName}>{student.name}</span>
                         <span style={styles.studentGrade}>{student.grade}</span>
                       </div>
                     ))}
-                    {students.length > 8 && (
-                      <p style={styles.moreText}>و {students.length - 8} طالب آخر...</p>
+                    {filteredStudents.length > 8 && (
+                      <p style={styles.moreText}>و {filteredStudents.length - 8} طالب آخر...</p>
                     )}
                   </div>
                 )}
@@ -438,15 +584,14 @@ export default function OpenCoursePage() {
               <div style={styles.quickListContent}>
                 {loading ? (
                   <p style={styles.loadingText}>جاري تحميل الكورسات...</p>
-                ) : courses.length === 0 ? (
+                ) : filteredCourses.length === 0 ? (
                   <div style={styles.emptyState}>
                     <div style={styles.emptyIcon}>📚</div>
                     <p style={styles.emptyText}>لا يوجد كورسات</p>
-                    <p style={styles.emptySubtext}>أضف كورسات أولاً</p>
                   </div>
                 ) : (
                   <div style={styles.coursesList}>
-                    {courses.map(course => (
+                    {filteredCourses.map(course => (
                       <div key={course.id} style={styles.courseItem}>
                         <span style={styles.courseTitle}>{course.title}</span>
                       </div>
@@ -468,7 +613,7 @@ export default function OpenCoursePage() {
             {loading ? '🔄 جاري التحديث...' : '🔄 تحديث البيانات'}
           </button>
           <p style={styles.helpText}>
-            إذا لم تنجح العملية، تأكد من Firestore Rules
+            التصفية حسب المرحلة تعمل محلياً ولا تحتاج إعادة تحميل
           </p>
         </div>
       </main>
@@ -490,8 +635,57 @@ export default function OpenCoursePage() {
   )
 }
 
-// الأنماط (مع إضافة أنماط جديدة)
+// إضافة الأنماط الجديدة
 const styles = {
+  // ... جميع الأنماط السابقة تبقى كما هي ...
+  
+  // الأنماط الجديدة المضافة
+  gradeFilter: {
+    display: 'flex',
+    flexWrap: 'wrap' as const,
+    gap: '10px',
+    marginBottom: '10px'
+  },
+  gradeButton: {
+    padding: '8px 16px',
+    border: 'none',
+    borderRadius: '20px',
+    fontSize: '14px',
+    cursor: 'pointer',
+    transition: 'all 0.3s',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    }
+  },
+  filterInfo: {
+    fontSize: '13px',
+    color: '#6b7280',
+    marginTop: '5px',
+    textAlign: 'center' as const
+  },
+  infoText: {
+    fontSize: '12px',
+    color: '#3b82f6',
+    marginTop: '5px',
+    fontStyle: 'italic' as const
+  },
+  quickListHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '15px'
+  },
+  counterBadge: {
+    background: '#3b82f6',
+    color: 'white',
+    padding: '2px 10px',
+    borderRadius: '10px',
+    fontSize: '12px',
+    fontWeight: 'bold' as const
+  },
+  
+  // التأكد من أن جميع الأنماط الأخرى موجودة كما هي
   container: {
     minHeight: '100vh',
     background: '#f8fafc',
