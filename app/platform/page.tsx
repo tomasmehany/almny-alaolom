@@ -11,10 +11,8 @@ export default function PlatformPage() {
   const [courses, setCourses] = useState<any[]>([])
   const [coursesLoading, setCoursesLoading] = useState(false)
   
-  // 🆕 حالة للفولدرات (لتانية ثانوي فقط)
   const [activeCategory, setActiveCategory] = useState<string>('all')
 
-  // ⭐ روابط التواصل
   const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
   const telegramBotLink = 'https://t.me/AskMrBishoy_bot'
 
@@ -24,7 +22,6 @@ export default function PlatformPage() {
       try {
         const parsedUser = JSON.parse(userData)
         
-        // جلب الـ user ID
         let userId = ''
         if (parsedUser.id) userId = parsedUser.id
         else if (parsedUser.userId) userId = parsedUser.userId
@@ -50,22 +47,19 @@ export default function PlatformPage() {
           fetchCourses(parsedUser.year, userId)
         }
       } catch (error) {
-        console.error('❌ خطأ في تحويل بيانات المستخدم:', error)
+        console.error('خطأ في تحويل بيانات المستخدم:', error)
       }
     }
     
     setLoading(false)
   }, [])
 
-  // دالة جلب الكورسات
   const fetchCourses = async (userYear: string, studentId: string) => {
     try {
       setCoursesLoading(true)
-      console.log('🔍 جلب الكورسات للطالب:', studentId, 'السنة:', userYear)
       
       const yearCode = convertYearToCode(userYear)
       
-      // 1. جلب كل الكورسات النشطة للمرحلة
       const coursesQuery = query(
         collection(db, "courses"),
         where("grade", "==", yearCode),
@@ -82,7 +76,6 @@ export default function PlatformPage() {
         })
       })
       
-      // 2. جلب الكورسات المفتوحة لهذا الطالب
       const studentCoursesQuery = query(
         collection(db, "student_courses"),
         where("studentId", "==", studentId),
@@ -97,7 +90,6 @@ export default function PlatformPage() {
         openedCourseIds.push(data.courseId)
       })
       
-      // 3. دمج البيانات
       const coursesWithStatus = allCourses.map(course => ({
         ...course,
         isOpened: openedCourseIds.includes(course.id)
@@ -106,14 +98,13 @@ export default function PlatformPage() {
       setCourses(coursesWithStatus)
       
     } catch (error) {
-      console.error('❌ خطأ في جلب الكورسات:', error)
+      console.error('خطأ في جلب الكورسات:', error)
       setCourses([])
     } finally {
       setCoursesLoading(false)
     }
   }
 
-  // تحويل اسم السنة إلى كود
   const convertYearToCode = (yearName: string): string => {
     const yearMap: { [key: string]: string } = {
       'أولى إعدادي': '1-prep',
@@ -166,7 +157,6 @@ export default function PlatformPage() {
     return yearMap[yearCode] || yearCode || 'غير محدد'
   }
 
-  // 🆕 دالة لتصنيف الكورسات حسب الفولدر (لتانية ثانوي فقط)
   const categorizeCourses = () => {
     if (userYear !== 'ثانية ثانوي') {
       return null
@@ -189,7 +179,6 @@ export default function PlatformPage() {
     return categories
   }
   
-  // 🆕 الحصول على الكورسات المعروضة بناءً على الفولدر النشط
   const getDisplayedCourses = () => {
     if (userYear !== 'ثانية ثانوي' || activeCategory === 'all') {
       return courses
@@ -199,7 +188,6 @@ export default function PlatformPage() {
     return categories ? categories[activeCategory] : courses
   }
   
-  // 🆕 الحصول على إحصائيات الفولدرات
   const getCategoryStats = () => {
     if (userYear !== 'ثانية ثانوي') return null
     
@@ -244,7 +232,6 @@ export default function PlatformPage() {
 
   return (
     <div style={styles.container}>
-      {/* الهيدر */}
       <header style={styles.header}>
         <div style={styles.headerContent}>
           <div>
@@ -273,11 +260,8 @@ export default function PlatformPage() {
         </div>
       </header>
 
-      {/* المحتوى الرئيسي */}
       <main style={styles.main}>
-        {/* القسم الأيسر - على الموبايل يصبح أفقي */}
         <div style={styles.mobileSidebarContainer}>
-          {/* السنة الدراسية */}
           <div style={styles.yearCard}>
             <div style={styles.yearIcon}>📚</div>
             <div>
@@ -287,11 +271,10 @@ export default function PlatformPage() {
             </div>
           </div>
 
-          {/* 🆕 عرض الفولدرات لتانية ثانوي */}
           {userYear === 'ثانية ثانوي' && categoryStats && (
             <div style={styles.foldersCard}>
               <h3 style={styles.foldersTitle}>📂 فولدرات المواد</h3>
-              <p style={styles.foldersSubtitle}>كيمياء وفيزياء  </p>
+              <p style={styles.foldersSubtitle}>كيمياء وفيزياء</p>
               
               <div style={styles.folderTabs}>
                 <button
@@ -339,7 +322,6 @@ export default function PlatformPage() {
             </div>
           )}
 
-          {/* الإحصائيات */}
           <div style={styles.statsCard}>
             <h3 style={styles.statsTitle}>📊 إحصائياتي</h3>
             <div style={styles.statsGrid}>
@@ -362,7 +344,6 @@ export default function PlatformPage() {
             </div>
           </div>
 
-          {/* مربع التواصل */}
           <div style={styles.telegramCard}>
             <div style={styles.telegramIcon}>💬</div>
             <div>
@@ -390,29 +371,26 @@ export default function PlatformPage() {
           </div>
         </div>
 
-        {/* القسم الأيمن */}
         <div style={styles.content}>
-          {/* رسالة ترحيبية */}
           <div style={styles.welcomeCard}>
             <h2 style={styles.welcomeTitle}>🚀 أهلاً بك في منصتك التعليمية</h2>
             <p style={styles.welcomeText}>
               {userYear === 'ثانية ثانوي' ? (
                 <>
                   هذه الكورسات الخاصة بثانية ثانوي، مقسمة حسب المادة (كيمياء/فيزياء)<br/>
-                  الكورسات المفتوحة <span style={{color: '#10b981', fontWeight: 'bold'}}>✅</span> يمكنك الدخول إليها مباشرة.
-                  الكورسات المقفولة <span style={{color: '#ef4444', fontWeight: 'bold'}}>🔒</span> تحتاج للتواصل مع الدعم.
+                  الكورسات المفتوحة ✅ يمكنك الدخول إليها مباشرة.
+                  الكورسات المقفولة 🔒 تحتاج للتواصل مع الدعم.
                 </>
               ) : (
                 <>
                   هذه الكورسات المتاحة لسنتك الدراسية ({userYear})، 
-                  الكورسات المفتوحة <span style={{color: '#10b981', fontWeight: 'bold'}}>✅</span> يمكنك الدخول إليها مباشرة.<br/>
-                  الكورسات المقفولة <span style={{color: '#ef4444', fontWeight: 'bold'}}>🔒</span> تحتاج للتواصل مع الدعم لتفعيلها.
+                  الكورسات المفتوحة ✅ يمكنك الدخول إليها مباشرة.<br/>
+                  الكورسات المقفولة 🔒 تحتاج للتواصل مع الدعم لتفعيلها.
                 </>
               )}
             </p>
           </div>
 
-          {/* 🆕 شريط الفولدر النشط لتانية ثانوي */}
           {userYear === 'ثانية ثانوي' && activeCategory !== 'all' && (
             <div style={{
               ...styles.activeFolderBar,
@@ -440,7 +418,6 @@ export default function PlatformPage() {
             </div>
           )}
 
-          {/* الكورسات الخاصة بالسنة */}
           <div style={styles.coursesCard}>
             <div style={styles.cardHeader}>
               <h2 style={styles.cardTitle}>
@@ -453,7 +430,6 @@ export default function PlatformPage() {
               <div style={styles.yearBadge}>{userYear}</div>
             </div>
 
-            {/* عرض حالة التحميل */}
             {coursesLoading ? (
               <div style={styles.loadingCourses}>
                 <div style={styles.loadingIcon}>🔄</div>
@@ -488,7 +464,6 @@ export default function PlatformPage() {
               </div>
             ) : (
               <>
-                {/* قائمة الكورسات مع روابط */}
                 <div style={styles.coursesGrid}>
                   {displayedCourses.map(course => (
                     <div key={course.id} style={{
@@ -553,7 +528,6 @@ export default function PlatformPage() {
                   ))}
                 </div>
 
-                {/* معلومات */}
                 <div style={styles.coursesInfo}>
                   <p>📌 <strong>عدد الكورسات:</strong> {displayedCourses.length} كورس</p>
                   <p>✅ <strong>الكورسات المفتوحة:</strong> {displayedCourses.filter(c => c.isOpened).length} كورس</p>
@@ -565,7 +539,6 @@ export default function PlatformPage() {
               </>
             )}
 
-            {/* ملاحظة الدفع */}
             <div style={styles.paymentNote}>
               <p>📞 <strong>لطلب التفعيل:</strong> تواصل مع الدعم عبر واتساب أو تليجرام</p>
               <p>💳 <strong>طرق الدفع:</strong> اي طريقة دفع الكتروني، أو أي طريقة أخرى</p>
@@ -582,7 +555,6 @@ export default function PlatformPage() {
         </div>
       </main>
 
-      {/* ⭐⭐ الفوتر - تم التعديل ⭐⭐ */}
       <footer style={styles.footer}>
         <div style={styles.footerContent}>
           <p style={styles.footerText}>
@@ -595,7 +567,6 @@ export default function PlatformPage() {
           </div>
           <div style={styles.footerSupport}>
             <p style={styles.supportInfo}>
-              {/* ⭐⭐ تم تغيير الإدارة ⭐⭐ */}
               تطوير: <a href="mailto:tomasmehany@gmail.com" style={styles.footerSupportLink}>tomasmehany@gmail.com</a>
             </p>
             <p style={styles.supportInfo}>
@@ -606,21 +577,107 @@ export default function PlatformPage() {
           </div>
         </div>
       </footer>
+
+      {/* ✅ زر الدعم القديم (واتساب/تليجرام) */}
+      <a 
+        href="/support/chat"
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '100px',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '60px',
+          height: '60px',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          borderRadius: '50%',
+          textDecoration: 'none',
+          boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+          fontSize: '24px',
+          transition: 'all 0.3s'
+        }}
+        title="الدعم الفني"
+        onMouseOver={(e) => {
+          e.currentTarget.style.backgroundColor = '#2563eb';
+          e.currentTarget.style.transform = 'scale(1.1)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.backgroundColor = '#3b82f6';
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
+      >
+        💬
+      </a>
+
+      {/* ✅ زر البوت الجديد */}
+      <Link href="/bot">
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 1000,
+          cursor: 'pointer',
+          background: '#10b981',
+          color: 'white',
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '24px',
+          boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+          transition: 'all 0.3s ease',
+          animation: 'pulse 2s infinite',
+          border: '2px solid white'
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.background = '#059669';
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 6px 25px rgba(16, 185, 129, 0.4)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.background = '#10b981';
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.3)';
+        }}
+        title="Almny Alolom AI - اسألني"
+        >
+          🤖
+        </div>
+      </Link>
+
+      {/* ✅ إضافة animation للزر */}
+      <style jsx>{`
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+          }
+        }
+      `}</style>
     </div>
   )
 }
 
-// الأنماط الكاملة المعدلة
-const styles = {
+const styles: any = {
   container: {
     minHeight: '100vh',
     background: '#f8fafc',
-    direction: 'rtl' as const,
+    direction: 'rtl',
     fontFamily: 'Arial, sans-serif'
   },
   loadingContainer: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '100vh',
@@ -632,7 +689,7 @@ const styles = {
     color: '#667eea',
     borderRadius: '8px',
     textDecoration: 'none',
-    fontWeight: 'bold' as const
+    fontWeight: 'bold'
   },
   header: {
     background: 'white',
@@ -643,7 +700,7 @@ const styles = {
     maxWidth: '1400px',
     margin: '0 auto',
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     padding: '15px 0',
@@ -651,7 +708,7 @@ const styles = {
   },
   logo: {
     fontSize: '22px',
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     color: '#1f2937',
     margin: 0
   },
@@ -664,7 +721,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '15px',
-    flexWrap: 'wrap' as const,
+    flexWrap: 'wrap',
     width: '100%'
   },
   avatar: {
@@ -677,17 +734,17 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '18px',
-    fontWeight: 'bold' as const
+    fontWeight: 'bold'
   },
   userName: {
     fontSize: '14px',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: '#1f2937'
   },
   userGrade: {
     fontSize: '12px',
     color: '#3b82f6',
-    fontWeight: '600' as const
+    fontWeight: '600'
   },
   logoutButton: {
     padding: '8px 16px',
@@ -696,7 +753,7 @@ const styles = {
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     fontSize: '12px'
   },
   main: {
@@ -704,12 +761,12 @@ const styles = {
     margin: '20px auto',
     padding: '0 15px',
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '20px'
   },
   mobileSidebarContainer: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '20px'
   },
   yearCard: {
@@ -734,13 +791,13 @@ const styles = {
   },
   yearTitle: {
     fontSize: '16px',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     margin: '0 0 5px 0',
     opacity: 0.9
   },
   yearValue: {
     fontSize: '18px',
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     margin: '0 0 5px 0'
   },
   yearNote: {
@@ -757,20 +814,20 @@ const styles = {
   },
   foldersTitle: {
     fontSize: '16px',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: '#1f2937',
     margin: '0 0 5px 0',
-    textAlign: 'center' as const
+    textAlign: 'center'
   },
   foldersSubtitle: {
     fontSize: '13px',
     color: '#6b7280',
-    textAlign: 'center' as const,
+    textAlign: 'center',
     marginBottom: '15px'
   },
   folderTabs: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '10px',
     marginBottom: '15px'
   },
@@ -779,10 +836,10 @@ const styles = {
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     fontSize: '13px',
     transition: 'all 0.3s',
-    textAlign: 'right' as const,
+    textAlign: 'right',
     display: 'flex',
     alignItems: 'center',
     gap: '8px'
@@ -794,11 +851,11 @@ const styles = {
     borderTop: '1px solid #e5e7eb'
   },
   folderStat: {
-    textAlign: 'center' as const
+    textAlign: 'center'
   },
   folderStatNumber: {
     fontSize: '18px',
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     color: '#3b82f6'
   },
   folderStatLabel: {
@@ -813,10 +870,10 @@ const styles = {
   },
   statsTitle: {
     fontSize: '16px',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: '#1f2937',
     margin: '0 0 15px 0',
-    textAlign: 'center' as const
+    textAlign: 'center'
   },
   statsGrid: {
     display: 'grid',
@@ -824,14 +881,14 @@ const styles = {
     gap: '10px'
   },
   statItem: {
-    textAlign: 'center' as const,
+    textAlign: 'center',
     padding: '15px',
     background: '#f8fafc',
     borderRadius: '8px'
   },
   statNumber: {
     fontSize: '20px',
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     color: '#3b82f6',
     marginBottom: '5px'
   },
@@ -852,7 +909,7 @@ const styles = {
   },
   telegramTitle: {
     fontSize: '15px',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: '#1e40af',
     margin: '0 0 5px 0'
   },
@@ -874,8 +931,8 @@ const styles = {
     borderRadius: '6px',
     textDecoration: 'none',
     fontSize: '13px',
-    fontWeight: '600' as const,
-    textAlign: 'center' as const
+    fontWeight: '600',
+    textAlign: 'center'
   },
   telegramButton: {
     flex: 1,
@@ -886,12 +943,12 @@ const styles = {
     borderRadius: '6px',
     textDecoration: 'none',
     fontSize: '13px',
-    fontWeight: '600' as const,
-    textAlign: 'center' as const
+    fontWeight: '600',
+    textAlign: 'center'
   },
   content: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '15px'
   },
   welcomeCard: {
@@ -902,7 +959,7 @@ const styles = {
   },
   welcomeTitle: {
     fontSize: '18px',
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     margin: '0 0 10px 0'
   },
   welcomeText: {
@@ -919,7 +976,7 @@ const styles = {
   },
   folderBarContent: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     alignItems: 'flex-start',
     gap: '10px'
   },
@@ -935,7 +992,7 @@ const styles = {
   },
   folderBarTitle: {
     fontSize: '16px',
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     margin: 0,
     flex: 1
   },
@@ -951,7 +1008,7 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.3)',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     fontSize: '12px',
     width: '100%'
   },
@@ -964,13 +1021,13 @@ const styles = {
   },
   cardHeader: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '10px',
     marginBottom: '20px'
   },
   cardTitle: {
     fontSize: '18px',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: '#1f2937',
     margin: 0
   },
@@ -980,12 +1037,12 @@ const styles = {
     padding: '3px 10px',
     borderRadius: '20px',
     fontSize: '12px',
-    fontWeight: 'bold' as const,
+    fontWeight: 'bold',
     alignSelf: 'flex-start'
   },
   loadingCourses: {
     padding: '40px',
-    textAlign: 'center' as const,
+    textAlign: 'center',
     background: '#f9fafb',
     borderRadius: '8px',
     marginBottom: '20px'
@@ -996,7 +1053,7 @@ const styles = {
   },
   noCourses: {
     padding: '40px',
-    textAlign: 'center' as const,
+    textAlign: 'center',
     background: '#f9fafb',
     borderRadius: '8px',
     marginBottom: '20px'
@@ -1019,7 +1076,7 @@ const styles = {
   noCoursesSubtext: {
     color: '#9ca3af',
     fontSize: '12px',
-    fontStyle: 'italic' as const,
+    fontStyle: 'italic',
     marginBottom: '15px'
   },
   browseAllButton: {
@@ -1029,7 +1086,7 @@ const styles = {
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     fontSize: '13px'
   },
   coursesGrid: {
@@ -1041,11 +1098,7 @@ const styles = {
   courseItem: {
     border: '2px solid #e5e7eb',
     borderRadius: '10px',
-    padding: '15px',
-    transition: 'all 0.3s',
-    '&:hover': {
-      borderColor: '#3b82f6'
-    }
+    padding: '15px'
   },
   courseHeader: {
     display: 'flex',
@@ -1055,12 +1108,12 @@ const styles = {
   },
   courseIcon: {
     fontSize: '22px',
-    position: 'relative' as const,
+    position: 'relative',
     display: 'flex',
     alignItems: 'center'
   },
   categoryBadge: {
-    position: 'absolute' as const,
+    position: 'absolute',
     top: '-8px',
     right: '-8px',
     fontSize: '10px',
@@ -1074,7 +1127,7 @@ const styles = {
   },
   courseName: {
     fontSize: '16px',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     color: '#1f2937',
     margin: 0,
     flex: 1
@@ -1087,7 +1140,7 @@ const styles = {
   },
   courseDetails: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '6px',
     fontSize: '12px',
     color: '#9ca3af',
@@ -1095,7 +1148,7 @@ const styles = {
   },
   courseStatus: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '10px'
   },
   openedBadge: {
@@ -1104,8 +1157,8 @@ const styles = {
     padding: '6px 12px',
     borderRadius: '20px',
     fontSize: '12px',
-    fontWeight: '600' as const,
-    textAlign: 'center' as const
+    fontWeight: '600',
+    textAlign: 'center'
   },
   lockedBadge: {
     background: '#fee2e2',
@@ -1113,12 +1166,12 @@ const styles = {
     padding: '6px 12px',
     borderRadius: '20px',
     fontSize: '12px',
-    fontWeight: '600' as const,
-    textAlign: 'center' as const
+    fontWeight: '600',
+    textAlign: 'center'
   },
   requestButtons: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '8px'
   },
   whatsappRequestButton: {
@@ -1127,13 +1180,10 @@ const styles = {
     color: 'white',
     borderRadius: '6px',
     textDecoration: 'none',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     fontSize: '13px',
     display: 'inline-block',
-    textAlign: 'center' as const,
-    '&:hover': {
-      background: '#1da851'
-    }
+    textAlign: 'center'
   },
   telegramRequestButton: {
     padding: '8px 12px',
@@ -1141,13 +1191,10 @@ const styles = {
     color: 'white',
     borderRadius: '6px',
     textDecoration: 'none',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     fontSize: '13px',
     display: 'inline-block',
-    textAlign: 'center' as const,
-    '&:hover': {
-      background: '#0077b3'
-    }
+    textAlign: 'center'
   },
   courseLink: {
     padding: '8px 12px',
@@ -1155,13 +1202,10 @@ const styles = {
     color: 'white',
     borderRadius: '6px',
     textDecoration: 'none',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     fontSize: '13px',
     display: 'block',
-    textAlign: 'center' as const,
-    '&:hover': {
-      background: '#059669'
-    }
+    textAlign: 'center'
   },
   coursesInfo: {
     background: '#f0f9ff',
@@ -1176,7 +1220,7 @@ const styles = {
     borderRadius: '8px',
     padding: '15px',
     marginTop: '15px',
-    position: 'relative' as const
+    position: 'relative'
   },
   backToAllButton: {
     padding: '8px 16px',
@@ -1185,7 +1229,7 @@ const styles = {
     border: 'none',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontWeight: '600' as const,
+    fontWeight: '600',
     fontSize: '13px',
     marginTop: '10px',
     width: '100%'
@@ -1198,7 +1242,7 @@ const styles = {
   footerContent: {
     maxWidth: '1400px',
     margin: '0 auto',
-    textAlign: 'center' as const
+    textAlign: 'center'
   },
   footerText: {
     color: '#d1d5db',
@@ -1210,7 +1254,7 @@ const styles = {
     justifyContent: 'center',
     gap: '15px',
     marginBottom: '20px',
-    flexWrap: 'wrap' as const
+    flexWrap: 'wrap'
   },
   footerLink: {
     color: '#9ca3af',
@@ -1228,25 +1272,6 @@ const styles = {
   footerSupportLink: {
     color: '#60a5fa',
     textDecoration: 'none',
-    margin: '0 5px',
-    '&:hover': {
-      textDecoration: 'underline'
-    }
-  },
-  refreshButton: {
-    padding: '12px',
-    background: '#3b82f6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '13px',
-    fontWeight: '600' as const,
-    cursor: 'pointer',
-    width: '100%',
-    marginTop: '10px',
-    '&:disabled': {
-      background: '#9ca3af',
-      cursor: 'not-allowed'
-    }
+    margin: '0 5px'
   }
 }
