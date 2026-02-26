@@ -200,13 +200,58 @@ export default function AdminPage() {
 }
 
 // ============================================
-// 🆕 StudentsTab مع الطلاب المفعلين والمعلقين
+// StudentsTab المعدل مع آخر دخول
 // ============================================
 function StudentsTab() {
   const [students, setStudents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
-  const [activeStudentView, setActiveStudentView] = useState('pending') // 'pending' أو 'active'
+  const [activeStudentView, setActiveStudentView] = useState('pending')
+
+  // دالة تنسيق آخر دخول بشكل جميل
+  const formatLastLogin = (lastLogin: any) => {
+    if (!lastLogin) {
+      return '❌ لم يسجل دخول بعد';
+    }
+    
+    try {
+      // لو التاريخ من نوع Firebase Timestamp
+      if (lastLogin && typeof lastLogin === 'object' && lastLogin.seconds) {
+        const date = new Date(lastLogin.seconds * 1000);
+        return `✅ ${date.toLocaleDateString('ar-EG', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`;
+      }
+      
+      // لو التاريخ نص
+      if (typeof lastLogin === 'string') {
+        if (lastLogin === 'لم يسجل دخول' || lastLogin === 'لم يسجل دخول بعد') {
+          return '❌ لم يسجل دخول بعد';
+        }
+        
+        const date = new Date(lastLogin);
+        if (isNaN(date.getTime())) {
+          return '❌ تاريخ غير صالح';
+        }
+        
+        return `✅ ${date.toLocaleDateString('ar-EG', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`;
+      }
+      
+      return '❌ ' + String(lastLogin);
+    } catch (e) {
+      return '❌ خطأ في التاريخ';
+    }
+  }
 
   const fetchStudents = async () => {
     try {
@@ -227,7 +272,8 @@ function StudentsTab() {
           grade: data.grade || 'غير محدد',
           status: data.status || 'pending',
           createdAt: data.createdAt || new Date().toISOString(),
-          lastLogin: data.lastLogin || 'لم يسجل دخول'
+          activatedAt: data.activatedAt || null,
+          lastLogin: data.lastLogin || null
         })
       })
       
@@ -267,23 +313,6 @@ function StudentsTab() {
     }
   }
 
-  // جلب الكورسات المفتوحة للطالب
-  const fetchStudentCourses = async (studentId: string) => {
-    try {
-      const coursesQuery = query(
-        collection(db, "student_courses"),
-        where("studentId", "==", studentId),
-        where("isActive", "==", true)
-      )
-      const coursesSnap = await getDocs(coursesQuery)
-      return coursesSnap.docs.map(doc => doc.data().courseId)
-    } catch (error) {
-      console.error('❌ خطأ في جلب كورسات الطالب:', error)
-      return []
-    }
-  }
-
-  // حذف طالب
   const deleteStudent = async (studentId: string, studentName: string) => {
     if (!confirm(`هل أنت متأكد من حذف الطالب "${studentName}"؟`)) return
     
@@ -304,7 +333,6 @@ function StudentsTab() {
   const activeStudents = students.filter(s => s.status === 'active')
   const rejectedStudents = students.filter(s => s.status === 'rejected')
 
-  // دالة تحويل تاريخ
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('ar-EG', {
@@ -317,7 +345,6 @@ function StudentsTab() {
     }
   }
 
-  // تحويل كود المرحلة إلى اسم
   const getGradeName = (gradeCode: string) => {
     const grades: { [key: string]: string } = {
       '1-prep': 'أولى إعدادي',
@@ -348,7 +375,6 @@ function StudentsTab() {
         </div>
       )}
 
-      {/* 🆕 تبويبات الطلاب */}
       <div style={styles.viewTabs}>
         <button
           onClick={() => setActiveStudentView('pending')}
@@ -461,7 +487,7 @@ function StudentsTab() {
         </>
       )}
 
-      {/* 🆕 عرض الطلاب المفعلين */}
+      {/* عرض الطلاب المفعلين - مع آخر دخول */}
       {activeStudentView === 'active' && (
         <>
           <h3 style={styles.sectionTitle}>✅ الطلاب المفعلين</h3>
@@ -512,9 +538,16 @@ function StudentsTab() {
                         {student.activatedAt ? formatDate(student.activatedAt) : 'غير معروف'}
                       </td>
                       <td style={styles.td}>
-                        <span style={styles.lastLogin}>
-                          {student.lastLogin === 'لم يسجل دخول' ? '❌' : '✅'}
-                          {student.lastLogin}
+                        <span style={{
+                          background: student.lastLogin ? '#d1fae5' : '#fee2e2',
+                          color: student.lastLogin ? '#065f46' : '#991b1b',
+                          padding: '6px 12px',
+                          borderRadius: '20px',
+                          display: 'inline-block',
+                          fontSize: '13px',
+                          fontWeight: 'bold'
+                        }}>
+                          {formatLastLogin(student.lastLogin)}
                         </span>
                       </td>
                       <td style={styles.td}>
@@ -527,7 +560,6 @@ function StudentsTab() {
                           </Link>
                           <button 
                             onClick={() => {
-                              // يمكن إضافة وظيفة إلغاء التفعيل هنا
                               if (confirm(`هل تريد إلغاء تفعيل ${student.name}؟`)) {
                                 updateDoc(doc(db, "users", student.id), { status: 'pending' })
                                   .then(() => {
@@ -609,7 +641,7 @@ function StudentsTab() {
 }
 
 // ============================================
-// 📚 CoursesTab مع نظام تبويبات المراحل الجديد
+// CoursesTab
 // ============================================
 function CoursesTab() {
   const [courses, setCourses] = useState<any[]>([])
@@ -619,16 +651,12 @@ function CoursesTab() {
     title: '',
     description: '',
     grade: '1-prep',
-    category: '', // سيكون فارغاً لمعظم المراحل
+    category: '',
     price: 100,
     isActive: true
   })
   const [editingCourse, setEditingCourse] = useState<any>(null)
-  
-  // 🆕 حالة المرحلة النشطة
   const [activeGrade, setActiveGrade] = useState<string>('all')
-  
-  // 🆕 قائمة الفولدرات/التصنيفات لتانية ثانوي فقط
   const secondSecondaryCategories = ['كيمياء', 'فيزياء']
 
   const fetchCourses = async () => {
@@ -662,16 +690,12 @@ function CoursesTab() {
       return
     }
 
-    // 🆕 التأكد من اختيار فولدر لتانية ثانوي
     if (newCourse.grade === '2-secondary' && !newCourse.category) {
       setMessage('❌ يجب اختيار الفولدر (كيمياء أو فيزياء) لتانية ثانوي')
       return
     }
 
     try {
-      console.log('🚀 محاولة إضافة كورس جديد...')
-      
-      // إضافة الكورس إلى Firestore
       const courseData: any = {
         title: newCourse.title,
         description: newCourse.description,
@@ -683,31 +707,19 @@ function CoursesTab() {
         studentsEnrolled: 0
       }
       
-      // 🆕 إضافة الفولدر فقط لتانية ثانوي
       if (newCourse.grade === '2-secondary' && newCourse.category) {
         courseData.category = newCourse.category
       }
       
       await addDoc(collection(db, "courses"), courseData)
       
-      console.log('✅ كورس مضاف بنجاح!')
       setMessage(`✅ تم إضافة كورس "${newCourse.title}" بنجاح`)
-      
-      // تفريغ الحقول
       setNewCourse({ title: '', description: '', grade: '1-prep', category: '', price: 100, isActive: true })
-      
-      // تحديث القائمة
       fetchCourses()
       
     } catch (error: any) {
       console.error('❌ خطأ في إضافة الكورس:', error)
-      
-      let errorMsg = '❌ حدث خطأ في إضافة الكورس'
-      if (error.code === 'permission-denied') {
-        errorMsg = '❌ ليس لديك صلاحية للإضافة. تحقق من صلاحيات Firebase'
-      }
-      
-      setMessage(errorMsg)
+      setMessage('❌ حدث خطأ في إضافة الكورس')
     }
   }
 
@@ -726,7 +738,6 @@ function CoursesTab() {
   const handleUpdateCourse = async () => {
     if (!editingCourse || !newCourse.title.trim()) return
 
-    // 🆕 التأكد من اختيار فولدر لتانية ثانوي
     if (newCourse.grade === '2-secondary' && !newCourse.category) {
       setMessage('❌ يجب اختيار الفولدر (كيمياء أو فيزياء) لتانية ثانوي')
       return
@@ -742,11 +753,9 @@ function CoursesTab() {
         updatedAt: new Date().toISOString()
       }
       
-      // 🆕 تحديث الفولدر فقط لتانية ثانوي
       if (newCourse.grade === '2-secondary') {
         updateData.category = newCourse.category
       } else {
-        // 🆕 إزالة الفولدر للمراحل الأخرى
         updateData.category = ''
       }
       
@@ -791,12 +800,6 @@ function CoursesTab() {
     fetchCourses()
   }, [])
 
-  // 🆕 دالة الحصول على فولدرات تانية ثانوي فقط
-  const getSecondSecondaryCategories = () => {
-    return secondSecondaryCategories
-  }
-
-  // 🆕 دالة تحويل كود المرحلة إلى اسم
   const getGradeName = (gradeCode: string) => {
     const grades: { [key: string]: string } = {
       '1-prep': 'أولى إعدادي',
@@ -809,49 +812,37 @@ function CoursesTab() {
     return grades[gradeCode] || gradeCode
   }
 
-  // 🆕 الحصول على الكورسات حسب المرحلة المختارة
   const getFilteredCourses = () => {
     if (activeGrade === 'all') {
       return courses
     }
-    
     return courses.filter(course => course.grade === activeGrade)
   }
 
-  // 🆕 الحصول على كورسات تانية ثانوي حسب الفولدر
   const getCoursesByGradeAndCategory = () => {
     const filtered = getFilteredCourses()
     
-    // إذا كانت المرحلة ليست تانية ثانوي، نرجع الكورسات في مصفوفة واحدة
     if (activeGrade !== '2-secondary') {
       return { [getGradeName(activeGrade)]: filtered }
     }
     
-    // فقط لتانية ثانوي
     const categories: { [key: string]: any[] } = {}
-    
-    // تهيئة الفولدرات
     secondSecondaryCategories.forEach(category => {
       categories[category] = []
     })
-    
-    // إضافة فئة "أخرى" للكورسات بدون فولدر
     categories['أخرى'] = []
     
     filtered.forEach(course => {
       if (course.category && secondSecondaryCategories.includes(course.category)) {
-        // تصنيف كورسات تانية ثانوي حسب الفولدر
         if (!categories[course.category]) {
           categories[course.category] = []
         }
         categories[course.category].push(course)
       } else {
-        // كورسات تانية ثانوي بدون فولدر
         categories['أخرى'].push(course)
       }
     })
     
-    // إزالة الفئات الفارغة
     Object.keys(categories).forEach(key => {
       if (categories[key].length === 0) {
         delete categories[key]
@@ -861,7 +852,6 @@ function CoursesTab() {
     return categories
   }
 
-  // 🆕 إحصائيات المراحل
   const getGradeStats = () => {
     const stats: { [key: string]: number } = {
       'all': courses.length,
@@ -871,7 +861,6 @@ function CoursesTab() {
       '1-secondary': courses.filter(c => c.grade === '1-secondary').length,
       '2-secondary': courses.filter(c => c.grade === '2-secondary').length
     }
-    
     return stats
   }
 
@@ -899,7 +888,6 @@ function CoursesTab() {
         </div>
       )}
 
-      {/* 🆕 تبويبات المراحل */}
       <div style={styles.viewTabs}>
         <button
           onClick={() => setActiveGrade('all')}
@@ -984,7 +972,7 @@ function CoursesTab() {
                 setNewCourse({
                   ...newCourse, 
                   grade: selectedGrade,
-                  category: selectedGrade === '2-secondary' ? newCourse.category : '' // إفراغ الفولدر إذا كانت المرحلة ليست تانية ثانوي
+                  category: selectedGrade === '2-secondary' ? newCourse.category : ''
                 })
               }}
               style={styles.input}
@@ -998,7 +986,6 @@ function CoursesTab() {
             </select>
           </div>
           
-          {/* 🆕 حقل الفولدر/التصنيف (يظهر فقط لتانية ثانوي) */}
           {newCourse.grade === '2-secondary' && (
             <div style={styles.formRow}>
               <select
@@ -1008,7 +995,7 @@ function CoursesTab() {
                 required
               >
                 <option value="">اختر الفولدر لتانية ثانوي *</option>
-                {getSecondSecondaryCategories().map((category, index) => (
+                {secondSecondaryCategories.map((category, index) => (
                   <option key={index} value={category}>
                     {category}
                   </option>
@@ -1025,7 +1012,6 @@ function CoursesTab() {
             </div>
           )}
           
-          {/* 🆕 إذا كانت المرحلة غير تانية ثانوي، لا نعرض حقل الفولدر */}
           {newCourse.grade !== '2-secondary' && (
             <div style={styles.formRow}>
               <input
@@ -1036,9 +1022,7 @@ function CoursesTab() {
                 style={styles.input}
                 min="0"
               />
-              <div style={styles.inputPlaceholder}>
-                {/* مساحة فارغة للحفاظ على التنسيق */}
-              </div>
+              <div style={styles.inputPlaceholder}></div>
             </div>
           )}
           
@@ -1115,7 +1099,6 @@ function CoursesTab() {
           </p>
         ) : (
           <>
-            {/* 🆕 عرض الكورسات حسب المرحلة والفولدر */}
             {Object.keys(categorizedCourses).map(category => (
               <div key={category} style={styles.categorySection}>
                 <h4 style={styles.categoryTitle}>
@@ -1199,7 +1182,6 @@ function CoursesTab() {
           </>
         )}
         
-        {/* 🆕 إحصائيات المراحل */}
         <div style={styles.gradeStatsSection}>
           <h4 style={styles.sectionTitle}>📊 إحصائيات المراحل</h4>
           <div style={styles.statsGrid}>
@@ -1235,7 +1217,7 @@ function CoursesTab() {
 }
 
 // ============================================
-// 🎓 OpenCourseTab
+// OpenCourseTab
 // ============================================
 function OpenCourseTab() {
   return (
@@ -1282,7 +1264,7 @@ function OpenCourseTab() {
 }
 
 // ============================================
-// 🎬 VideosTab
+// VideosTab
 // ============================================
 function VideosTab() {
   return (
@@ -1312,7 +1294,7 @@ function VideosTab() {
 }
 
 // ============================================
-// ⚙️ SettingsTab
+// SettingsTab
 // ============================================
 function SettingsTab() {
   const [settings, setSettings] = useState({
@@ -1956,7 +1938,6 @@ const styles = {
       background: '#fecaca'
     }
   },
-  // 🆕 أنماط جديدة للـ StudentsTab
   viewTabs: {
     display: 'flex',
     gap: '10px',
@@ -2037,12 +2018,6 @@ const styles = {
     color: '#6b7280',
     marginTop: '2px'
   },
-  lastLogin: {
-    fontSize: '13px',
-    color: '#6b7280'
-  },
-  
-  // 🆕 أنماط جديدة للـ CoursesTab
   categorySection: {
     marginBottom: '30px',
     padding: '20px',
@@ -2214,7 +2189,6 @@ const styles = {
       background: '#059669'
     }
   },
-  // 🆕 أنماط إضافية للمراحل
   gradeStatsSection: {
     marginTop: '40px',
     padding: '20px',
