@@ -451,8 +451,7 @@ export default function PlatformPage() {
             </div>
           </div>
         </aside>
-
-        {/* منطقة المحتوى الرئيسي - مع تعديل المسافة للموبايل */}
+                {/* منطقة المحتوى الرئيسي - مع تعديل المسافة للموبايل */}
         <main style={{
           ...styles.mainArea,
           marginRight: isMobile ? '0' : (sidebarCollapsed ? '80px' : '300px'),
@@ -671,15 +670,19 @@ export default function PlatformPage() {
         </div>
       </footer>
 
- {/* ===== الأزرار العائمة (ثابتة في كل الصفحة) ===== */}
+      {/* ===== الأزرار العائمة (معدلة عشان تظهر دايماً) ===== */}
       <div style={{
         position: 'fixed',
         bottom: '20px',
         left: '20px',
-        zIndex: 99999,
+        zIndex: 999999,
         display: 'flex',
         flexDirection: 'column',
         gap: '15px',
+        opacity: 1,
+        visibility: 'visible',
+        transform: 'scale(1)',
+        pointerEvents: 'auto',
       }}>
         {/* زر الدعم */}
         <Link 
@@ -698,7 +701,10 @@ export default function PlatformPage() {
             fontSize: '26px',
             border: '2px solid white',
             transition: 'all 0.3s ease',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            opacity: 1,
+            visibility: 'visible',
+            transform: 'scale(1)',
           }}
           title="الدعم الفني"
         >
@@ -722,7 +728,10 @@ export default function PlatformPage() {
             fontSize: '26px',
             border: '2px solid white',
             transition: 'all 0.3s ease',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            opacity: 1,
+            visibility: 'visible',
+            transform: 'scale(1)',
           }}
           title="المساعد الذكي"
         >
@@ -881,7 +890,7 @@ const styles: any = {
     minHeight: 'calc(100vh - 140px)'
   },
 
-    sidebar: {
+  sidebar: {
     position: 'absolute' as const,
     right: 0,
     top: '80px',
@@ -1030,7 +1039,7 @@ const styles: any = {
     }
   },
 
-   mainArea: {
+  mainArea: {
     padding: '25px',
     transition: 'margin-right 0.3s ease',
     maxWidth: '1300px',
