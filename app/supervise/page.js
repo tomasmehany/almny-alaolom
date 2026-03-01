@@ -164,7 +164,7 @@ export default function Supervise() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={loginStyles.input}
-                placeholder="tomasmehany@bot"
+                placeholder="tomas"
                 required
               />
             </div>
@@ -191,9 +191,9 @@ export default function Supervise() {
           </form>
           
           <div style={loginStyles.note}>
-            <p>للاختبار فقط:</p>
-            <p>البريد: tomasmehany@bot</p>
-            <p>كلمة السر: Tomasmehany@2009</p>
+            <p>ممثل :</p>
+            <p>البريد: tomas</p>
+            <p>كلمة السر: 0000000000</p>
           </div>
         </div>
       </div>
