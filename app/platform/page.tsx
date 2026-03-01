@@ -4,7 +4,21 @@ import Link from 'next/link'
 import { db } from '@/lib/firebase'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 
+// ========== [ كود الموبايل يشتغل زي الكمبيوتر ] ==========
+import { useEffect as useEffect2 } from 'react'
 export default function PlatformPage() {
+    // ========== كود الموبايل يشتغل زي الكمبيوتر ==========
+  useEffect2(() => {
+    // لو المستخدم على موبايل
+    if (window.innerWidth <= 768) {
+      // غير إعدادات الصفحة تخليها زي الكمبيوتر
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (viewport) {
+        viewport.setAttribute('content', 'width=1024, initial-scale=0.5');
+      }
+    }
+  }, []);
+  // ====================================================
   const [user, setUser] = useState<any>(null)
   const [userId, setUserId] = useState<string>('')
   const [loading, setLoading] = useState(true)
