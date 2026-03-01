@@ -12,6 +12,7 @@ export default function PlatformPage() {
   const [coursesLoading, setCoursesLoading] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string>('all')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const [stats, setStats] = useState({
     total: 0,
     opened: 0,
@@ -21,6 +22,22 @@ export default function PlatformPage() {
 
   const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
   const telegramBotLink = 'https://t.me/AskMrBishoy_bot'
+
+  // كشف حجم الشاشة
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+      // على الموبايل، نخلي الـ sidebar مصغر تلقائياً
+      if (window.innerWidth <= 768) {
+        setSidebarCollapsed(true)
+      }
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     const userData = localStorage.getItem('currentUser')
@@ -272,17 +289,21 @@ export default function PlatformPage() {
               <div style={styles.userName}>{user.name || 'طالب'}</div>
               <div style={styles.userBadge}>{userYear}</div>
             </div>
-            {/* زر تسجيل الخروج شيلناه من هنا */}
           </div>
         </div>
       </header>
 
       {/* المحتوى الرئيسي */}
       <div style={styles.mainContent}>
-        {/* الشريط الجانبي */}
+        {/* الشريط الجانبي - في الموبايل بياخد عرض كامل */}
         <aside style={{
           ...styles.sidebar,
-          width: sidebarCollapsed ? '80px' : '300px'
+          width: isMobile 
+            ? (sidebarCollapsed ? '60px' : '250px')
+            : (sidebarCollapsed ? '80px' : '300px'),
+          position: isMobile ? 'fixed' : 'fixed',
+          zIndex: isMobile ? 100 : 90,
+          transform: isMobile && sidebarCollapsed ? 'translateX(0)' : 'none',
         }}>
           <div style={styles.sidebarContent}>
             {/* بطاقة السنة الدراسية */}
@@ -370,7 +391,7 @@ export default function PlatformPage() {
               </div>
             )}
 
-            {/* ✅ روابط سريعة - مع التعديلات المطلوبة */}
+            {/* روابط سريعة */}
             <div style={styles.quickLinks}>
               {!sidebarCollapsed && <h4 style={styles.quickTitle}>روابط سريعة</h4>}
               
@@ -392,13 +413,13 @@ export default function PlatformPage() {
                 {!sidebarCollapsed && <span>المساعد الذكي</span>}
               </Link>
               
-              {/* ✅ الدعم الفني (جديد) */}
+              {/* الدعم الفني */}
               <Link href="/support/chat" style={styles.quickLink}>
                 <span>💬</span>
                 {!sidebarCollapsed && <span>الدعم الفني</span>}
               </Link>
               
-              {/* ✅ تسجيل الخروج (كآخر خانة) */}
+              {/* تسجيل الخروج */}
               <button 
                 onClick={handleLogout}
                 style={{
@@ -418,10 +439,12 @@ export default function PlatformPage() {
           </div>
         </aside>
 
-        {/* منطقة المحتوى الرئيسي */}
+        {/* منطقة المحتوى الرئيسي - مع تعديل المسافة للموبايل */}
         <main style={{
           ...styles.mainArea,
-          marginRight: sidebarCollapsed ? '80px' : '300px'
+          marginRight: isMobile ? '0' : (sidebarCollapsed ? '80px' : '300px'),
+          padding: isMobile ? '15px' : '25px',
+          width: isMobile ? '100%' : 'auto'
         }}>
           {/* شريط التنقل العلوي */}
           <div style={styles.navBar}>
@@ -436,13 +459,13 @@ export default function PlatformPage() {
             </div>
           </div>
 
-          {/* الترحيب */}
-          <div style={styles.welcomeBanner}>
+          {/* الترحيب - في الموبايل يكون Column */}
+          <div style={isMobile ? styles.welcomeBannerMobile : styles.welcomeBanner}>
             <div>
-              <h2 style={styles.welcomeTitle}>
+              <h2 style={isMobile ? styles.welcomeTitleMobile : styles.welcomeTitle}>
                 مرحباً {user.name} 👋
               </h2>
-              <p style={styles.welcomeText}>
+              <p style={isMobile ? styles.welcomeTextMobile : styles.welcomeText}>
                 {userYear === 'ثانية ثانوي' 
                   ? 'استعرض كورسات الكيمياء والفيزياء حسب المادة'
                   : `هذه هي الكورسات المتاحة لسنتك الدراسية (${userYear})`
@@ -450,7 +473,7 @@ export default function PlatformPage() {
               </p>
             </div>
             <div style={styles.progressRing}>
-              <svg width="60" height="60" viewBox="0 0 60 60">
+              <svg width={isMobile ? "50" : "60"} height={isMobile ? "50" : "60"} viewBox="0 0 60 60">
                 <circle
                   cx="30"
                   cy="30"
@@ -476,7 +499,7 @@ export default function PlatformPage() {
                   textAnchor="middle"
                   dy="7"
                   fill="#10b981"
-                  fontSize="12"
+                  fontSize={isMobile ? "10" : "12"}
                   fontWeight="bold"
                 >
                   {stats.progress}%
@@ -485,15 +508,17 @@ export default function PlatformPage() {
             </div>
           </div>
 
-          {/* شريط التصنيفات */}
+          {/* شريط التصنيفات - للموبايل يكون scrollable */}
           {userYear === 'ثانية ثانوي' && (
-            <div style={styles.categoriesBar}>
+            <div style={isMobile ? styles.categoriesBarMobile : styles.categoriesBar}>
               <button
                 onClick={() => setActiveCategory('all')}
                 style={{
                   ...styles.categoryButton,
                   background: activeCategory === 'all' ? '#3b82f6' : '#f3f4f6',
-                  color: activeCategory === 'all' ? 'white' : '#4b5563'
+                  color: activeCategory === 'all' ? 'white' : '#4b5563',
+                  fontSize: isMobile ? '14px' : '15px',
+                  padding: isMobile ? '8px 16px' : '10px 20px',
                 }}
               >
                 📚 الكل
@@ -503,7 +528,9 @@ export default function PlatformPage() {
                 style={{
                   ...styles.categoryButton,
                   background: activeCategory === 'كيمياء' ? '#8b5cf6' : '#f3f4f6',
-                  color: activeCategory === 'كيمياء' ? 'white' : '#4b5563'
+                  color: activeCategory === 'كيمياء' ? 'white' : '#4b5563',
+                  fontSize: isMobile ? '14px' : '15px',
+                  padding: isMobile ? '8px 16px' : '10px 20px',
                 }}
               >
                 ⚗️ كيمياء
@@ -513,7 +540,9 @@ export default function PlatformPage() {
                 style={{
                   ...styles.categoryButton,
                   background: activeCategory === 'فيزياء' ? '#ef4444' : '#f3f4f6',
-                  color: activeCategory === 'فيزياء' ? 'white' : '#4b5563'
+                  color: activeCategory === 'فيزياء' ? 'white' : '#4b5563',
+                  fontSize: isMobile ? '14px' : '15px',
+                  padding: isMobile ? '8px 16px' : '10px 20px',
                 }}
               >
                 ⚛️ فيزياء
@@ -521,7 +550,7 @@ export default function PlatformPage() {
             </div>
           )}
 
-          {/* شبكة الكورسات */}
+          {/* شبكة الكورسات - للموبايل عمود واحد */}
           {coursesLoading ? (
             <div style={styles.loadingCourses}>
               <div style={styles.spinner}></div>
@@ -544,15 +573,15 @@ export default function PlatformPage() {
               </p>
             </div>
           ) : (
-            <div style={styles.coursesGrid}>
+            <div style={isMobile ? styles.coursesGridMobile : styles.coursesGrid}>
               {displayedCourses.map(course => (
-                <div key={course.id} style={styles.courseCard}>
+                <div key={course.id} style={isMobile ? styles.courseCardMobile : styles.courseCard}>
                   <div style={styles.courseHeader}>
                     <div style={styles.courseIcon}>
                       {course.isOpened ? '📖' : '📚'}
                     </div>
                     <div>
-                      <h3 style={styles.courseTitle}>{course.title}</h3>
+                      <h3 style={isMobile ? styles.courseTitleMobile : styles.courseTitle}>{course.title}</h3>
                       {course.category && (
                         <span style={{
                           ...styles.courseCategory,
@@ -565,7 +594,7 @@ export default function PlatformPage() {
                     </div>
                   </div>
                   
-                  <p style={styles.courseDescription}>
+                  <p style={isMobile ? styles.courseDescriptionMobile : styles.courseDescription}>
                     {course.description || 'شرح مبسط ومتكامل للمنهج الدراسي'}
                   </p>
                   
@@ -605,13 +634,13 @@ export default function PlatformPage() {
         </main>
       </div>
 
-      {/* ✅ الفوتر القديم */}
+      {/* الفوتر - في الموبايل يكون column */}
       <footer style={styles.oldFooter}>
-        <div style={styles.footerContent}>
+        <div style={isMobile ? styles.footerContentMobile : styles.footerContent}>
           <p style={styles.footerText}>
             © 2026 علمني العلوم مستر بيشوي - منصة التعليم الإلكتروني
           </p>
-          <div style={styles.footerLinks}>
+          <div style={isMobile ? styles.footerLinksMobile : styles.footerLinks}>
             <span style={styles.footerLink}>سياسة الخصوصية</span>
             <span style={styles.footerLink}>الشروط والأحكام</span>
             <span style={styles.footerLink}>اتصل بنا</span>
@@ -629,44 +658,16 @@ export default function PlatformPage() {
         </div>
       </footer>
 
-      {/* ✅ الأزرار العائمة على الشمال - فوق بعض */}
-      <div style={{
-        position: 'fixed',
-        bottom: '20px',
-        left: '20px',
-        zIndex: 99999,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '15px',
-      }}>
+      {/* الأزرار العائمة - في الموبايل تكون تحت بعض */}
+      <div style={isMobile ? styles.floatingButtonsMobile : styles.floatingButtons}>
         {/* زر الدعم */}
         <Link 
           href="/support/chat"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '60px',
-            height: '60px',
+            ...styles.floatingButton,
             backgroundColor: '#2563eb',
-            color: 'white',
-            borderRadius: '50%',
-            textDecoration: 'none',
-            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.4)',
-            fontSize: '26px',
-            border: '2px solid white',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer'
           }}
           title="الدعم الفني"
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = '#1d4ed8';
-            e.currentTarget.style.transform = 'scale(1.1)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = '#2563eb';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
         >
           💬
         </Link>
@@ -675,29 +676,10 @@ export default function PlatformPage() {
         <Link 
           href="/bot"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '60px',
-            height: '60px',
+            ...styles.floatingButton,
             background: 'linear-gradient(135deg, #10b981, #059669)',
-            color: 'white',
-            borderRadius: '50%',
-            textDecoration: 'none',
-            boxShadow: '0 8px 20px rgba(16, 185, 129, 0.4)',
-            fontSize: '26px',
-            border: '2px solid white',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-            animation: 'pulse 2s infinite'
           }}
           title="المساعد الذكي"
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
         >
           🤖
         </Link>
@@ -861,7 +843,7 @@ const styles: any = {
     height: 'calc(100vh - 80px)',
     background: 'white',
     boxShadow: '2px 0 10px rgba(0,0,0,0.05)',
-    transition: 'width 0.3s ease',
+    transition: 'width 0.3s ease, transform 0.3s ease',
     overflowX: 'hidden' as const,
     zIndex: 90
   },
@@ -1050,13 +1032,35 @@ const styles: any = {
     justifyContent: 'space-between',
     alignItems: 'center'
   },
+  welcomeBannerMobile: {
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    borderRadius: '16px',
+    padding: '20px',
+    color: 'white',
+    marginBottom: '20px',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '15px',
+    alignItems: 'center',
+    textAlign: 'center' as const
+  },
   welcomeTitle: {
     fontSize: '24px',
     fontWeight: 'bold',
     margin: '0 0 10px 0'
   },
+  welcomeTitleMobile: {
+    fontSize: '20px',
+    fontWeight: 'bold',
+    margin: '0 0 5px 0'
+  },
   welcomeText: {
     fontSize: '16px',
+    opacity: 0.95,
+    margin: 0
+  },
+  welcomeTextMobile: {
+    fontSize: '14px',
     opacity: 0.95,
     margin: 0
   },
@@ -1070,6 +1074,19 @@ const styles: any = {
     gap: '10px',
     marginBottom: '25px',
     flexWrap: 'wrap' as const
+  },
+  categoriesBarMobile: {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '20px',
+    overflowX: 'auto' as const,
+    padding: '5px 0',
+    whiteSpace: 'nowrap' as const,
+    WebkitOverflowScrolling: 'touch' as const,
+    scrollbarWidth: 'none' as const,
+    '&::-webkit-scrollbar': {
+      display: 'none'
+    }
   },
   categoryButton: {
     padding: '10px 20px',
@@ -1087,12 +1104,26 @@ const styles: any = {
     gap: '20px',
     animation: 'fadeIn 0.5s ease'
   },
+  coursesGridMobile: {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: '15px',
+    animation: 'fadeIn 0.5s ease'
+  },
   courseCard: {
     background: 'white',
     borderRadius: '16px',
     padding: '20px',
     boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
     border: '2px solid #f3f4f6',
+    transition: 'all 0.3s'
+  },
+  courseCardMobile: {
+    background: 'white',
+    borderRadius: '12px',
+    padding: '15px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+    border: '1px solid #f3f4f6',
     transition: 'all 0.3s'
   },
   courseHeader: {
@@ -1116,6 +1147,12 @@ const styles: any = {
     color: '#1f2937',
     margin: '0 0 5px 0'
   },
+  courseTitleMobile: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#1f2937',
+    margin: '0 0 3px 0'
+  },
   courseCategory: {
     fontSize: '12px',
     fontWeight: '600',
@@ -1128,6 +1165,12 @@ const styles: any = {
     color: '#6b7280',
     marginBottom: '15px',
     lineHeight: 1.6
+  },
+  courseDescriptionMobile: {
+    fontSize: '13px',
+    color: '#6b7280',
+    marginBottom: '12px',
+    lineHeight: 1.5
   },
   courseMeta: {
     display: 'flex',
@@ -1220,7 +1263,7 @@ const styles: any = {
     color: '#6b7280'
   },
 
-  // ========== الفوتر القديم ==========
+  // ========== الفوتر ==========
   oldFooter: {
     background: '#1f2937',
     color: 'white',
@@ -1231,6 +1274,14 @@ const styles: any = {
     maxWidth: '1600px',
     margin: '0 auto',
     textAlign: 'center' as const
+  },
+  footerContentMobile: {
+    maxWidth: '1600px',
+    margin: '0 auto',
+    textAlign: 'center' as const,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '15px'
   },
   footerText: {
     color: '#d1d5db',
@@ -1243,6 +1294,12 @@ const styles: any = {
     gap: '20px',
     marginBottom: '20px',
     flexWrap: 'wrap' as const
+  },
+  footerLinksMobile: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '10px',
+    marginBottom: '15px'
   },
   footerLink: {
     color: '#9ca3af',
@@ -1262,5 +1319,40 @@ const styles: any = {
     color: '#60a5fa',
     textDecoration: 'none',
     margin: '0 5px'
+  },
+
+  // الأزرار العائمة
+  floatingButtons: {
+    position: 'fixed',
+    bottom: '20px',
+    left: '20px',
+    zIndex: 99999,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '15px',
+  },
+  floatingButtonsMobile: {
+    position: 'fixed',
+    bottom: '15px',
+    left: '15px',
+    zIndex: 99999,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '10px',
+  },
+  floatingButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '60px',
+    height: '60px',
+    color: 'white',
+    borderRadius: '50%',
+    textDecoration: 'none',
+    boxShadow: '0 8px 20px rgba(37, 99, 235, 0.4)',
+    fontSize: '26px',
+    border: '2px solid white',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer'
   }
 }
