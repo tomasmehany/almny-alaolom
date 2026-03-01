@@ -11,7 +11,8 @@ export default function PlatformPage() {
   const [courses, setCourses] = useState<any[]>([])
   const [coursesLoading, setCoursesLoading] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string>('all')
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  // 👇 غيرنا اسم المتغير ليكون أوضح (isSidebarOpen) والقيمة الافتراضية false
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [stats, setStats] = useState({
     total: 0,
@@ -27,9 +28,9 @@ export default function PlatformPage() {
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768)
-      // على الموبايل، نخلي القائمة الجانبية مقفلة افتراضياً
+      // على الموبايل، نتأكد أن القائمة مقفلة
       if (window.innerWidth <= 768) {
-        setSidebarCollapsed(true)
+        setIsSidebarOpen(false)
       }
     }
 
@@ -269,9 +270,9 @@ export default function PlatformPage() {
       <header style={styles.header}>
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
-            {/* زر القائمة الجانبية (الثلاث شرط) - أصبح مسؤولاً عن فتح/غلق القائمة المنبثقة */}
+            {/* زر القائمة الجانبية - نستخدم isSidebarOpen */}
             <button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               style={styles.menuToggle}
             >
               ☰
@@ -296,21 +297,24 @@ export default function PlatformPage() {
 
       {/* المحتوى الرئيسي */}
       <div style={styles.mainContent}>
-        {/* القائمة الجانبية المنبثقة - لم تعد ثابتة */}
-        {sidebarCollapsed && (
+        {/* القائمة الجانبية المنبثقة - تظهر فقط عندما isSidebarOpen = true */}
+        {isSidebarOpen && (
           <aside style={{
             ...styles.sidebar,
-            // نحدد العرض والموضع المناسبين للقائمة المنبثقة
             width: isMobile ? '250px' : '300px',
             position: 'fixed',
             top: '80px',
-            right: '0', // تظهر من اليمين
-            zIndex: 1000, // أعلى من كل المحتوى
-            boxShadow: '-5px 0 15px rgba(0,0,0,0.2)', // ظل جهة اليسار
-            transform: 'translateX(0)', // تكون ظاهرة
+            right: '0',
+            zIndex: 1000,
+            boxShadow: '-5px 0 15px rgba(0,0,0,0.2)',
             height: 'calc(100vh - 80px)',
           }}>
-            {/* محتوى القائمة الجانبية كما هو، ولكن مع إزالة خاصية collapse لأنها تظهر وتختفي فقط */}
+            {/* إضافة طبقة شفافة خلف القائمة لإغلاقها عند الضغط خارجها (اختياري) */}
+            <div 
+              style={styles.sidebarOverlay}
+              onClick={() => setIsSidebarOpen(false)}
+            ></div>
+            
             <div style={styles.sidebarContent}>
               {/* بطاقة السنة الدراسية */}
               <div style={styles.yearCard}>
@@ -354,7 +358,10 @@ export default function PlatformPage() {
                 <div style={styles.foldersCard}>
                   <h4 style={styles.foldersTitle}>فولدرات المواد</h4>
                   <button
-                    onClick={() => setActiveCategory('all')}
+                    onClick={() => {
+                      setActiveCategory('all')
+                      setIsSidebarOpen(false) // اختياري: إغلاق القائمة بعد الاختيار
+                    }}
                     style={{
                       ...styles.folderItem,
                       background: activeCategory === 'all' ? '#f0f9ff' : 'transparent',
@@ -365,7 +372,10 @@ export default function PlatformPage() {
                     <span style={styles.folderCount}>{categoryStats.total}</span>
                   </button>
                   <button
-                    onClick={() => setActiveCategory('كيمياء')}
+                    onClick={() => {
+                      setActiveCategory('كيمياء')
+                      setIsSidebarOpen(false) // اختياري: إغلاق القائمة بعد الاختيار
+                    }}
                     style={{
                       ...styles.folderItem,
                       background: activeCategory === 'كيمياء' ? '#f0f9ff' : 'transparent',
@@ -376,7 +386,10 @@ export default function PlatformPage() {
                     <span style={styles.folderCount}>{categoryStats.chemistry}</span>
                   </button>
                   <button
-                    onClick={() => setActiveCategory('فيزياء')}
+                    onClick={() => {
+                      setActiveCategory('فيزياء')
+                      setIsSidebarOpen(false) // اختياري: إغلاق القائمة بعد الاختيار
+                    }}
                     style={{
                       ...styles.folderItem,
                       background: activeCategory === 'فيزياء' ? '#f0f9ff' : 'transparent',
@@ -438,10 +451,9 @@ export default function PlatformPage() {
           </aside>
         )}
 
-        {/* منطقة المحتوى الرئيسي - لم يعد هناك حاجة لإزاحة لليمين */}
+        {/* منطقة المحتوى الرئيسي */}
         <main style={{
           ...styles.mainArea,
-          marginRight: '0', // دائماً صفر
           padding: isMobile ? '15px' : '25px',
           width: '100%'
         }}>
@@ -458,7 +470,7 @@ export default function PlatformPage() {
             </div>
           </div>
 
-          {/* الترحيب - في الموبايل يكون Column */}
+          {/* الترحيب */}
           <div style={isMobile ? styles.welcomeBannerMobile : styles.welcomeBanner}>
             <div>
               <h2 style={isMobile ? styles.welcomeTitleMobile : styles.welcomeTitle}>
@@ -507,7 +519,7 @@ export default function PlatformPage() {
             </div>
           </div>
 
-          {/* شريط التصنيفات - للموبايل يكون scrollable */}
+          {/* شريط التصنيفات */}
           {userYear === 'ثانية ثانوي' && (
             <div style={isMobile ? styles.categoriesBarMobile : styles.categoriesBar}>
               <button
@@ -548,8 +560,8 @@ export default function PlatformPage() {
               </button>
             </div>
           )}
-          
-          {/* شبكة الكورسات - للموبايل عمود واحد */}
+
+          {/* شبكة الكورسات */}
           {coursesLoading ? (
             <div style={styles.loadingCourses}>
               <div style={styles.spinner}></div>
@@ -633,7 +645,7 @@ export default function PlatformPage() {
         </main>
       </div>
 
-      {/* الفوتر - في الموبايل يكون column */}
+      {/* الفوتر */}
       <footer style={styles.oldFooter}>
         <div style={isMobile ? styles.footerContentMobile : styles.footerContent}>
           <p style={styles.footerText}>
@@ -657,9 +669,8 @@ export default function PlatformPage() {
         </div>
       </footer>
 
-      {/* الأزرار العائمة - في الموبايل تكون تحت بعض */}
+      {/* الأزرار العائمة */}
       <div style={isMobile ? styles.floatingButtonsMobile : styles.floatingButtons}>
-        {/* زر الدعم */}
         <Link
           href="/support/chat"
           style={{
@@ -671,7 +682,6 @@ export default function PlatformPage() {
           💬
         </Link>
 
-        {/* زر المساعد الذكي */}
         <Link
           href="/bot"
           style={{
@@ -983,7 +993,7 @@ const styles: any = {
   mainArea: {
     padding: '25px',
     maxWidth: '1300px',
-    margin: '0 auto' // توسيط المحتوى
+    margin: '0 auto'
   },
   navBar: {
     display: 'flex',
@@ -1004,18 +1014,6 @@ const styles: any = {
   breadcrumbActive: {
     color: '#2563eb',
     fontWeight: '600'
-  },
-  searchBar: {
-    width: '300px'
-  },
-  searchInput: {
-    width: '100%',
-    padding: '10px 15px',
-    border: '2px solid #e5e7eb',
-    borderRadius: '12px',
-    fontSize: '14px',
-    transition: 'all 0.3s',
-    outline: 'none'
   },
   welcomeBanner: {
     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -1258,7 +1256,6 @@ const styles: any = {
     color: '#6b7280'
   },
 
-  // ========== الفوتر ==========
   oldFooter: {
     background: '#1f2937',
     color: 'white',
@@ -1316,7 +1313,6 @@ const styles: any = {
     margin: '0 5px'
   },
 
-  // الأزرار العائمة
   floatingButtons: {
     position: 'fixed',
     bottom: '20px',
