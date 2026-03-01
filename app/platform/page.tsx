@@ -27,15 +27,15 @@ export default function PlatformPage() {
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768)
-      // على الموبايل، نخلي الـ sidebar مصغر تلقائياً
+      // على الموبايل، نخلي القائمة الجانبية مقفلة افتراضياً
       if (window.innerWidth <= 768) {
         setSidebarCollapsed(true)
       }
     }
-    
+
     checkMobile()
     window.addEventListener('resize', checkMobile)
-    
+
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
@@ -44,28 +44,28 @@ export default function PlatformPage() {
     if (userData) {
       try {
         const parsedUser = JSON.parse(userData)
-        
+
         let userId = ''
         if (parsedUser.id) userId = parsedUser.id
         else if (parsedUser.userId) userId = parsedUser.userId
         else if (parsedUser.uid) userId = parsedUser.uid
         else if (parsedUser._id) userId = parsedUser._id
         else if (parsedUser.phone) userId = parsedUser.phone
-        
+
         if (userId) {
           setUserId(userId)
         }
-        
+
         if (parsedUser.grade && !parsedUser.year) {
           parsedUser.year = parsedUser.grade
         }
-        
+
         if (!parsedUser.year) {
           parsedUser.year = 'غير محدد'
         }
-        
+
         setUser(parsedUser)
-        
+
         if (parsedUser.year && userId) {
           fetchCourses(parsedUser.year, userId)
         }
@@ -73,53 +73,53 @@ export default function PlatformPage() {
         console.error('خطأ في تحويل بيانات المستخدم:', error)
       }
     }
-    
+
     setLoading(false)
   }, [])
 
   const fetchCourses = async (userYear: string, studentId: string) => {
     try {
       setCoursesLoading(true)
-      
+
       const yearCode = convertYearToCode(userYear)
-      
+
       const coursesQuery = query(
         collection(db, "courses"),
         where("grade", "==", yearCode),
         where("isActive", "==", true)
       )
-      
+
       const coursesSnap = await getDocs(coursesQuery)
       const allCourses: any[] = []
-      
+
       coursesSnap.forEach((doc) => {
         allCourses.push({
           id: doc.id,
           ...doc.data()
         })
       })
-      
+
       const studentCoursesQuery = query(
         collection(db, "student_courses"),
         where("studentId", "==", studentId),
         where("isActive", "==", true)
       )
-      
+
       const studentCoursesSnap = await getDocs(studentCoursesQuery)
       const openedCourseIds: string[] = []
-      
+
       studentCoursesSnap.forEach((doc) => {
         const data = doc.data()
         openedCourseIds.push(data.courseId)
       })
-      
+
       const coursesWithStatus = allCourses.map(course => ({
         ...course,
         isOpened: openedCourseIds.includes(course.id)
       }))
-      
+
       setCourses(coursesWithStatus)
-      
+
       // تحديث الإحصائيات
       const openedCount = coursesWithStatus.filter(c => c.isOpened).length
       setStats({
@@ -128,7 +128,7 @@ export default function PlatformPage() {
         completed: 0,
         progress: coursesWithStatus.length > 0 ? Math.round((openedCount / coursesWithStatus.length) * 100) : 0
       })
-      
+
     } catch (error) {
       console.error('خطأ في جلب الكورسات:', error)
       setCourses([])
@@ -144,35 +144,35 @@ export default function PlatformPage() {
       'أولى اعدادي': '1-prep',
       'الصف الأول الإعدادي': '1-prep',
       '1-prep': '1-prep',
-      
+
       'ثانية إعدادي': '2-prep',
       'ثانيه اعدادي': '2-prep',
       'الصف الثاني الإعدادي': '2-prep',
       '2-prep': '2-prep',
-      
+
       'ثالثة إعدادي': '3-prep',
       'ثالثه اعدادي': '3-prep',
       'الصف الثالث الإعدادي': '3-prep',
       '3-prep': '3-prep',
-      
+
       'أولى ثانوي': '1-secondary',
       'اولى ثانوي': '1-secondary',
       'الصف الأول الثانوي': '1-secondary',
       '1-secondary': '1-secondary',
-      
+
       'ثانية ثانوي': '2-secondary',
       'ثانيه ثانوي': '2-secondary',
       'الصف الثاني الثانوي': '2-secondary',
       '2-secondary': '2-secondary'
     }
-    
+
     return yearMap[yearName] || yearName
   }
 
   const getYearName = (yearCode: string) => {
     const yearMap: { [key: string]: string } = {
       '1-prep': 'أولى إعدادي',
-      '2-prep': 'ثانية إعدادي', 
+      '2-prep': 'ثانية إعدادي',
       '3-prep': 'ثالثة إعدادي',
       '1-secondary': 'أولى ثانوي',
       '2-secondary': 'ثانية ثانوي',
@@ -185,7 +185,7 @@ export default function PlatformPage() {
       'أولى ثانوي': 'أولى ثانوي',
       'ثانية ثانوي': 'ثانية ثانوي'
     }
-    
+
     return yearMap[yearCode] || yearCode || 'غير محدد'
   }
 
@@ -193,13 +193,13 @@ export default function PlatformPage() {
     if (userYear !== 'ثانية ثانوي') {
       return null
     }
-    
+
     const categories: { [key: string]: any[] } = {
       'all': courses,
       'كيمياء': [],
       'فيزياء': []
     }
-    
+
     courses.forEach(course => {
       if (course.category === 'كيمياء') {
         categories['كيمياء'].push(course)
@@ -207,25 +207,25 @@ export default function PlatformPage() {
         categories['فيزياء'].push(course)
       }
     })
-    
+
     return categories
   }
-  
+
   const getDisplayedCourses = () => {
     if (userYear !== 'ثانية ثانوي' || activeCategory === 'all') {
       return courses
     }
-    
+
     const categories = categorizeCourses()
     return categories ? categories[activeCategory] : courses
   }
-  
+
   const getCategoryStats = () => {
     if (userYear !== 'ثانية ثانوي') return null
-    
+
     const categories = categorizeCourses()
     if (!categories) return null
-    
+
     return {
       chemistry: categories['كيمياء'].length,
       physics: categories['فيزياء'].length,
@@ -269,7 +269,8 @@ export default function PlatformPage() {
       <header style={styles.header}>
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
-            <button 
+            {/* زر القائمة الجانبية (الثلاث شرط) - أصبح مسؤولاً عن فتح/غلق القائمة المنبثقة */}
+            <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               style={styles.menuToggle}
             >
@@ -280,7 +281,7 @@ export default function PlatformPage() {
               <p style={styles.logoSub}>منصة مستر بيشوي التعليمية</p>
             </div>
           </div>
-          
+
           <div style={styles.userSection}>
             <div style={styles.userAvatar}>
               {user.name?.charAt(0) || 'ط'}
@@ -295,156 +296,154 @@ export default function PlatformPage() {
 
       {/* المحتوى الرئيسي */}
       <div style={styles.mainContent}>
-        {/* الشريط الجانبي - في الموبايل بياخد عرض كامل */}
-        <aside style={{
-          ...styles.sidebar,
-          width: isMobile 
-            ? (sidebarCollapsed ? '60px' : '250px')
-            : (sidebarCollapsed ? '80px' : '300px'),
-          position: isMobile ? 'fixed' : 'fixed',
-          zIndex: isMobile ? 100 : 90,
-          transform: isMobile && sidebarCollapsed ? 'translateX(0)' : 'none',
-        }}>
-          <div style={styles.sidebarContent}>
-            {/* بطاقة السنة الدراسية */}
-            <div style={styles.yearCard}>
-              <div style={styles.yearIcon}>📚</div>
-              {!sidebarCollapsed && (
+        {/* القائمة الجانبية المنبثقة - لم تعد ثابتة */}
+        {sidebarCollapsed && (
+          <aside style={{
+            ...styles.sidebar,
+            // نحدد العرض والموضع المناسبين للقائمة المنبثقة
+            width: isMobile ? '250px' : '300px',
+            position: 'fixed',
+            top: '80px',
+            right: '0', // تظهر من اليمين
+            zIndex: 1000, // أعلى من كل المحتوى
+            boxShadow: '-5px 0 15px rgba(0,0,0,0.2)', // ظل جهة اليسار
+            transform: 'translateX(0)', // تكون ظاهرة
+            height: 'calc(100vh - 80px)',
+          }}>
+            {/* محتوى القائمة الجانبية كما هو، ولكن مع إزالة خاصية collapse لأنها تظهر وتختفي فقط */}
+            <div style={styles.sidebarContent}>
+              {/* بطاقة السنة الدراسية */}
+              <div style={styles.yearCard}>
+                <div style={styles.yearIcon}>📚</div>
                 <div style={styles.yearInfo}>
                   <div style={styles.yearLabel}>سنتك الدراسية</div>
                   <div style={styles.yearValue}>{userYear}</div>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* إحصائيات سريعة */}
-            <div style={styles.statsCard}>
-              {!sidebarCollapsed && <h3 style={styles.statsTitle}>إحصائياتك</h3>}
-              <div style={styles.statsList}>
-                <div style={styles.statItem}>
-                  <span style={styles.statIcon}>📊</span>
-                  {!sidebarCollapsed && (
+              {/* إحصائيات سريعة */}
+              <div style={styles.statsCard}>
+                <h3 style={styles.statsTitle}>إحصائياتك</h3>
+                <div style={styles.statsList}>
+                  <div style={styles.statItem}>
+                    <span style={styles.statIcon}>📊</span>
                     <div>
                       <div style={styles.statNumber}>{stats.total}</div>
                       <div style={styles.statLabel}>كورسات</div>
                     </div>
-                  )}
-                </div>
-                <div style={styles.statItem}>
-                  <span style={styles.statIcon}>✅</span>
-                  {!sidebarCollapsed && (
+                  </div>
+                  <div style={styles.statItem}>
+                    <span style={styles.statIcon}>✅</span>
                     <div>
                       <div style={styles.statNumber}>{stats.opened}</div>
                       <div style={styles.statLabel}>مفتوح</div>
                     </div>
-                  )}
-                </div>
-                <div style={styles.statItem}>
-                  <span style={styles.statIcon}>📈</span>
-                  {!sidebarCollapsed && (
+                  </div>
+                  <div style={styles.statItem}>
+                    <span style={styles.statIcon}>📈</span>
                     <div>
                       <div style={styles.statNumber}>{stats.progress}%</div>
                       <div style={styles.statLabel}>تقدم</div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* فولدرات تانية ثانوي */}
-            {userYear === 'ثانية ثانوي' && categoryStats && !sidebarCollapsed && (
-              <div style={styles.foldersCard}>
-                <h4 style={styles.foldersTitle}>فولدرات المواد</h4>
+              {/* فولدرات تانية ثانوي */}
+              {userYear === 'ثانية ثانوي' && categoryStats && (
+                <div style={styles.foldersCard}>
+                  <h4 style={styles.foldersTitle}>فولدرات المواد</h4>
+                  <button
+                    onClick={() => setActiveCategory('all')}
+                    style={{
+                      ...styles.folderItem,
+                      background: activeCategory === 'all' ? '#f0f9ff' : 'transparent',
+                      borderRight: activeCategory === 'all' ? '4px solid #3b82f6' : '4px solid transparent'
+                    }}
+                  >
+                    <span>📚 كل المواد</span>
+                    <span style={styles.folderCount}>{categoryStats.total}</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveCategory('كيمياء')}
+                    style={{
+                      ...styles.folderItem,
+                      background: activeCategory === 'كيمياء' ? '#f0f9ff' : 'transparent',
+                      borderRight: activeCategory === 'كيمياء' ? '4px solid #8b5cf6' : '4px solid transparent'
+                    }}
+                  >
+                    <span>⚗️ كيمياء</span>
+                    <span style={styles.folderCount}>{categoryStats.chemistry}</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveCategory('فيزياء')}
+                    style={{
+                      ...styles.folderItem,
+                      background: activeCategory === 'فيزياء' ? '#f0f9ff' : 'transparent',
+                      borderRight: activeCategory === 'فيزياء' ? '4px solid #ef4444' : '4px solid transparent'
+                    }}
+                  >
+                    <span>⚛️ فيزياء</span>
+                    <span style={styles.folderCount}>{categoryStats.physics}</span>
+                  </button>
+                </div>
+              )}
+
+              {/* روابط سريعة */}
+              <div style={styles.quickLinks}>
+                <h4 style={styles.quickTitle}>روابط سريعة</h4>
+
+                {/* واتساب */}
+                <a href={whatsappLink} target="_blank" style={styles.quickLink}>
+                  <span>📱</span>
+                  <span>واتساب</span>
+                </a>
+
+                {/* تليجرام */}
+                <a href={telegramBotLink} target="_blank" style={styles.quickLink}>
+                  <span>✈️</span>
+                  <span>تليجرام</span>
+                </a>
+
+                {/* المساعد الذكي */}
+                <Link href="/bot" style={styles.quickLink}>
+                  <span>🤖</span>
+                  <span>المساعد الذكي</span>
+                </Link>
+
+                {/* الدعم الفني */}
+                <Link href="/support/chat" style={styles.quickLink}>
+                  <span>💬</span>
+                  <span>الدعم الفني</span>
+                </Link>
+
+                {/* تسجيل الخروج */}
                 <button
-                  onClick={() => setActiveCategory('all')}
+                  onClick={handleLogout}
                   style={{
-                    ...styles.folderItem,
-                    background: activeCategory === 'all' ? '#f0f9ff' : 'transparent',
-                    borderRight: activeCategory === 'all' ? '4px solid #3b82f6' : '4px solid transparent'
+                    ...styles.quickLink,
+                    background: '#fee2e2',
+                    color: '#dc2626',
+                    border: 'none',
+                    width: '100%',
+                    cursor: 'pointer',
+                    marginTop: '10px'
                   }}
                 >
-                  <span>📚 كل المواد</span>
-                  <span style={styles.folderCount}>{categoryStats.total}</span>
-                </button>
-                <button
-                  onClick={() => setActiveCategory('كيمياء')}
-                  style={{
-                    ...styles.folderItem,
-                    background: activeCategory === 'كيمياء' ? '#f0f9ff' : 'transparent',
-                    borderRight: activeCategory === 'كيمياء' ? '4px solid #8b5cf6' : '4px solid transparent'
-                  }}
-                >
-                  <span>⚗️ كيمياء</span>
-                  <span style={styles.folderCount}>{categoryStats.chemistry}</span>
-                </button>
-                <button
-                  onClick={() => setActiveCategory('فيزياء')}
-                  style={{
-                    ...styles.folderItem,
-                    background: activeCategory === 'فيزياء' ? '#f0f9ff' : 'transparent',
-                    borderRight: activeCategory === 'فيزياء' ? '4px solid #ef4444' : '4px solid transparent'
-                  }}
-                >
-                  <span>⚛️ فيزياء</span>
-                  <span style={styles.folderCount}>{categoryStats.physics}</span>
+                  <span>🚪</span>
+                  <span>تسجيل الخروج</span>
                 </button>
               </div>
-            )}
-
-            {/* روابط سريعة */}
-            <div style={styles.quickLinks}>
-              {!sidebarCollapsed && <h4 style={styles.quickTitle}>روابط سريعة</h4>}
-              
-              {/* واتساب */}
-              <a href={whatsappLink} target="_blank" style={styles.quickLink}>
-                <span>📱</span>
-                {!sidebarCollapsed && <span>واتساب</span>}
-              </a>
-              
-              {/* تليجرام */}
-              <a href={telegramBotLink} target="_blank" style={styles.quickLink}>
-                <span>✈️</span>
-                {!sidebarCollapsed && <span>تليجرام</span>}
-              </a>
-              
-              {/* المساعد الذكي */}
-              <Link href="/bot" style={styles.quickLink}>
-                <span>🤖</span>
-                {!sidebarCollapsed && <span>المساعد الذكي</span>}
-              </Link>
-              
-              {/* الدعم الفني */}
-              <Link href="/support/chat" style={styles.quickLink}>
-                <span>💬</span>
-                {!sidebarCollapsed && <span>الدعم الفني</span>}
-              </Link>
-              
-              {/* تسجيل الخروج */}
-              <button 
-                onClick={handleLogout}
-                style={{
-                  ...styles.quickLink,
-                  background: '#fee2e2',
-                  color: '#dc2626',
-                  border: 'none',
-                  width: '100%',
-                  cursor: 'pointer',
-                  marginTop: '10px'
-                }}
-              >
-                <span>🚪</span>
-                {!sidebarCollapsed && <span>تسجيل الخروج</span>}
-              </button>
             </div>
-          </div>
-        </aside>
+          </aside>
+        )}
 
-        {/* منطقة المحتوى الرئيسي - مع تعديل المسافة للموبايل */}
+        {/* منطقة المحتوى الرئيسي - لم يعد هناك حاجة لإزاحة لليمين */}
         <main style={{
           ...styles.mainArea,
-          marginRight: isMobile ? '0' : (sidebarCollapsed ? '80px' : '300px'),
+          marginRight: '0', // دائماً صفر
           padding: isMobile ? '15px' : '25px',
-          width: isMobile ? '100%' : 'auto'
+          width: '100%'
         }}>
           {/* شريط التنقل العلوي */}
           <div style={styles.navBar}>
@@ -466,7 +465,7 @@ export default function PlatformPage() {
                 مرحباً {user.name} 👋
               </h2>
               <p style={isMobile ? styles.welcomeTextMobile : styles.welcomeText}>
-                {userYear === 'ثانية ثانوي' 
+                {userYear === 'ثانية ثانوي'
                   ? 'استعرض كورسات الكيمياء والفيزياء حسب المادة'
                   : `هذه هي الكورسات المتاحة لسنتك الدراسية (${userYear})`
                 }
@@ -549,7 +548,7 @@ export default function PlatformPage() {
               </button>
             </div>
           )}
-
+          
           {/* شبكة الكورسات - للموبايل عمود واحد */}
           {coursesLoading ? (
             <div style={styles.loadingCourses}>
@@ -593,16 +592,16 @@ export default function PlatformPage() {
                       )}
                     </div>
                   </div>
-                  
+
                   <p style={isMobile ? styles.courseDescriptionMobile : styles.courseDescription}>
                     {course.description || 'شرح مبسط ومتكامل للمنهج الدراسي'}
                   </p>
-                  
+
                   <div style={styles.courseMeta}>
                     <span>📅 {new Date(course.createdAt).toLocaleDateString('ar-EG')}</span>
                     {course.price && <span>💰 {course.price} ج.م</span>}
                   </div>
-                  
+
                   <div style={styles.courseFooter}>
                     <span style={{
                       ...styles.statusBadge,
@@ -611,7 +610,7 @@ export default function PlatformPage() {
                     }}>
                       {course.isOpened ? '✅ مفتوح' : '🔒 مقفل'}
                     </span>
-                    
+
                     {course.isOpened ? (
                       <Link href={`/course/${course.id}`} style={styles.courseButton}>
                         دخول الكورس ←
@@ -650,8 +649,8 @@ export default function PlatformPage() {
               تطوير: <a href="mailto:tomasmehany@gmail.com" style={styles.footerSupportLink}>tomasmehany@gmail.com</a>
             </p>
             <p style={styles.supportInfo}>
-              للدعم: 
-              <a href={whatsappLink} target="_blank" style={styles.footerSupportLink}>واتساب</a> | 
+              للدعم:
+              <a href={whatsappLink} target="_blank" style={styles.footerSupportLink}>واتساب</a> |
               <a href={telegramBotLink} target="_blank" style={styles.footerSupportLink}>تليجرام</a>
             </p>
           </div>
@@ -661,7 +660,7 @@ export default function PlatformPage() {
       {/* الأزرار العائمة - في الموبايل تكون تحت بعض */}
       <div style={isMobile ? styles.floatingButtonsMobile : styles.floatingButtons}>
         {/* زر الدعم */}
-        <Link 
+        <Link
           href="/support/chat"
           style={{
             ...styles.floatingButton,
@@ -673,7 +672,7 @@ export default function PlatformPage() {
         </Link>
 
         {/* زر المساعد الذكي */}
-        <Link 
+        <Link
           href="/bot"
           style={{
             ...styles.floatingButton,
@@ -689,7 +688,7 @@ export default function PlatformPage() {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
-        
+
         @keyframes pulse {
           0% {
             box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
@@ -701,7 +700,7 @@ export default function PlatformPage() {
             box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
           }
         }
-        
+
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
@@ -837,15 +836,11 @@ const styles: any = {
   },
 
   sidebar: {
-    position: 'fixed' as const,
-    right: 0,
-    top: '80px',
-    height: 'calc(100vh - 80px)',
     background: 'white',
-    boxShadow: '2px 0 10px rgba(0,0,0,0.05)',
-    transition: 'width 0.3s ease, transform 0.3s ease',
+    transition: 'transform 0.3s ease',
     overflowX: 'hidden' as const,
-    zIndex: 90
+    overflowY: 'auto' as const,
+    zIndex: 1000
   },
   sidebarContent: {
     padding: '20px 15px',
@@ -987,8 +982,8 @@ const styles: any = {
 
   mainArea: {
     padding: '25px',
-    transition: 'margin-right 0.3s ease',
-    maxWidth: '1300px'
+    maxWidth: '1300px',
+    margin: '0 auto' // توسيط المحتوى
   },
   navBar: {
     display: 'flex',
