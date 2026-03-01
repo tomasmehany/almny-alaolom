@@ -120,7 +120,7 @@ export default function LoginPage() {
               </Link>
               <button onClick={contactAdmin} style={styles.quickLink}>
                 <span style={styles.quickIcon}>💬</span>
-                <span>تواصل مع الأدمن</span>  {/* ✅ تم التعديل: دعم ← أدمن */}
+                <span>تواصل مع الأدمن</span>
               </button>
             </div>
           </div>
@@ -156,7 +156,7 @@ export default function LoginPage() {
                 <span style={styles.hint}>أدخل 11 رقم (مثال: 01012345678)</span>
               </div>
 
-              {/* حقل كلمة السر - نفس حجم input ✅ */}
+              {/* حقل كلمة السر */}
               <div style={styles.inputGroup}>
                 <label style={styles.label}>
                   <span style={styles.labelIcon}>🔐</span>
@@ -183,7 +183,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* ✅ نسيت كلمة السر؟ - كملحوظة صغيرة مش زر */}
+              {/* ملحوظة نسيت كلمة السر */}
               <div style={styles.forgotHint}>
                 <span style={styles.forgotIcon}>❓</span>
                 <span>نسيت كلمة السر؟ تواصل مع الأدمن على واتساب</span>
@@ -226,7 +226,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* ✅ الفوتر - زي صفحة التسجيل بالضبط */}
+            {/* الفوتر */}
             <div style={styles.footer}>
               <div style={styles.loginRow}>
                 <span style={styles.loginText}>ليس لديك حساب؟</span>
@@ -305,29 +305,44 @@ const styles: any = {
     zIndex: 2,
     display: 'flex',
     minHeight: '100vh',
+    '@media (max-width: 968px)': {
+      flexDirection: 'column',
+    },
   },
 
   // ========== الجهة اليمنى ==========
   rightPanel: {
-    flex: 1.2,
+    flex: '1.2',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '40px',
     position: 'relative',
     animation: 'fadeIn 0.8s ease-out',
+    '@media (max-width: 968px)': {
+      padding: '30px 20px',
+    },
+    '@media (max-width: 480px)': {
+      padding: '20px',
+    },
   },
 
   imageWrapper: {
     maxWidth: '600px',
     width: '100%',
-    textAlign: 'center' as const,
+    textAlign: 'center',
+    '@media (max-width: 968px)': {
+      maxWidth: '400px',
+    },
   },
 
   imageContainer: {
-    position: 'relative' as const,
+    position: 'relative',
     marginBottom: '30px',
     animation: 'float 6s ease-in-out infinite',
+    '@media (max-width: 968px)': {
+      marginBottom: '20px',
+    },
   },
 
   image: {
@@ -336,6 +351,12 @@ const styles: any = {
     margin: '0 auto',
     display: 'block',
     filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.3))',
+    '@media (max-width: 968px)': {
+      maxWidth: '300px',
+    },
+    '@media (max-width: 480px)': {
+      maxWidth: '200px',
+    },
   },
 
   imageFallback: {
@@ -348,15 +369,32 @@ const styles: any = {
     alignItems: 'center',
     justifyContent: 'center',
     boxShadow: '0 30px 40px rgba(0,0,0,0.3)',
+    '@media (max-width: 968px)': {
+      width: '200px',
+      height: '200px',
+    },
+    '@media (max-width: 480px)': {
+      width: '150px',
+      height: '150px',
+    },
   },
 
   fallbackIcon: {
     fontSize: '120px',
+    '@media (max-width: 968px)': {
+      fontSize: '80px',
+    },
+    '@media (max-width: 480px)': {
+      fontSize: '60px',
+    },
   },
 
   welcomeText: {
     marginBottom: '30px',
     color: 'white',
+    '@media (max-width: 968px)': {
+      marginBottom: '20px',
+    },
   },
 
   welcomeTitle: {
@@ -364,6 +402,12 @@ const styles: any = {
     fontWeight: '600',
     marginBottom: '5px',
     opacity: 0.9,
+    '@media (max-width: 968px)': {
+      fontSize: '24px',
+    },
+    '@media (max-width: 480px)': {
+      fontSize: '20px',
+    },
   },
 
   platformName: {
@@ -373,23 +417,40 @@ const styles: any = {
     background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
+    '@media (max-width: 968px)': {
+      fontSize: '32px',
+    },
+    '@media (max-width: 480px)': {
+      fontSize: '28px',
+    },
   },
 
   welcomeMessage: {
     fontSize: '18px',
     opacity: 0.8,
     lineHeight: 1.6,
+    '@media (max-width: 968px)': {
+      fontSize: '16px',
+    },
+    '@media (max-width: 480px)': {
+      fontSize: '14px',
+    },
   },
 
   quickLinks: {
     display: 'flex',
     gap: '15px',
     justifyContent: 'center',
+    '@media (max-width: 480px)': {
+      flexDirection: 'column',
+      gap: '10px',
+    },
   },
 
   quickLink: {
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: '8px',
     padding: '12px 20px',
     background: 'rgba(255,255,255,0.1)',
@@ -402,6 +463,11 @@ const styles: any = {
     cursor: 'pointer',
     border: 'none',
     transition: 'all 0.3s',
+    '@media (max-width: 480px)': {
+      width: '100%',
+      padding: '10px 16px',
+      fontSize: '14px',
+    },
     '&:hover': {
       background: 'rgba(255,255,255,0.2)',
       transform: 'translateY(-2px)',
@@ -410,15 +476,24 @@ const styles: any = {
 
   quickIcon: {
     fontSize: '18px',
+    '@media (max-width: 480px)': {
+      fontSize: '16px',
+    },
   },
 
   // ========== الجهة اليسرى ==========
   leftPanel: {
-    flex: 1,
+    flex: '1',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '40px',
+    '@media (max-width: 968px)': {
+      padding: '30px 20px',
+    },
+    '@media (max-width: 480px)': {
+      padding: '20px',
+    },
   },
 
   formCard: {
@@ -430,11 +505,22 @@ const styles: any = {
     maxWidth: '500px',
     boxShadow: '0 30px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
     animation: 'fadeIn 0.8s ease-out 0.2s both',
+    '@media (max-width: 968px)': {
+      padding: '30px',
+      borderRadius: '30px',
+    },
+    '@media (max-width: 480px)': {
+      padding: '20px',
+      borderRadius: '20px',
+    },
   },
 
   formHeader: {
-    textAlign: 'center' as const,
+    textAlign: 'center',
     marginBottom: '30px',
+    '@media (max-width: 480px)': {
+      marginBottom: '20px',
+    },
   },
 
   formTitle: {
@@ -442,17 +528,29 @@ const styles: any = {
     fontWeight: '800',
     color: '#1f2937',
     marginBottom: '5px',
+    '@media (max-width: 968px)': {
+      fontSize: '28px',
+    },
+    '@media (max-width: 480px)': {
+      fontSize: '24px',
+    },
   },
 
   formSubtitle: {
     fontSize: '16px',
     color: '#6b7280',
+    '@media (max-width: 480px)': {
+      fontSize: '14px',
+    },
   },
 
   form: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '20px',
+    '@media (max-width: 480px)': {
+      gap: '15px',
+    },
   },
 
   inputGroup: {
@@ -467,10 +565,17 @@ const styles: any = {
     fontWeight: '600',
     color: '#374151',
     fontSize: '14px',
+    '@media (max-width: 480px)': {
+      fontSize: '13px',
+      gap: '6px',
+    },
   },
 
   labelIcon: {
     fontSize: '16px',
+    '@media (max-width: 480px)': {
+      fontSize: '14px',
+    },
   },
 
   required: {
@@ -488,7 +593,12 @@ const styles: any = {
     transition: 'all 0.3s',
     background: '#f9fafb',
     outline: 'none',
-    boxSizing: 'border-box' as const,
+    boxSizing: 'border-box',
+    '@media (max-width: 480px)': {
+      padding: '12px 14px',
+      fontSize: '14px',
+      borderRadius: '12px',
+    },
     '&:focus': {
       borderColor: '#2563eb',
       background: '#ffffff',
@@ -504,13 +614,15 @@ const styles: any = {
     fontSize: '12px',
     color: '#6b7280',
     marginTop: '6px',
+    '@media (max-width: 480px)': {
+      fontSize: '11px',
+    },
   },
 
   passwordWrapper: {
-    position: 'relative' as const,
+    position: 'relative',
   },
 
-  // ✅ نفس حجم input العادي بالضبط
   passwordInput: {
     width: '100%',
     padding: '14px 45px 14px 16px',
@@ -520,7 +632,12 @@ const styles: any = {
     transition: 'all 0.3s',
     background: '#f9fafb',
     outline: 'none',
-    boxSizing: 'border-box' as const,
+    boxSizing: 'border-box',
+    '@media (max-width: 480px)': {
+      padding: '12px 45px 12px 14px',
+      fontSize: '14px',
+      borderRadius: '12px',
+    },
     '&:focus': {
       borderColor: '#2563eb',
       background: '#ffffff',
@@ -529,7 +646,7 @@ const styles: any = {
   },
 
   passwordToggle: {
-    position: 'absolute' as const,
+    position: 'absolute',
     left: '12px',
     top: '50%',
     transform: 'translateY(-50%)',
@@ -541,12 +658,15 @@ const styles: any = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    '@media (max-width: 480px)': {
+      fontSize: '16px',
+      left: '10px',
+    },
     '&:hover': {
       color: '#2563eb',
     },
   },
 
-  // ✅ ملحوظة نسيت كلمة السر (مش زر)
   forgotHint: {
     display: 'flex',
     alignItems: 'center',
@@ -558,6 +678,10 @@ const styles: any = {
     marginBottom: '5px',
     cursor: 'pointer',
     transition: 'all 0.2s',
+    '@media (max-width: 480px)': {
+      fontSize: '12px',
+      gap: '4px',
+    },
     '&:hover': {
       color: '#2563eb',
     },
@@ -565,6 +689,9 @@ const styles: any = {
 
   forgotIcon: {
     fontSize: '14px',
+    '@media (max-width: 480px)': {
+      fontSize: '12px',
+    },
   },
 
   message: {
@@ -576,6 +703,11 @@ const styles: any = {
     fontWeight: '500',
     border: '1px solid',
     animation: 'fadeIn 0.3s ease',
+    '@media (max-width: 480px)': {
+      padding: '12px 16px',
+      gap: '10px',
+      fontSize: '13px',
+    },
   },
 
   messageSuccess: {
@@ -593,6 +725,9 @@ const styles: any = {
   messageIcon: {
     fontSize: '20px',
     flexShrink: 0,
+    '@media (max-width: 480px)': {
+      fontSize: '18px',
+    },
   },
 
   submitButton: {
@@ -608,6 +743,10 @@ const styles: any = {
     transition: 'all 0.3s',
     marginTop: '10px',
     boxShadow: '0 10px 20px rgba(37,99,235,0.3)',
+    '@media (max-width: 480px)': {
+      padding: '14px',
+      fontSize: '16px',
+    },
     '&:hover:not(:disabled)': {
       transform: 'translateY(-2px)',
       boxShadow: '0 15px 30px rgba(37,99,235,0.4)',
@@ -635,6 +774,9 @@ const styles: any = {
 
   buttonArrow: {
     fontSize: '20px',
+    '@media (max-width: 480px)': {
+      fontSize: '18px',
+    },
   },
 
   spinner: {
@@ -646,10 +788,12 @@ const styles: any = {
     animation: 'spin 0.8s linear infinite',
   },
 
-  // ✅ الفوتر الجديد زي صفحة التسجيل
   footer: {
     marginTop: '25px',
-    textAlign: 'center' as const,
+    textAlign: 'center',
+    '@media (max-width: 480px)': {
+      marginTop: '20px',
+    },
   },
 
   loginRow: {
@@ -658,11 +802,18 @@ const styles: any = {
     justifyContent: 'center',
     gap: '8px',
     marginBottom: '15px',
+    '@media (max-width: 480px)': {
+      flexDirection: 'column',
+      gap: '5px',
+    },
   },
 
   loginText: {
     color: '#4b5563',
     fontSize: '15px',
+    '@media (max-width: 480px)': {
+      fontSize: '14px',
+    },
   },
 
   loginLink: {
@@ -671,6 +822,9 @@ const styles: any = {
     textDecoration: 'none',
     fontSize: '15px',
     transition: 'all 0.2s',
+    '@media (max-width: 480px)': {
+      fontSize: '14px',
+    },
     '&:hover': {
       color: '#7c3aed',
       textDecoration: 'underline',
@@ -689,6 +843,9 @@ const styles: any = {
     padding: '10px',
     borderRadius: '12px',
     transition: 'all 0.2s',
+    '@media (max-width: 480px)': {
+      fontSize: '14px',
+    },
     '&:hover': {
       color: '#2563eb',
       background: '#f1f5f9',
@@ -697,5 +854,8 @@ const styles: any = {
 
   homeIcon: {
     fontSize: '16px',
+    '@media (max-width: 480px)': {
+      fontSize: '14px',
+    },
   },
 }
