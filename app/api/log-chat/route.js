@@ -1,5 +1,6 @@
 // app/api/log-chat/route.js
-import { put } from '@vercel/blob';
+import fs from 'fs';
+import path from 'path';
 
 export async function POST(req) {
   console.log("📥 API التسجيل بدأ");
@@ -8,48 +9,40 @@ export async function POST(req) {
     const body = await req.json();
     console.log("📥 البيانات:", body);
 
-    const { studentId, studentName, realName, message, reply } = body;
+    const { studentId, studentName, message, reply } = body;
 
     if (!studentId || !message || !reply) {
+      console.log("❌ بيانات ناقصة");
       return new Response(JSON.stringify({ success: false }), { status: 200 });
     }
 
-    const date = new Date().toISOString().split('T')[0];
-    const fileName = `logs/${date}.json`;
+    const logsDir = path.join(process.cwd(), 'logs');
+    const today = new Date().toISOString().split('T')[0];
+    const logFile = path.join(logsDir, `${today}.json`);
 
-    // محاولة جلب الملف الموجود
-    let existingLogs = [];
-    try {
-      const blobUrl = `https://${process.env.BLOB1_READ_WRITE_TOKEN}.public.blob.vercel-storage.com/${fileName}`;
-      const existingRes = await fetch(blobUrl);
-      if (existingRes.ok) {
-        existingLogs = await existingRes.json();
-      }
-    } catch (error) {
-      console.log("ملف جديد سيتم إنشاؤه");
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
     }
 
-    // إضافة السجل الجديد
+    let logs = [];
+    if (fs.existsSync(logFile)) {
+      const content = fs.readFileSync(logFile, 'utf8');
+      logs = JSON.parse(content);
+    }
+
     const newLog = {
       id: Date.now(),
       studentId,
       studentName: studentName || 'طالب',
-      realName: realName || 'غير معروف',
       message,
       reply,
       timestamp: new Date().toISOString()
     };
     
-    existingLogs.push(newLog);
+    logs.push(newLog);
+    fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
 
-    // حفظ الملف في Vercel Blob
-    const blob = await put(fileName, JSON.stringify(existingLogs, null, 2), {
-      access: 'public',
-      addRandomSuffix: false,
-      token: process.env.BLOB1_READ_WRITE_TOKEN,
-    });
-
-    console.log("✅ تم الحفظ في:", blob.url);
+    console.log("✅ تم الحفظ");
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
 
