@@ -1,68 +1,60 @@
 // app/api/log-chat/route.js
-import fs from 'fs';
-import path from 'path';
+import { put } from '@vercel/blob';
 
 export async function POST(req) {
   console.log("📥 API التسجيل بدأ");
   
   try {
     const body = await req.json();
-    console.log("📥 البيانات المستلمة في API:", body);
+    console.log("📥 البيانات:", body);
 
     const { studentId, studentName, realName, message, reply } = body;
 
-    // التحقق من البيانات
     if (!studentId || !message || !reply) {
-      console.log("❌ بيانات ناقصة:", { studentId, message, reply });
       return new Response(JSON.stringify({ success: false }), { status: 200 });
     }
 
-    // استخدام studentName كاسم أساسي
-    const finalName = studentName || realName || 'طالب';
-    
-    console.log("👤 الاسم النهائي للتخزين:", finalName);
+    const date = new Date().toISOString().split('T')[0];
+    const fileName = `logs/${date}.json`;
 
-    const logsDir = path.join(process.cwd(), 'logs');
-    const today = new Date().toISOString().split('T')[0];
-    const logFile = path.join(logsDir, `${today}.json`);
-
-    // إنشاء مجلد logs لو مش موجود
-    if (!fs.existsSync(logsDir)) {
-      fs.mkdirSync(logsDir, { recursive: true });
-      console.log("📁 تم إنشاء مجلد logs");
-    }
-
-    // قراءة السجلات القديمة
-    let logs = [];
-    if (fs.existsSync(logFile)) {
-      const content = fs.readFileSync(logFile, 'utf8');
-      logs = JSON.parse(content);
-      console.log(`📁 تم تحميل ${logs.length} سجل قديم`);
+    // محاولة جلب الملف الموجود
+    let existingLogs = [];
+    try {
+      const blobUrl = `https://${process.env.BLOB1_READ_WRITE_TOKEN}.public.blob.vercel-storage.com/${fileName}`;
+      const existingRes = await fetch(blobUrl);
+      if (existingRes.ok) {
+        existingLogs = await existingRes.json();
+      }
+    } catch (error) {
+      console.log("ملف جديد سيتم إنشاؤه");
     }
 
     // إضافة السجل الجديد
     const newLog = {
       id: Date.now(),
       studentId,
-      studentName: finalName,
-      realName: finalName,
+      studentName: studentName || 'طالب',
+      realName: realName || 'غير معروف',
       message,
       reply,
       timestamp: new Date().toISOString()
     };
     
-    logs.push(newLog);
-    
-    // حفظ الملف
-    fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
-    
-    console.log("✅ تم الحفظ بنجاح. إجمالي السجلات:", logs.length);
-    console.log("📝 آخر سجل:", newLog);
+    existingLogs.push(newLog);
+
+    // حفظ الملف في Vercel Blob
+    const blob = await put(fileName, JSON.stringify(existingLogs, null, 2), {
+      access: 'public',
+      addRandomSuffix: false,
+      token: process.env.BLOB1_READ_WRITE_TOKEN,
+    });
+
+    console.log("✅ تم الحفظ في:", blob.url);
 
     return new Response(JSON.stringify({ success: true }), { status: 200 });
 
   } catch (error) {
-    console.error("❌ خطأ في API التسجيل:", error);
+    console.error("❌ خطأ:", error);
     return new Response(JSON.stringify({ success: false }), { status: 200 });
   }
 }
