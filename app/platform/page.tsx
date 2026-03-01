@@ -671,14 +671,34 @@ export default function PlatformPage() {
         </div>
       </footer>
 
-      {/* الأزرار العائمة - في الموبايل تكون تحت بعض */}
-      <div style={isMobile ? styles.floatingButtonsMobile : styles.floatingButtons}>
+ {/* ===== الأزرار العائمة (ثابتة في كل الصفحة) ===== */}
+      <div style={{
+        position: 'fixed',
+        bottom: '20px',
+        left: '20px',
+        zIndex: 99999,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px',
+      }}>
         {/* زر الدعم */}
         <Link 
           href="/support/chat"
           style={{
-            ...styles.floatingButton,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '60px',
+            height: '60px',
             backgroundColor: '#2563eb',
+            color: 'white',
+            borderRadius: '50%',
+            textDecoration: 'none',
+            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.4)',
+            fontSize: '26px',
+            border: '2px solid white',
+            transition: 'all 0.3s ease',
+            cursor: 'pointer'
           }}
           title="الدعم الفني"
         >
@@ -689,8 +709,20 @@ export default function PlatformPage() {
         <Link 
           href="/bot"
           style={{
-            ...styles.floatingButton,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '60px',
+            height: '60px',
             background: 'linear-gradient(135deg, #10b981, #059669)',
+            color: 'white',
+            borderRadius: '50%',
+            textDecoration: 'none',
+            boxShadow: '0 8px 20px rgba(16, 185, 129, 0.4)',
+            fontSize: '26px',
+            border: '2px solid white',
+            transition: 'all 0.3s ease',
+            cursor: 'pointer'
           }}
           title="المساعد الذكي"
         >
