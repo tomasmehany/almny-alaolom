@@ -4,21 +4,7 @@ import Link from 'next/link'
 import { db } from '@/lib/firebase'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 
-// ========== [ كود الموبايل يشتغل زي الكمبيوتر ] ==========
-import { useEffect as useEffect2 } from 'react'
 export default function PlatformPage() {
-    // ========== كود الموبايل يشتغل زي الكمبيوتر ==========
-  useEffect2(() => {
-    // لو المستخدم على موبايل
-    if (window.innerWidth <= 768) {
-      // غير إعدادات الصفحة تخليها زي الكمبيوتر
-      const viewport = document.querySelector('meta[name="viewport"]');
-      if (viewport) {
-        viewport.setAttribute('content', 'width=1024, initial-scale=0.5');
-      }
-    }
-  }, []);
-  // ====================================================
   const [user, setUser] = useState<any>(null)
   const [userId, setUserId] = useState<string>('')
   const [loading, setLoading] = useState(true)
@@ -310,13 +296,14 @@ export default function PlatformPage() {
       {/* المحتوى الرئيسي */}
       <div style={styles.mainContent}>
         {/* الشريط الجانبي - في الموبايل بياخد عرض كامل */}
-                <aside style={{
+        <aside style={{
           ...styles.sidebar,
           width: isMobile 
             ? (sidebarCollapsed ? '60px' : '250px')
             : (sidebarCollapsed ? '80px' : '300px'),
-          position: isMobile ? 'absolute' : 'fixed',
+          position: isMobile ? 'fixed' : 'fixed',
           zIndex: isMobile ? 100 : 90,
+          transform: isMobile && sidebarCollapsed ? 'translateX(0)' : 'none',
         }}>
           <div style={styles.sidebarContent}>
             {/* بطاقة السنة الدراسية */}
@@ -451,7 +438,8 @@ export default function PlatformPage() {
             </div>
           </div>
         </aside>
-                {/* منطقة المحتوى الرئيسي - مع تعديل المسافة للموبايل */}
+
+        {/* منطقة المحتوى الرئيسي - مع تعديل المسافة للموبايل */}
         <main style={{
           ...styles.mainArea,
           marginRight: isMobile ? '0' : (sidebarCollapsed ? '80px' : '300px'),
@@ -670,41 +658,14 @@ export default function PlatformPage() {
         </div>
       </footer>
 
-      {/* ===== الأزرار العائمة (معدلة عشان تظهر دايماً) ===== */}
-      <div style={{
-        position: 'fixed',
-        bottom: '20px',
-        left: '20px',
-        zIndex: 999999,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '15px',
-        opacity: 1,
-        visibility: 'visible',
-        transform: 'scale(1)',
-        pointerEvents: 'auto',
-      }}>
+      {/* الأزرار العائمة - في الموبايل تكون تحت بعض */}
+      <div style={isMobile ? styles.floatingButtonsMobile : styles.floatingButtons}>
         {/* زر الدعم */}
         <Link 
           href="/support/chat"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '60px',
-            height: '60px',
+            ...styles.floatingButton,
             backgroundColor: '#2563eb',
-            color: 'white',
-            borderRadius: '50%',
-            textDecoration: 'none',
-            boxShadow: '0 8px 20px rgba(37, 99, 235, 0.4)',
-            fontSize: '26px',
-            border: '2px solid white',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-            opacity: 1,
-            visibility: 'visible',
-            transform: 'scale(1)',
           }}
           title="الدعم الفني"
         >
@@ -715,23 +676,8 @@ export default function PlatformPage() {
         <Link 
           href="/bot"
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '60px',
-            height: '60px',
+            ...styles.floatingButton,
             background: 'linear-gradient(135deg, #10b981, #059669)',
-            color: 'white',
-            borderRadius: '50%',
-            textDecoration: 'none',
-            boxShadow: '0 8px 20px rgba(16, 185, 129, 0.4)',
-            fontSize: '26px',
-            border: '2px solid white',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-            opacity: 1,
-            visibility: 'visible',
-            transform: 'scale(1)',
           }}
           title="المساعد الذكي"
         >
@@ -891,7 +837,7 @@ const styles: any = {
   },
 
   sidebar: {
-    position: 'absolute' as const,
+    position: 'fixed' as const,
     right: 0,
     top: '80px',
     height: 'calc(100vh - 80px)',
@@ -1042,8 +988,7 @@ const styles: any = {
   mainArea: {
     padding: '25px',
     transition: 'margin-right 0.3s ease',
-    maxWidth: '1300px',
-    width: '100%'
+    maxWidth: '1300px'
   },
   navBar: {
     display: 'flex',
