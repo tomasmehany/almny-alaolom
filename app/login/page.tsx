@@ -47,28 +47,19 @@ export default function LoginPage() {
     }
 
     try {
-      console.log('🚀 محاولة تسجيل الدخول...')
-      
       const result = await loginUser(formData.phone, formData.password)
       
       if (result.success) {
-        console.log('✅ تسجيل الدخول ناجح:', result.user)
-        
         localStorage.setItem('currentUser', JSON.stringify(result.user))
-        
         setError('✅ تم تسجيل الدخول بنجاح! جاري التوجيه...')
         
         setTimeout(() => {
           window.location.href = '/platform'
         }, 1000)
-        
       } else {
         setError(result.error || '❌ حدث خطأ في تسجيل الدخول')
-        console.error('❌ خطأ تسجيل الدخول:', result.error)
       }
-      
     } catch (error: any) {
-      console.error('🔥 خطأ غير متوقع:', error)
       setError('❌ حدث خطأ في الخادم. حاول مرة أخرى.')
     } finally {
       setLoading(false)
@@ -76,8 +67,7 @@ export default function LoginPage() {
   }
 
   const contactAdmin = () => {
-    const whatsappUrl = `https://wa.me/message/UKASWZCU5BNLN1?src=qr`
-    window.open(whatsappUrl, '_blank')
+    window.open('https://wa.me/message/UKASWZCU5BNLN1?src=qr', '_blank')
   }
 
   if (!mounted) return null
@@ -90,7 +80,7 @@ export default function LoginPage() {
       
       {/* المحتوى الرئيسي */}
       <div style={styles.content}>
-        {/* الجهة اليمنى - صورة الولد */}
+        {/* الجهة اليمنى - صورة وترحيب */}
         <div style={styles.rightPanel}>
           <div style={styles.imageWrapper}>
             <div style={styles.imageContainer}>
@@ -305,7 +295,7 @@ const styles: any = {
     zIndex: 2,
     display: 'flex',
     minHeight: '100vh',
-    '@media (max-width: 968px)': {
+    '@media (max-width: 768px)': {
       flexDirection: 'column',
     },
   },
@@ -317,13 +307,8 @@ const styles: any = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '40px',
-    position: 'relative',
-    animation: 'fadeIn 0.8s ease-out',
-    '@media (max-width: 968px)': {
+    '@media (max-width: 768px)': {
       padding: '30px 20px',
-    },
-    '@media (max-width: 480px)': {
-      padding: '20px',
     },
   },
 
@@ -331,18 +316,12 @@ const styles: any = {
     maxWidth: '600px',
     width: '100%',
     textAlign: 'center',
-    '@media (max-width: 968px)': {
-      maxWidth: '400px',
-    },
   },
 
   imageContainer: {
     position: 'relative',
     marginBottom: '30px',
     animation: 'float 6s ease-in-out infinite',
-    '@media (max-width: 968px)': {
-      marginBottom: '20px',
-    },
   },
 
   image: {
@@ -350,12 +329,8 @@ const styles: any = {
     maxWidth: '450px',
     margin: '0 auto',
     display: 'block',
-    filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.3))',
-    '@media (max-width: 968px)': {
+    '@media (max-width: 768px)': {
       maxWidth: '300px',
-    },
-    '@media (max-width: 480px)': {
-      maxWidth: '200px',
     },
   },
 
@@ -368,33 +343,22 @@ const styles: any = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0 30px 40px rgba(0,0,0,0.3)',
-    '@media (max-width: 968px)': {
+    '@media (max-width: 768px)': {
       width: '200px',
       height: '200px',
-    },
-    '@media (max-width: 480px)': {
-      width: '150px',
-      height: '150px',
     },
   },
 
   fallbackIcon: {
     fontSize: '120px',
-    '@media (max-width: 968px)': {
+    '@media (max-width: 768px)': {
       fontSize: '80px',
-    },
-    '@media (max-width: 480px)': {
-      fontSize: '60px',
     },
   },
 
   welcomeText: {
     marginBottom: '30px',
     color: 'white',
-    '@media (max-width: 968px)': {
-      marginBottom: '20px',
-    },
   },
 
   welcomeTitle: {
@@ -402,11 +366,8 @@ const styles: any = {
     fontWeight: '600',
     marginBottom: '5px',
     opacity: 0.9,
-    '@media (max-width: 968px)': {
+    '@media (max-width: 768px)': {
       fontSize: '24px',
-    },
-    '@media (max-width: 480px)': {
-      fontSize: '20px',
     },
   },
 
@@ -417,11 +378,8 @@ const styles: any = {
     background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
-    '@media (max-width: 968px)': {
+    '@media (max-width: 768px)': {
       fontSize: '32px',
-    },
-    '@media (max-width: 480px)': {
-      fontSize: '28px',
     },
   },
 
@@ -429,11 +387,8 @@ const styles: any = {
     fontSize: '18px',
     opacity: 0.8,
     lineHeight: 1.6,
-    '@media (max-width: 968px)': {
+    '@media (max-width: 768px)': {
       fontSize: '16px',
-    },
-    '@media (max-width: 480px)': {
-      fontSize: '14px',
     },
   },
 
@@ -443,7 +398,6 @@ const styles: any = {
     justifyContent: 'center',
     '@media (max-width: 480px)': {
       flexDirection: 'column',
-      gap: '10px',
     },
   },
 
@@ -454,31 +408,16 @@ const styles: any = {
     gap: '8px',
     padding: '12px 20px',
     background: 'rgba(255,255,255,0.1)',
-    backdropFilter: 'blur(10px)',
     borderRadius: '50px',
     color: 'white',
     textDecoration: 'none',
     fontSize: '15px',
-    fontWeight: '600',
-    cursor: 'pointer',
     border: 'none',
-    transition: 'all 0.3s',
-    '@media (max-width: 480px)': {
-      width: '100%',
-      padding: '10px 16px',
-      fontSize: '14px',
-    },
-    '&:hover': {
-      background: 'rgba(255,255,255,0.2)',
-      transform: 'translateY(-2px)',
-    },
+    cursor: 'pointer',
   },
 
   quickIcon: {
     fontSize: '18px',
-    '@media (max-width: 480px)': {
-      fontSize: '16px',
-    },
   },
 
   // ========== الجهة اليسرى ==========
@@ -488,39 +427,26 @@ const styles: any = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '40px',
-    '@media (max-width: 968px)': {
-      padding: '30px 20px',
-    },
-    '@media (max-width: 480px)': {
+    '@media (max-width: 768px)': {
       padding: '20px',
     },
   },
 
   formCard: {
     background: 'rgba(255, 255, 255, 0.95)',
-    backdropFilter: 'blur(20px)',
     borderRadius: '40px',
     padding: '40px',
     width: '100%',
     maxWidth: '500px',
-    boxShadow: '0 30px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-    animation: 'fadeIn 0.8s ease-out 0.2s both',
-    '@media (max-width: 968px)': {
+    boxShadow: '0 30px 60px rgba(0,0,0,0.3)',
+    '@media (max-width: 768px)': {
       padding: '30px',
-      borderRadius: '30px',
-    },
-    '@media (max-width: 480px)': {
-      padding: '20px',
-      borderRadius: '20px',
     },
   },
 
   formHeader: {
     textAlign: 'center',
     marginBottom: '30px',
-    '@media (max-width: 480px)': {
-      marginBottom: '20px',
-    },
   },
 
   formTitle: {
@@ -528,29 +454,20 @@ const styles: any = {
     fontWeight: '800',
     color: '#1f2937',
     marginBottom: '5px',
-    '@media (max-width: 968px)': {
+    '@media (max-width: 768px)': {
       fontSize: '28px',
-    },
-    '@media (max-width: 480px)': {
-      fontSize: '24px',
     },
   },
 
   formSubtitle: {
     fontSize: '16px',
     color: '#6b7280',
-    '@media (max-width: 480px)': {
-      fontSize: '14px',
-    },
   },
 
   form: {
     display: 'flex',
     flexDirection: 'column',
     gap: '20px',
-    '@media (max-width: 480px)': {
-      gap: '15px',
-    },
   },
 
   inputGroup: {
@@ -565,23 +482,14 @@ const styles: any = {
     fontWeight: '600',
     color: '#374151',
     fontSize: '14px',
-    '@media (max-width: 480px)': {
-      fontSize: '13px',
-      gap: '6px',
-    },
   },
 
   labelIcon: {
     fontSize: '16px',
-    '@media (max-width: 480px)': {
-      fontSize: '14px',
-    },
   },
 
   required: {
     color: '#ef4444',
-    marginRight: '4px',
-    fontSize: '16px',
   },
 
   input: {
@@ -590,23 +498,9 @@ const styles: any = {
     border: '2px solid #e5e7eb',
     borderRadius: '16px',
     fontSize: '15px',
-    transition: 'all 0.3s',
     background: '#f9fafb',
     outline: 'none',
     boxSizing: 'border-box',
-    '@media (max-width: 480px)': {
-      padding: '12px 14px',
-      fontSize: '14px',
-      borderRadius: '12px',
-    },
-    '&:focus': {
-      borderColor: '#2563eb',
-      background: '#ffffff',
-      boxShadow: '0 0 0 4px rgba(37,99,235,0.1)',
-    },
-    '&::placeholder': {
-      color: '#9ca3af',
-    },
   },
 
   hint: {
@@ -614,9 +508,6 @@ const styles: any = {
     fontSize: '12px',
     color: '#6b7280',
     marginTop: '6px',
-    '@media (max-width: 480px)': {
-      fontSize: '11px',
-    },
   },
 
   passwordWrapper: {
@@ -629,20 +520,9 @@ const styles: any = {
     border: '2px solid #e5e7eb',
     borderRadius: '16px',
     fontSize: '15px',
-    transition: 'all 0.3s',
     background: '#f9fafb',
     outline: 'none',
     boxSizing: 'border-box',
-    '@media (max-width: 480px)': {
-      padding: '12px 45px 12px 14px',
-      fontSize: '14px',
-      borderRadius: '12px',
-    },
-    '&:focus': {
-      borderColor: '#2563eb',
-      background: '#ffffff',
-      boxShadow: '0 0 0 4px rgba(37,99,235,0.1)',
-    },
   },
 
   passwordToggle: {
@@ -655,16 +535,6 @@ const styles: any = {
     cursor: 'pointer',
     fontSize: '18px',
     color: '#6b7280',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    '@media (max-width: 480px)': {
-      fontSize: '16px',
-      left: '10px',
-    },
-    '&:hover': {
-      color: '#2563eb',
-    },
   },
 
   forgotHint: {
@@ -674,24 +544,10 @@ const styles: any = {
     gap: '6px',
     fontSize: '13px',
     color: '#6b7280',
-    marginTop: '-5px',
-    marginBottom: '5px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    '@media (max-width: 480px)': {
-      fontSize: '12px',
-      gap: '4px',
-    },
-    '&:hover': {
-      color: '#2563eb',
-    },
   },
 
   forgotIcon: {
     fontSize: '14px',
-    '@media (max-width: 480px)': {
-      fontSize: '12px',
-    },
   },
 
   message: {
@@ -701,33 +557,22 @@ const styles: any = {
     alignItems: 'center',
     gap: '12px',
     fontWeight: '500',
-    border: '1px solid',
-    animation: 'fadeIn 0.3s ease',
-    '@media (max-width: 480px)': {
-      padding: '12px 16px',
-      gap: '10px',
-      fontSize: '13px',
-    },
   },
 
   messageSuccess: {
     background: '#ecfdf5',
-    borderColor: '#a7f3d0',
+    border: '1px solid #a7f3d0',
     color: '#065f46',
   },
 
   messageError: {
     background: '#fef2f2',
-    borderColor: '#fecaca',
+    border: '1px solid #fecaca',
     color: '#991b1b',
   },
 
   messageIcon: {
     fontSize: '20px',
-    flexShrink: 0,
-    '@media (max-width: 480px)': {
-      fontSize: '18px',
-    },
   },
 
   submitButton: {
@@ -740,25 +585,8 @@ const styles: any = {
     fontSize: '18px',
     fontWeight: '700',
     cursor: 'pointer',
-    transition: 'all 0.3s',
     marginTop: '10px',
     boxShadow: '0 10px 20px rgba(37,99,235,0.3)',
-    '@media (max-width: 480px)': {
-      padding: '14px',
-      fontSize: '16px',
-    },
-    '&:hover:not(:disabled)': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 15px 30px rgba(37,99,235,0.4)',
-    },
-    '&:active:not(:disabled)': {
-      transform: 'translateY(0)',
-    },
-    '&:disabled': {
-      opacity: 0.7,
-      cursor: 'not-allowed',
-      background: 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)',
-    },
   },
 
   submitButtonLoading: {
@@ -774,9 +602,6 @@ const styles: any = {
 
   buttonArrow: {
     fontSize: '20px',
-    '@media (max-width: 480px)': {
-      fontSize: '18px',
-    },
   },
 
   spinner: {
@@ -791,9 +616,6 @@ const styles: any = {
   footer: {
     marginTop: '25px',
     textAlign: 'center',
-    '@media (max-width: 480px)': {
-      marginTop: '20px',
-    },
   },
 
   loginRow: {
@@ -804,16 +626,12 @@ const styles: any = {
     marginBottom: '15px',
     '@media (max-width: 480px)': {
       flexDirection: 'column',
-      gap: '5px',
     },
   },
 
   loginText: {
     color: '#4b5563',
     fontSize: '15px',
-    '@media (max-width: 480px)': {
-      fontSize: '14px',
-    },
   },
 
   loginLink: {
@@ -821,14 +639,6 @@ const styles: any = {
     fontWeight: '700',
     textDecoration: 'none',
     fontSize: '15px',
-    transition: 'all 0.2s',
-    '@media (max-width: 480px)': {
-      fontSize: '14px',
-    },
-    '&:hover': {
-      color: '#7c3aed',
-      textDecoration: 'underline',
-    },
   },
 
   homeLink: {
@@ -839,23 +649,10 @@ const styles: any = {
     color: '#64748b',
     textDecoration: 'none',
     fontSize: '15px',
-    fontWeight: '500',
     padding: '10px',
-    borderRadius: '12px',
-    transition: 'all 0.2s',
-    '@media (max-width: 480px)': {
-      fontSize: '14px',
-    },
-    '&:hover': {
-      color: '#2563eb',
-      background: '#f1f5f9',
-    },
   },
 
   homeIcon: {
     fontSize: '16px',
-    '@media (max-width: 480px)': {
-      fontSize: '14px',
-    },
   },
 }
