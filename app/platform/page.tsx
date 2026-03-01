@@ -296,14 +296,13 @@ export default function PlatformPage() {
       {/* المحتوى الرئيسي */}
       <div style={styles.mainContent}>
         {/* الشريط الجانبي - في الموبايل بياخد عرض كامل */}
-        <aside style={{
+                <aside style={{
           ...styles.sidebar,
           width: isMobile 
             ? (sidebarCollapsed ? '60px' : '250px')
             : (sidebarCollapsed ? '80px' : '300px'),
-          position: isMobile ? 'fixed' : 'fixed',
+          position: isMobile ? 'absolute' : 'fixed',
           zIndex: isMobile ? 100 : 90,
-          transform: isMobile && sidebarCollapsed ? 'translateX(0)' : 'none',
         }}>
           <div style={styles.sidebarContent}>
             {/* بطاقة السنة الدراسية */}
@@ -836,8 +835,8 @@ const styles: any = {
     minHeight: 'calc(100vh - 140px)'
   },
 
-  sidebar: {
-    position: 'fixed' as const,
+    sidebar: {
+    position: 'absolute' as const,
     right: 0,
     top: '80px',
     height: 'calc(100vh - 80px)',
@@ -985,10 +984,11 @@ const styles: any = {
     }
   },
 
-  mainArea: {
+   mainArea: {
     padding: '25px',
     transition: 'margin-right 0.3s ease',
-    maxWidth: '1300px'
+    maxWidth: '1300px',
+    width: '100%'
   },
   navBar: {
     display: 'flex',
