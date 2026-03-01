@@ -62,7 +62,7 @@ export default function Home() {
 
       {/* القسم الرئيسي */}
       <main style={styles.main}>
-        {/* Hero Section */}
+        {/* Hero Section - بدون إحصائيات */}
         <div style={{
           ...styles.hero,
           opacity: isVisible ? 1 : 0,
@@ -108,6 +108,7 @@ export default function Home() {
 
           <div style={styles.heroImage}>
             <div style={styles.imageWrapper}>
+              {/* ✅ غير مسار الصورة هنا */}
               <img 
                 src="/home.png" 
                 alt="تعليم تفاعلي"
@@ -223,7 +224,7 @@ export default function Home() {
         <div style={styles.supportSection}>
           <div style={styles.supportCard}>
             <div style={styles.supportIcon}>💬</div>
-            <div style={styles.supportTextContent}>
+            <div>
               <h3 style={styles.supportTitle}> للمساعدة تواصل مع الادمن </h3>
               <p style={styles.supportText}>
                 لديك استفسار؟ تواصل معنا 
@@ -318,8 +319,7 @@ const styles: any = {
     position: 'relative',
     overflowX: 'hidden',
     background: '#0a192f',
-    direction: 'rtl',
-    width: '100%'
+    direction: 'rtl'
   },
 
   background: {
@@ -348,11 +348,8 @@ const styles: any = {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    padding: '15px 20px',
-    transition: 'all 0.3s ease',
-    '@media (min-width: 768px)': {
-      padding: '15px 5%'
-    }
+    padding: '15px 5%',
+    transition: 'all 0.3s ease'
   },
 
   headerContent: {
@@ -362,22 +359,13 @@ const styles: any = {
     justifyContent: 'space-between',
     alignItems: 'center',
     position: 'relative',
-    zIndex: 2,
-    flexWrap: 'wrap',
-    gap: '15px',
-    '@media (max-width: 768px)': {
-      flexDirection: 'column',
-      textAlign: 'center'
-    }
+    zIndex: 2
   },
 
   logo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '15px',
-    '@media (max-width: 480px)': {
-      gap: '10px'
-    }
+    gap: '15px'
   },
 
   logoIconWrapper: {
@@ -388,18 +376,11 @@ const styles: any = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    animation: 'float 3s ease-in-out infinite',
-    '@media (max-width: 480px)': {
-      width: '50px',
-      height: '50px'
-    }
+    animation: 'float 3s ease-in-out infinite'
   },
 
   logoIcon: {
-    fontSize: '30px',
-    '@media (max-width: 480px)': {
-      fontSize: '24px'
-    }
+    fontSize: '30px'
   },
 
   logoText: {
@@ -412,33 +393,19 @@ const styles: any = {
     fontWeight: '800',
     color: 'white',
     margin: 0,
-    lineHeight: 1.2,
-    '@media (max-width: 480px)': {
-      fontSize: '20px'
-    }
+    lineHeight: 1.2
   },
 
   logoSub: {
     fontSize: '14px',
     color: '#94a3b8',
-    margin: 0,
-    '@media (max-width: 480px)': {
-      fontSize: '12px'
-    }
+    margin: 0
   },
 
   nav: {
     display: 'flex',
     gap: '15px',
-    alignItems: 'center',
-    '@media (max-width: 768px)': {
-      width: '100%',
-      justifyContent: 'center'
-    },
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      width: '100%'
-    }
+    alignItems: 'center'
   },
 
   navButton: {
@@ -450,11 +417,7 @@ const styles: any = {
     fontSize: '15px',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.3s',
-    '@media (max-width: 480px)': {
-      padding: '10px 20px',
-      width: '100%'
-    }
+    transition: 'all 0.3s'
   },
 
   navButtonPrimary: {
@@ -467,11 +430,7 @@ const styles: any = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s',
-    boxShadow: '0 10px 20px rgba(37,99,235,0.3)',
-    '@media (max-width: 480px)': {
-      padding: '10px 20px',
-      width: '100%'
-    }
+    boxShadow: '0 10px 20px rgba(37,99,235,0.3)'
   },
 
   main: {
@@ -479,10 +438,7 @@ const styles: any = {
     zIndex: 2,
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '40px 20px',
-    '@media (min-width: 768px)': {
-      padding: '40px 5%'
-    }
+    padding: '40px 5%'
   },
 
   hero: {
@@ -491,13 +447,7 @@ const styles: any = {
     gap: '60px',
     alignItems: 'center',
     marginBottom: '100px',
-    minHeight: 'auto',
-    '@media (max-width: 968px)': {
-      gridTemplateColumns: '1fr',
-      gap: '40px',
-      textAlign: 'center',
-      marginBottom: '60px'
-    }
+    minHeight: '600px'
   },
 
   heroContent: {
@@ -521,13 +471,7 @@ const styles: any = {
     fontWeight: '800',
     marginBottom: '20px',
     lineHeight: 1.2,
-    color: 'white',
-    '@media (max-width: 968px)': {
-      fontSize: '42px'
-    },
-    '@media (max-width: 480px)': {
-      fontSize: '32px'
-    }
+    color: 'white'
   },
 
   heroHighlight: {
@@ -537,34 +481,21 @@ const styles: any = {
   heroSubtitle: {
     fontSize: '20px',
     color: '#94a3b8',
-    marginBottom: '20px',
-    '@media (max-width: 480px)': {
-      fontSize: '16px'
-    }
+    marginBottom: '20px'
   },
 
   heroDescription: {
     fontSize: '18px',
     lineHeight: 1.8,
     color: '#cbd5e1',
-    marginBottom: '40px',
-    '@media (max-width: 480px)': {
-      fontSize: '16px'
-    }
+    marginBottom: '40px'
   },
 
   heroButtons: {
     display: 'flex',
     gap: '20px',
     marginBottom: '40px',
-    flexWrap: 'wrap',
-    '@media (max-width: 768px)': {
-      justifyContent: 'center'
-    },
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      width: '100%'
-    }
+    flexWrap: 'wrap'
   },
 
   primaryButton: {
@@ -580,12 +511,7 @@ const styles: any = {
     alignItems: 'center',
     gap: '10px',
     transition: 'all 0.3s',
-    boxShadow: '0 10px 20px rgba(37,99,235,0.3)',
-    '@media (max-width: 480px)': {
-      width: '100%',
-      justifyContent: 'center',
-      padding: '14px 24px'
-    }
+    boxShadow: '0 10px 20px rgba(37,99,235,0.3)'
   },
 
   secondaryButton: {
@@ -600,12 +526,7 @@ const styles: any = {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    transition: 'all 0.3s',
-    '@media (max-width: 480px)': {
-      width: '100%',
-      justifyContent: 'center',
-      padding: '14px 24px'
-    }
+    transition: 'all 0.3s'
   },
 
   buttonIcon: {
@@ -618,11 +539,7 @@ const styles: any = {
 
   heroImage: {
     position: 'relative',
-    animation: 'float 6s ease-in-out infinite',
-    '@media (max-width: 968px)': {
-      maxWidth: '500px',
-      margin: '0 auto'
-    }
+    animation: 'float 6s ease-in-out infinite'
   },
 
   imageWrapper: {
@@ -635,8 +552,7 @@ const styles: any = {
 
   mainImage: {
     width: '100%',
-    height: 'auto',
-    maxHeight: '500px',
+    height: '500px',
     objectFit: 'cover',
     display: 'block'
   },
@@ -666,18 +582,12 @@ const styles: any = {
   },
 
   featuresSection: {
-    marginBottom: '100px',
-    '@media (max-width: 768px)': {
-      marginBottom: '60px'
-    }
+    marginBottom: '100px'
   },
 
   sectionHeader: {
     textAlign: 'center',
-    marginBottom: '60px',
-    '@media (max-width: 768px)': {
-      marginBottom: '40px'
-    }
+    marginBottom: '60px'
   },
 
   sectionBadge: {
@@ -696,13 +606,7 @@ const styles: any = {
     fontSize: '42px',
     fontWeight: '800',
     color: 'white',
-    marginBottom: '20px',
-    '@media (max-width: 768px)': {
-      fontSize: '32px'
-    },
-    '@media (max-width: 480px)': {
-      fontSize: '28px'
-    }
+    marginBottom: '20px'
   },
 
   sectionSubtitle: {
@@ -710,24 +614,13 @@ const styles: any = {
     color: '#94a3b8',
     maxWidth: '600px',
     margin: '0 auto',
-    lineHeight: 1.6,
-    '@media (max-width: 480px)': {
-      fontSize: '16px',
-      padding: '0 20px'
-    }
+    lineHeight: 1.6
   },
 
   featuresGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '30px',
-    '@media (max-width: 968px)': {
-      gridTemplateColumns: 'repeat(2, 1fr)'
-    },
-    '@media (max-width: 480px)': {
-      gridTemplateColumns: '1fr',
-      gap: '20px'
-    }
+    gap: '30px'
   },
 
   featureCard: {
@@ -737,10 +630,7 @@ const styles: any = {
     textAlign: 'center',
     transition: 'all 0.3s',
     border: '1px solid rgba(255,255,255,0.1)',
-    backdropFilter: 'blur(10px)',
-    '@media (max-width: 480px)': {
-      padding: '20px'
-    }
+    backdropFilter: 'blur(10px)'
   },
 
   featureIconWrapper: {
@@ -752,44 +642,28 @@ const styles: any = {
     alignItems: 'center',
     justifyContent: 'center',
     margin: '0 auto 20px',
-    animation: 'pulse 2s infinite',
-    '@media (max-width: 480px)': {
-      width: '60px',
-      height: '60px'
-    }
+    animation: 'pulse 2s infinite'
   },
 
   featureIcon: {
-    fontSize: '32px',
-    '@media (max-width: 480px)': {
-      fontSize: '28px'
-    }
+    fontSize: '32px'
   },
 
   featureTitle: {
     fontSize: '20px',
     fontWeight: '600',
     color: 'white',
-    marginBottom: '15px',
-    '@media (max-width: 480px)': {
-      fontSize: '18px'
-    }
+    marginBottom: '15px'
   },
 
   featureText: {
     fontSize: '15px',
     color: '#94a3b8',
-    lineHeight: 1.6,
-    '@media (max-width: 480px)': {
-      fontSize: '14px'
-    }
+    lineHeight: 1.6
   },
 
   coursesSection: {
-    marginBottom: '100px',
-    '@media (max-width: 768px)': {
-      marginBottom: '60px'
-    }
+    marginBottom: '100px'
   },
 
   coursesGrid: {
@@ -797,14 +671,7 @@ const styles: any = {
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '30px',
     maxWidth: '900px',
-    margin: '0 auto',
-    '@media (max-width: 768px)': {
-      gap: '20px'
-    },
-    '@media (max-width: 480px)': {
-      gridTemplateColumns: '1fr',
-      gap: '20px'
-    }
+    margin: '0 auto'
   },
 
   courseCard: {
@@ -814,31 +681,19 @@ const styles: any = {
     textAlign: 'center',
     border: '1px solid rgba(255,255,255,0.1)',
     backdropFilter: 'blur(10px)',
-    transition: 'all 0.3s',
-    '@media (max-width: 768px)': {
-      padding: '30px'
-    },
-    '@media (max-width: 480px)': {
-      padding: '25px'
-    }
+    transition: 'all 0.3s'
   },
 
   courseIcon: {
     fontSize: '48px',
-    marginBottom: '20px',
-    '@media (max-width: 480px)': {
-      fontSize: '40px'
-    }
+    marginBottom: '20px'
   },
 
   courseTitle: {
     fontSize: '24px',
     fontWeight: '700',
     color: 'white',
-    marginBottom: '20px',
-    '@media (max-width: 480px)': {
-      fontSize: '20px'
-    }
+    marginBottom: '20px'
   },
 
   courseDetails: {
@@ -847,10 +702,7 @@ const styles: any = {
     gap: '10px',
     marginBottom: '30px',
     color: '#94a3b8',
-    fontSize: '16px',
-    '@media (max-width: 480px)': {
-      fontSize: '14px'
-    }
+    fontSize: '16px'
   },
 
   courseButton: {
@@ -863,11 +715,7 @@ const styles: any = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s',
-    width: '100%',
-    '@media (max-width: 480px)': {
-      padding: '12px 20px',
-      fontSize: '14px'
-    }
+    width: '100%'
   },
 
   supportSection: {
@@ -882,14 +730,7 @@ const styles: any = {
     alignItems: 'center',
     gap: '30px',
     border: '1px solid rgba(255,255,255,0.1)',
-    backdropFilter: 'blur(10px)',
-    '@media (max-width: 968px)': {
-      flexDirection: 'column',
-      textAlign: 'center'
-    },
-    '@media (max-width: 480px)': {
-      padding: '25px'
-    }
+    backdropFilter: 'blur(10px)'
   },
 
   supportIcon: {
@@ -901,37 +742,19 @@ const styles: any = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    animation: 'pulse 2s infinite',
-    '@media (max-width: 480px)': {
-      width: '60px',
-      height: '60px',
-      fontSize: '36px'
-    }
-  },
-
-  supportTextContent: {
-    flex: 1,
-    '@media (max-width: 968px)': {
-      width: '100%'
-    }
+    animation: 'pulse 2s infinite'
   },
 
   supportTitle: {
     fontSize: '24px',
     fontWeight: '700',
     color: 'white',
-    marginBottom: '10px',
-    '@media (max-width: 480px)': {
-      fontSize: '20px'
-    }
+    marginBottom: '10px'
   },
 
   supportText: {
     fontSize: '16px',
-    color: '#94a3b8',
-    '@media (max-width: 480px)': {
-      fontSize: '14px'
-    }
+    color: '#94a3b8'
   },
 
   supportButton: {
@@ -944,24 +767,16 @@ const styles: any = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s',
-    whiteSpace: 'nowrap',
-    '@media (max-width: 480px)': {
-      padding: '12px 24px',
-      fontSize: '14px',
-      width: '100%'
-    }
+    marginRight: 'auto'
   },
 
   footer: {
     background: 'rgba(0,0,0,0.3)',
     backdropFilter: 'blur(10px)',
     borderTop: '1px solid rgba(255,255,255,0.1)',
-    padding: '60px 20px 30px',
+    padding: '60px 5% 30px',
     position: 'relative',
-    zIndex: 2,
-    '@media (min-width: 768px)': {
-      padding: '60px 5% 30px'
-    }
+    zIndex: 2
   },
 
   footerContent: {
@@ -973,11 +788,7 @@ const styles: any = {
     display: 'grid',
     gridTemplateColumns: '2fr 1fr',
     gap: '60px',
-    marginBottom: '60px',
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr',
-      gap: '40px'
-    }
+    marginBottom: '60px'
   },
 
   footerInfo: {
@@ -989,11 +800,7 @@ const styles: any = {
   footerLogo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '15px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      textAlign: 'center'
-    }
+    gap: '15px'
   },
 
   footerLogoIcon: {
@@ -1004,12 +811,7 @@ const styles: any = {
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    '@media (max-width: 480px)': {
-      width: '50px',
-      height: '50px',
-      fontSize: '32px'
-    }
+    justifyContent: 'center'
   },
 
   footerTitle: {
@@ -1029,11 +831,7 @@ const styles: any = {
     fontSize: '16px',
     color: '#94a3b8',
     lineHeight: 1.8,
-    maxWidth: '400px',
-    '@media (max-width: 480px)': {
-      maxWidth: '100%',
-      fontSize: '14px'
-    }
+    maxWidth: '400px'
   },
 
   footerLinks: {
@@ -1046,10 +844,7 @@ const styles: any = {
     fontSize: '18px',
     fontWeight: '600',
     color: 'white',
-    marginBottom: '10px',
-    '@media (max-width: 480px)': {
-      fontSize: '16px'
-    }
+    marginBottom: '10px'
   },
 
   footerLink: {
@@ -1060,10 +855,7 @@ const styles: any = {
     textAlign: 'right',
     cursor: 'pointer',
     padding: '5px 0',
-    transition: 'all 0.3s',
-    '@media (max-width: 480px)': {
-      fontSize: '14px'
-    }
+    transition: 'all 0.3s'
   },
 
   footerBottom: {
@@ -1073,11 +865,7 @@ const styles: any = {
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: '20px',
-    '@media (max-width: 480px)': {
-      flexDirection: 'column',
-      textAlign: 'center'
-    }
+    gap: '20px'
   },
 
   copyright: {
