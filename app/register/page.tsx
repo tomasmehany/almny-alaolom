@@ -12,9 +12,20 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    
+    // كشف حجم الشاشة
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,9 +134,9 @@ export default function RegisterPage() {
       <div style={styles.background}></div>
       <div style={styles.backgroundOverlay}></div>
       
-      <div style={styles.content}>
+      <div style={isMobile ? styles.contentMobile : styles.content}>
         {/* ========== الجهة اليمنى ========== */}
-        <div style={styles.rightPanel}>
+        <div style={isMobile ? styles.rightPanelMobile : styles.rightPanel}>
           <div style={styles.imageWrapper}>
             <div style={styles.imageContainer}>
               <img 
@@ -145,25 +156,27 @@ export default function RegisterPage() {
               <p style={styles.welcomeMessage}>مع مستر بيشوي، رحلتك نحو التفوق تبدأ من هنا</p>
             </div>
 
-            {/* رابطين بنفس الحجم - الأخضر والأبيض */}
-            <div style={styles.rightPanelLinks}>
-              {/* الزر الأخضر */}
-              <button type="button" onClick={contactAdmin} style={{...styles.rightLink, ...styles.greenButton}}>
-                <span style={styles.linkIcon}>💬</span>
-                <span>تواصل مع الدعم عبر واتساب</span>
-              </button>
+            {/* الرابطين في اليمين - مخفيين في الموبايل */}
+            {!isMobile && (
+              <div style={styles.rightPanelLinks}>
+                {/* الزر الأخضر */}
+                <button type="button" onClick={contactAdmin} style={{...styles.rightLink, ...styles.greenButton}}>
+                  <span style={styles.linkIcon}>💬</span>
+                  <span>تواصل مع الدعم عبر واتساب</span>
+                </button>
 
-              {/* الزر الأبيض */}
-              <Link href="/" style={{...styles.rightLink, ...styles.whiteButton}}>
-                <span style={styles.linkIcon}>🏠</span>
-                <span>العودة للصفحة الرئيسية</span>
-              </Link>
-            </div>
+                {/* الزر الأبيض */}
+                <Link href="/" style={{...styles.rightLink, ...styles.whiteButton}}>
+                  <span style={styles.linkIcon}>🏠</span>
+                  <span>العودة للصفحة الرئيسية</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
 
         {/* ========== الجهة اليسرى ========== */}
-        <div style={styles.leftPanel}>
+        <div style={isMobile ? styles.leftPanelMobile : styles.leftPanel}>
           <div style={styles.formCard}>
             <div style={styles.formHeader}>
               <h2 style={styles.formTitle}>إنشاء حساب جديد</h2>
@@ -250,6 +263,21 @@ export default function RegisterPage() {
         </div>
       </div>
 
+      {/* الرابطين في الموبايل تحت - بتظهر بس في الموبايل */}
+      {isMobile && (
+        <div style={styles.mobileLinks}>
+          <button type="button" onClick={contactAdmin} style={{...styles.mobileLink, ...styles.greenButtonMobile}}>
+            <span style={styles.linkIcon}>💬</span>
+            <span>تواصل مع الدعم عبر واتساب</span>
+          </button>
+
+          <Link href="/" style={{...styles.mobileLink, ...styles.whiteButtonMobile}}>
+            <span style={styles.linkIcon}>🏠</span>
+            <span>العودة للصفحة الرئيسية</span>
+          </Link>
+        </div>
+      )}
+
       <style jsx>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -265,9 +293,12 @@ const styles: any = {
   background: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(-45deg, #0b1120, #1a1f35, #1e1b4b, #0f172a)', backgroundSize: '400% 400%', animation: 'gradientMove 15s ease infinite', zIndex: 0 },
   backgroundOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(circle at 30% 50%, rgba(37,99,235,0.15) 0%, transparent 60%)', zIndex: 1 },
   content: { position: 'relative', zIndex: 2, display: 'flex', minHeight: '100vh' },
+  contentMobile: { position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', minHeight: '100vh' },
 
   // ========== الجهة اليمنى ==========
   rightPanel: { flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', position: 'relative', animation: 'fadeIn 0.8s ease-out' },
+  rightPanelMobile: { flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative', animation: 'fadeIn 0.8s ease-out' },
+  
   imageWrapper: { maxWidth: '600px', width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' },
   imageContainer: { position: 'relative', marginBottom: '30px', animation: 'float 6s ease-in-out infinite' },
   image: { width: '100%', maxWidth: '450px', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 20px 30px rgba(0,0,0,0.3))' },
@@ -278,8 +309,12 @@ const styles: any = {
   platformName: { fontSize: '42px', fontWeight: '800', marginBottom: '15px', background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
   welcomeMessage: { fontSize: '18px', opacity: 0.8, lineHeight: 1.6 },
 
-  // الرابطين بنفس الحجم
+  // الرابطين في اليمين
   rightPanelLinks: { display: 'flex', flexDirection: 'column', gap: '15px', width: '100%', maxWidth: '350px', marginTop: '20px' },
+  
+  // الرابطين في الموبايل
+  mobileLinks: { position: 'relative', zIndex: 2, padding: '0 20px 30px 20px', display: 'flex', flexDirection: 'column', gap: '10px' },
+  mobileLink: { width: '100%', padding: '14px', borderRadius: '50px', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.3s', border: 'none', cursor: 'pointer', textDecoration: 'none', boxSizing: 'border-box' },
   
   // الكلاس الأساسي للرابطين (نفس الحجم)
   rightLink: {
@@ -305,9 +340,19 @@ const styles: any = {
     color: 'white',
     boxShadow: '0 5px 15px rgba(37, 211, 102, 0.3)',
   },
+  greenButtonMobile: {
+    background: '#25D366',
+    color: 'white',
+    boxShadow: '0 5px 15px rgba(37, 211, 102, 0.3)',
+  },
   
   // الزر الأبيض
   whiteButton: {
+    background: 'white',
+    color: '#2563eb',
+    border: '2px solid #2563eb',
+  },
+  whiteButtonMobile: {
     background: 'white',
     color: '#2563eb',
     border: '2px solid #2563eb',
@@ -317,6 +362,8 @@ const styles: any = {
 
   // ========== الجهة اليسرى ==========
   leftPanel: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' },
+  leftPanelMobile: { flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '0 20px 20px 20px' },
+  
   formCard: { background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderRadius: '40px', padding: '40px', width: '100%', maxWidth: '500px', boxShadow: '0 30px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)', animation: 'fadeIn 0.8s ease-out 0.2s both' },
   formHeader: { textAlign: 'center', marginBottom: '30px' },
   formTitle: { fontSize: '32px', fontWeight: '800', color: '#1f2937', marginBottom: '5px' },
