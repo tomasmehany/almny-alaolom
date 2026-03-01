@@ -62,7 +62,7 @@ export default function Home() {
 
       {/* القسم الرئيسي */}
       <main style={styles.main}>
-        {/* Hero Section - بدون إحصائيات */}
+        {/* Hero Section */}
         <div style={{
           ...styles.hero,
           opacity: isVisible ? 1 : 0,
@@ -93,7 +93,6 @@ export default function Home() {
               >
                 <span style={styles.buttonIcon}>✨</span>
                 ابدأ رحلتك الآن
-                <span style={styles.buttonArrow}>←</span>
               </button>
 
               <button 
@@ -108,7 +107,6 @@ export default function Home() {
 
           <div style={styles.heroImage}>
             <div style={styles.imageWrapper}>
-              {/* ✅ غير مسار الصورة هنا */}
               <img 
                 src="/home.png" 
                 alt="تعليم تفاعلي"
@@ -224,7 +222,7 @@ export default function Home() {
         <div style={styles.supportSection}>
           <div style={styles.supportCard}>
             <div style={styles.supportIcon}>💬</div>
-            <div>
+            <div style={styles.supportTextContent}>
               <h3 style={styles.supportTitle}> للمساعدة تواصل مع الادمن </h3>
               <p style={styles.supportText}>
                 لديك استفسار؟ تواصل معنا 
@@ -307,6 +305,12 @@ export default function Home() {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.05); }
         }
+        
+        @media (max-width: 768px) {
+          * {
+            max-width: 100vw !important;
+          }
+        }
       `}</style>
     </div>
   )
@@ -319,7 +323,8 @@ const styles: any = {
     position: 'relative',
     overflowX: 'hidden',
     background: '#0a192f',
-    direction: 'rtl'
+    direction: 'rtl',
+    width: '100%'
   },
 
   background: {
@@ -348,29 +353,31 @@ const styles: any = {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    padding: '15px 5%',
+    padding: '15px',
     transition: 'all 0.3s ease'
   },
 
   headerContent: {
-    maxWidth: '1400px',
+    maxWidth: '1200px',
     margin: '0 auto',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     position: 'relative',
-    zIndex: 2
+    zIndex: 2,
+    flexWrap: 'wrap',
+    gap: '15px'
   },
 
   logo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '15px'
+    gap: '10px'
   },
 
   logoIconWrapper: {
-    width: '60px',
-    height: '60px',
+    width: '50px',
+    height: '50px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     borderRadius: '50%',
     display: 'flex',
@@ -380,7 +387,7 @@ const styles: any = {
   },
 
   logoIcon: {
-    fontSize: '30px'
+    fontSize: '24px'
   },
 
   logoText: {
@@ -389,7 +396,7 @@ const styles: any = {
   },
 
   logoMain: {
-    fontSize: '24px',
+    fontSize: '20px',
     fontWeight: '800',
     color: 'white',
     margin: 0,
@@ -397,36 +404,36 @@ const styles: any = {
   },
 
   logoSub: {
-    fontSize: '14px',
+    fontSize: '12px',
     color: '#94a3b8',
     margin: 0
   },
 
   nav: {
     display: 'flex',
-    gap: '15px',
+    gap: '10px',
     alignItems: 'center'
   },
 
   navButton: {
-    padding: '12px 24px',
+    padding: '8px 16px',
     background: 'transparent',
     color: 'white',
     border: '2px solid rgba(255,255,255,0.2)',
-    borderRadius: '12px',
-    fontSize: '15px',
+    borderRadius: '8px',
+    fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s'
   },
 
   navButtonPrimary: {
-    padding: '12px 24px',
+    padding: '8px 16px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     color: 'white',
     border: 'none',
-    borderRadius: '12px',
-    fontSize: '15px',
+    borderRadius: '8px',
+    fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s',
@@ -436,18 +443,17 @@ const styles: any = {
   main: {
     position: 'relative',
     zIndex: 2,
-    maxWidth: '1400px',
+    maxWidth: '1200px',
     margin: '0 auto',
-    padding: '40px 5%'
+    padding: '20px'
   },
 
   hero: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '60px',
+    gap: '30px',
     alignItems: 'center',
-    marginBottom: '100px',
-    minHeight: '600px'
+    marginBottom: '60px'
   },
 
   heroContent: {
@@ -456,20 +462,20 @@ const styles: any = {
 
   heroBadge: {
     display: 'inline-block',
-    padding: '8px 16px',
+    padding: '6px 12px',
     background: 'rgba(37,99,235,0.1)',
     border: '1px solid rgba(37,99,235,0.3)',
     borderRadius: '50px',
-    fontSize: '14px',
+    fontSize: '12px',
     fontWeight: '600',
     color: '#60a5fa',
-    marginBottom: '20px'
+    marginBottom: '15px'
   },
 
   heroTitle: {
-    fontSize: '56px',
+    fontSize: '36px',
     fontWeight: '800',
-    marginBottom: '20px',
+    marginBottom: '15px',
     lineHeight: 1.2,
     color: 'white'
   },
@@ -479,62 +485,58 @@ const styles: any = {
   },
 
   heroSubtitle: {
-    fontSize: '20px',
+    fontSize: '16px',
     color: '#94a3b8',
-    marginBottom: '20px'
+    marginBottom: '15px'
   },
 
   heroDescription: {
-    fontSize: '18px',
-    lineHeight: 1.8,
+    fontSize: '14px',
+    lineHeight: 1.6,
     color: '#cbd5e1',
-    marginBottom: '40px'
+    marginBottom: '25px'
   },
 
   heroButtons: {
     display: 'flex',
-    gap: '20px',
-    marginBottom: '40px',
+    gap: '15px',
+    marginBottom: '25px',
     flexWrap: 'wrap'
   },
 
   primaryButton: {
-    padding: '16px 32px',
+    padding: '12px 24px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     color: 'white',
     border: 'none',
     borderRadius: '50px',
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
+    gap: '8px',
     transition: 'all 0.3s',
     boxShadow: '0 10px 20px rgba(37,99,235,0.3)'
   },
 
   secondaryButton: {
-    padding: '16px 32px',
+    padding: '12px 24px',
     background: 'transparent',
     color: 'white',
     border: '2px solid rgba(255,255,255,0.2)',
     borderRadius: '50px',
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
+    gap: '8px',
     transition: 'all 0.3s'
   },
 
   buttonIcon: {
-    fontSize: '20px'
-  },
-
-  buttonArrow: {
-    fontSize: '20px'
+    fontSize: '16px'
   },
 
   heroImage: {
@@ -544,15 +546,16 @@ const styles: any = {
 
   imageWrapper: {
     position: 'relative',
-    borderRadius: '30px',
+    borderRadius: '20px',
     overflow: 'hidden',
-    boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
     border: '1px solid rgba(255,255,255,0.1)'
   },
 
   mainImage: {
     width: '100%',
-    height: '500px',
+    height: 'auto',
+    maxHeight: '400px',
     objectFit: 'cover',
     display: 'block'
   },
@@ -568,49 +571,49 @@ const styles: any = {
 
   imageBadge: {
     position: 'absolute',
-    top: '20px',
-    left: '20px',
-    padding: '10px 20px',
+    top: '15px',
+    left: '15px',
+    padding: '6px 12px',
     background: 'rgba(37,99,235,0.9)',
     backdropFilter: 'blur(10px)',
     borderRadius: '50px',
     color: 'white',
-    fontSize: '14px',
+    fontSize: '12px',
     fontWeight: '600',
     border: '1px solid rgba(255,255,255,0.2)',
     boxShadow: '0 10px 20px rgba(0,0,0,0.3)'
   },
 
   featuresSection: {
-    marginBottom: '100px'
+    marginBottom: '60px'
   },
 
   sectionHeader: {
     textAlign: 'center',
-    marginBottom: '60px'
+    marginBottom: '40px'
   },
 
   sectionBadge: {
     display: 'inline-block',
-    padding: '8px 16px',
+    padding: '6px 12px',
     background: 'rgba(37,99,235,0.1)',
     border: '1px solid rgba(37,99,235,0.3)',
     borderRadius: '50px',
-    fontSize: '14px',
+    fontSize: '12px',
     fontWeight: '600',
     color: '#60a5fa',
-    marginBottom: '20px'
+    marginBottom: '15px'
   },
 
   sectionTitle: {
-    fontSize: '42px',
+    fontSize: '32px',
     fontWeight: '800',
     color: 'white',
-    marginBottom: '20px'
+    marginBottom: '15px'
   },
 
   sectionSubtitle: {
-    fontSize: '18px',
+    fontSize: '16px',
     color: '#94a3b8',
     maxWidth: '600px',
     margin: '0 auto',
@@ -620,13 +623,13 @@ const styles: any = {
   featuresGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '30px'
+    gap: '20px'
   },
 
   featureCard: {
     background: 'rgba(255,255,255,0.05)',
-    borderRadius: '24px',
-    padding: '30px',
+    borderRadius: '16px',
+    padding: '20px',
     textAlign: 'center',
     transition: 'all 0.3s',
     border: '1px solid rgba(255,255,255,0.1)',
@@ -634,50 +637,50 @@ const styles: any = {
   },
 
   featureIconWrapper: {
-    width: '70px',
-    height: '70px',
+    width: '60px',
+    height: '60px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
-    borderRadius: '20px',
+    borderRadius: '16px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: '0 auto 20px',
+    margin: '0 auto 15px',
     animation: 'pulse 2s infinite'
   },
 
   featureIcon: {
-    fontSize: '32px'
+    fontSize: '28px'
   },
 
   featureTitle: {
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: '600',
     color: 'white',
-    marginBottom: '15px'
+    marginBottom: '10px'
   },
 
   featureText: {
-    fontSize: '15px',
+    fontSize: '14px',
     color: '#94a3b8',
     lineHeight: 1.6
   },
 
   coursesSection: {
-    marginBottom: '100px'
+    marginBottom: '60px'
   },
 
   coursesGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '30px',
-    maxWidth: '900px',
+    gap: '20px',
+    maxWidth: '800px',
     margin: '0 auto'
   },
 
   courseCard: {
     background: 'rgba(255,255,255,0.05)',
-    borderRadius: '30px',
-    padding: '40px',
+    borderRadius: '20px',
+    padding: '30px',
     textAlign: 'center',
     border: '1px solid rgba(255,255,255,0.1)',
     backdropFilter: 'blur(10px)',
@@ -685,33 +688,33 @@ const styles: any = {
   },
 
   courseIcon: {
-    fontSize: '48px',
-    marginBottom: '20px'
+    fontSize: '40px',
+    marginBottom: '15px'
   },
 
   courseTitle: {
-    fontSize: '24px',
+    fontSize: '20px',
     fontWeight: '700',
     color: 'white',
-    marginBottom: '20px'
+    marginBottom: '15px'
   },
 
   courseDetails: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
-    marginBottom: '30px',
+    gap: '8px',
+    marginBottom: '20px',
     color: '#94a3b8',
-    fontSize: '16px'
+    fontSize: '14px'
   },
 
   courseButton: {
-    padding: '14px 28px',
+    padding: '10px 20px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     color: 'white',
     border: 'none',
     borderRadius: '50px',
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s',
@@ -719,24 +722,24 @@ const styles: any = {
   },
 
   supportSection: {
-    marginBottom: '60px'
+    marginBottom: '40px'
   },
 
   supportCard: {
     background: 'linear-gradient(135deg, #1e293b, #334155)',
-    borderRadius: '30px',
-    padding: '40px',
+    borderRadius: '20px',
+    padding: '25px',
     display: 'flex',
     alignItems: 'center',
-    gap: '30px',
+    gap: '20px',
     border: '1px solid rgba(255,255,255,0.1)',
     backdropFilter: 'blur(10px)'
   },
 
   supportIcon: {
-    fontSize: '48px',
-    width: '80px',
-    height: '80px',
+    fontSize: '36px',
+    width: '60px',
+    height: '60px',
     background: 'linear-gradient(135deg, #25D366, #128C7E)',
     borderRadius: '50%',
     display: 'flex',
@@ -745,68 +748,72 @@ const styles: any = {
     animation: 'pulse 2s infinite'
   },
 
+  supportTextContent: {
+    flex: 1
+  },
+
   supportTitle: {
-    fontSize: '24px',
+    fontSize: '18px',
     fontWeight: '700',
     color: 'white',
-    marginBottom: '10px'
+    marginBottom: '5px'
   },
 
   supportText: {
-    fontSize: '16px',
+    fontSize: '14px',
     color: '#94a3b8'
   },
 
   supportButton: {
-    padding: '14px 28px',
+    padding: '10px 20px',
     background: '#25D366',
     color: 'white',
     border: 'none',
     borderRadius: '50px',
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s',
-    marginRight: 'auto'
+    whiteSpace: 'nowrap'
   },
 
   footer: {
     background: 'rgba(0,0,0,0.3)',
     backdropFilter: 'blur(10px)',
     borderTop: '1px solid rgba(255,255,255,0.1)',
-    padding: '60px 5% 30px',
+    padding: '40px 20px 20px',
     position: 'relative',
     zIndex: 2
   },
 
   footerContent: {
-    maxWidth: '1400px',
+    maxWidth: '1200px',
     margin: '0 auto'
   },
 
   footerTop: {
     display: 'grid',
     gridTemplateColumns: '2fr 1fr',
-    gap: '60px',
-    marginBottom: '60px'
+    gap: '40px',
+    marginBottom: '40px'
   },
 
   footerInfo: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px'
+    gap: '15px'
   },
 
   footerLogo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '15px'
+    gap: '10px'
   },
 
   footerLogoIcon: {
-    fontSize: '40px',
-    width: '60px',
-    height: '60px',
+    fontSize: '32px',
+    width: '50px',
+    height: '50px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     borderRadius: '50%',
     display: 'flex',
@@ -815,43 +822,43 @@ const styles: any = {
   },
 
   footerTitle: {
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: '700',
     color: 'white',
     margin: 0
   },
 
   footerSubtitle: {
-    fontSize: '14px',
+    fontSize: '12px',
     color: '#94a3b8',
     margin: 0
   },
 
   footerDescription: {
-    fontSize: '16px',
+    fontSize: '14px',
     color: '#94a3b8',
-    lineHeight: 1.8,
-    maxWidth: '400px'
+    lineHeight: 1.6,
+    maxWidth: '350px'
   },
 
   footerLinks: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '15px'
+    gap: '10px'
   },
 
   footerLinksTitle: {
-    fontSize: '18px',
+    fontSize: '16px',
     fontWeight: '600',
     color: 'white',
-    marginBottom: '10px'
+    marginBottom: '5px'
   },
 
   footerLink: {
     background: 'none',
     border: 'none',
     color: '#94a3b8',
-    fontSize: '15px',
+    fontSize: '14px',
     textAlign: 'right',
     cursor: 'pointer',
     padding: '5px 0',
@@ -859,24 +866,24 @@ const styles: any = {
   },
 
   footerBottom: {
-    paddingTop: '30px',
+    paddingTop: '20px',
     borderTop: '1px solid rgba(255,255,255,0.1)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: '20px'
+    gap: '15px'
   },
 
   copyright: {
     color: '#94a3b8',
-    fontSize: '14px',
+    fontSize: '12px',
     margin: 0
   },
 
   developer: {
     color: '#94a3b8',
-    fontSize: '14px',
+    fontSize: '12px',
     margin: 0
   },
 
