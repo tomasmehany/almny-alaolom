@@ -1345,14 +1345,14 @@ const styles: any = {
     flexDirection: 'column' as const,
     gap: '15px',
   },
-    floatingButtonsMobile: {
+  floatingButtonsMobile: {
     position: 'fixed',
-    bottom: '20px',
-    left: '20px',
+    bottom: '15px',
+    left: '15px',
     zIndex: 99999,
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '15px',
+    gap: '10px',
   },
   floatingButton: {
     display: 'flex',
