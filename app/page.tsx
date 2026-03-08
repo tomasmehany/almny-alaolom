@@ -39,7 +39,7 @@ export default function Home() {
             </div>
             <div style={styles.logoText}>
               <h1 style={styles.logoMain}>علمني العلوم</h1>
-              <p style={styles.logoSub}>منصة مستر بيشوي التعليمية</p>
+              <p style={styles.logoSub}>منصة مستر بيشوي مالك التعليمية</p>
             </div>
           </div>
           
@@ -106,18 +106,27 @@ export default function Home() {
           </div>
 
           <div style={styles.heroImage}>
-            <div style={styles.imageWrapper}>
-              <img 
-                src="/home.png" 
-                alt="تعليم تفاعلي"
-                style={styles.mainImage}
-              />
-              <div style={styles.imageOverlay}></div>
-              <div style={styles.imageBadge}>
-                <span>✨ التعلم التفاعلي</span>
-              </div>
-            </div>
-          </div>
+  <div style={styles.imageWrapper}>
+    <video 
+      autoPlay 
+      loop 
+      muted 
+      playsInline
+      style={{
+        width: '100%',
+        height: '500px',
+        objectFit: 'cover',
+        display: 'block'
+      }}
+    >
+      <source src="/videos/my-video.mp4" type="video/mp4" />
+    </video>
+    <div style={styles.imageOverlay}></div>
+    <div style={styles.imageBadge}>
+      <span>🎬 التعلم التفاعلي</span>
+    </div>
+  </div>
+</div>
         </div>
 
         {/* مميزات المنصة */}
