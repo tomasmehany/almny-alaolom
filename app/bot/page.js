@@ -10,8 +10,19 @@ export default function BotPage() {
   const [studentId, setStudentId] = useState('');
   const [studentName, setStudentName] = useState('');
   const [isBlocked, setIsBlocked] = useState(false);
+  
+  // حالة الرسالة الترحيبية
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
 
   useEffect(() => {
+    // التحقق من أن المستخدم شاف الرسالة قبل كده ولا لأ
+    const hasSeenBotMessage = localStorage.getItem('hasSeenBotMessage');
+    
+    if (!hasSeenBotMessage) {
+      // لو أول مرة، نظهر الرسالة
+      setShowWelcomeMessage(true);
+    }
+
     // إنشاء معرف فريد لكل طالب
     let id = localStorage.getItem('studentId');
     if (!id) {
@@ -53,6 +64,12 @@ export default function BotPage() {
       }
     ]);
   }, []);
+
+  // إغلاق الرسالة الترحيبية
+  const handleCloseWelcomeMessage = () => {
+    setShowWelcomeMessage(false);
+    localStorage.setItem('hasSeenBotMessage', 'true');
+  };
 
   // التحقق من حالة الحظر
   const checkBlockStatus = async (id) => {
@@ -173,274 +190,542 @@ export default function BotPage() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <div style={styles.botInfo}>
-          <div style={styles.avatar}>🧑‍🏫</div>
-          <div>
-            <h2 style={styles.botName}>Almny Alolom AI</h2>
-            <p style={styles.botStatus}>متخصص في العلوم</p>
+    <>
+      {/* ✅ الرسالة المنبثقة - بدون رابط دعم */}
+      {showWelcomeMessage && (
+        <div style={styles.messageOverlay}>
+          <div style={styles.messageCard}>
+            <div style={styles.messageIconWrapper}>
+              <span style={styles.messageIcon}>🤖</span>
+            </div>
+            <h2 style={styles.messageTitle}>مرحباً بك في المساعد الذكي</h2>
+            <p style={styles.messageText}>
+              في حالة صدور أي مشاكل في المساعد الذكي، الرجاء إخبارنا.
+            </p>
+            <button 
+              style={styles.messageButton}
+              onClick={handleCloseWelcomeMessage}
+            >
+              حسناً
+            </button>
+            <div style={styles.messageFooter}>
+              <span style={styles.messageOnce}>🔔 تظهر مرة واحدة فقط</span>
+            </div>
           </div>
         </div>
-        {studentName && (
-          <div style={styles.userInfo}>
-            <span style={styles.userName}>👤 {studentName}</span>
-            {isBlocked && (
-              <span style={styles.blockedBadge}>🚫 محظور</span>
+      )}
+
+      {/* ✅ واجهة البوت - تصميم أنيق وعصري */}
+      <div style={styles.container}>
+        {/* الهيدر العلوي */}
+        <div style={styles.header}>
+          <div style={styles.headerContent}>
+            {/* اللوجو المتحرك */}
+            <div style={styles.logoWrapper}>
+              <div style={styles.logoAnimated}>
+                <span style={styles.logoIcon}>🧑‍🏫</span>
+              </div>
+              <div style={styles.logoText}>
+                <h1 style={styles.botName}>Almny Alolom AI</h1>
+                <div style={styles.statusWrapper}>
+                  <span style={styles.statusDot}></span>
+                  <span style={styles.statusText}>متصل</span>
+                </div>
+              </div>
+            </div>
+
+            {/* اسم المستخدم */}
+            {studentName && (
+              <div style={styles.userBadge}>
+                <span style={styles.userIcon}>👤</span>
+                <span style={styles.userName}>{studentName}</span>
+                {isBlocked && (
+                  <span style={styles.blockedBadge}>محظور</span>
+                )}
+              </div>
             )}
           </div>
-        )}
-        <div style={styles.badges}>
-          <span style={styles.badge}>🔬 علوم (إعدادي)</span>
-          <span style={styles.badge}>🧬 علوم متكاملة (أولى ثانوي)</span>
-          <span style={styles.badge}>⚡ فيزياء (تانية ثانوي)</span>
-          <span style={styles.badge}>🧪 كيمياء (تانية ثانوي)</span>
+
+          {/* شريط التخصصات */}
+          <div style={styles.specialties}>
+            <div style={styles.specialtyItem}>
+              <span style={styles.specialtyIcon}>🔬</span>
+              <span>علوم (إعدادي)</span>
+            </div>
+            <div style={styles.specialtyItem}>
+              <span style={styles.specialtyIcon}>🧬</span>
+              <span>علوم متكاملة (أولى ثانوي)</span>
+            </div>
+            <div style={styles.specialtyItem}>
+              <span style={styles.specialtyIcon}>⚡</span>
+              <span>فيزياء (تانية ثانوي)</span>
+            </div>
+            <div style={styles.specialtyItem}>
+              <span style={styles.specialtyIcon}>🧪</span>
+              <span>كيمياء (تانية ثانوي)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* منطقة المحادثة */}
+        <div style={styles.chatArea}>
+          {messages.map(msg => (
+            <div
+              key={msg.id}
+              style={{
+                ...styles.messageRow,
+                ...(msg.role === 'user' ? styles.userRow : styles.botRow)
+              }}
+            >
+              {msg.role === 'bot' && (
+                <div style={styles.botAvatar}>
+                  <span>🧑‍🏫</span>
+                </div>
+              )}
+              <div style={{
+                ...styles.messageBubble,
+                ...(msg.role === 'user' ? styles.userBubble : styles.botBubble)
+              }}>
+                <p style={styles.messageText} dangerouslySetInnerHTML={{ __html: msg.content.replace(/\n/g, '<br/>') }} />
+                <span style={styles.messageTime}>
+                  {new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+              {msg.role === 'user' && (
+                <div style={styles.userAvatar}>
+                  <span>👤</span>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {streamingMessage && (
+            <div style={styles.messageRow}>
+              <div style={styles.botAvatar}>
+                <span>🧑‍🏫</span>
+              </div>
+              <div style={{...styles.messageBubble, ...styles.botBubble}}>
+                <p style={styles.messageText} dangerouslySetInnerHTML={{ __html: streamingMessage.replace(/\n/g, '<br/>') }} />
+              </div>
+            </div>
+          )}
+
+          {loading && !streamingMessage && (
+            <div style={styles.typingContainer}>
+              <div style={styles.typingBubble}>
+                <span style={styles.typingDot}></span>
+                <span style={styles.typingDot}></span>
+                <span style={styles.typingDot}></span>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* منطقة الإدخال */}
+        <div style={styles.inputContainer}>
+          <div style={styles.inputWrapper}>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder={isBlocked ? "🚫 حسابك محظور..." : "اكتب سؤالك هنا..."}
+              style={styles.input}
+              disabled={loading || isBlocked}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || loading || isBlocked}
+              style={{
+                ...styles.sendButton,
+                ...((!input.trim() || loading || isBlocked) ? styles.sendButtonDisabled : styles.sendButtonActive)
+              }}
+            >
+              {loading ? '⏳' : 'إرسال'}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div style={styles.chatArea}>
-        {messages.map(msg => (
-          <div
-            key={msg.id}
-            style={{
-              ...styles.messageRow,
-              ...(msg.role === 'user' ? styles.userRow : styles.botRow)
-            }}
-          >
-            {msg.role === 'bot' && <div style={styles.botAvatar}>🧑‍🏫</div>}
-            <div style={{
-              ...styles.messageBubble,
-              ...(msg.role === 'user' ? styles.userBubble : styles.botBubble)
-            }}>
-              <p style={styles.messageText} dangerouslySetInnerHTML={{ __html: msg.content }} />
-            </div>
-            {msg.role === 'user' && <div style={styles.userAvatar}>👤</div>}
-          </div>
-        ))}
-
-        {streamingMessage && (
-          <div style={styles.messageRow}>
-            <div style={styles.botAvatar}>🧑‍🏫</div>
-            <div style={{...styles.messageBubble, ...styles.botBubble}}>
-              <p style={styles.messageText} dangerouslySetInnerHTML={{ __html: streamingMessage }} />
-            </div>
-          </div>
-        )}
-
-        {loading && !streamingMessage && (
-          <div style={styles.typing}>
-            <div style={styles.typingBubble}>Almny Alolom AI يكتب...</div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div style={styles.inputArea}>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder={isBlocked ? "محظور..." : "اكتب سؤالك..."}
-          style={styles.input}
-          disabled={loading || isBlocked}
-        />
-        <button
-          onClick={handleSend}
-          disabled={!input.trim() || loading || isBlocked}
-          style={{
-            ...styles.button,
-            ...((!input.trim() || loading || isBlocked) ? styles.buttonDisabled : styles.buttonActive)
-          }}
-        >
-          {loading ? '⏳' : 'إرسال'}
-        </button>
-      </div>
-    </div>
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        @keyframes typing {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-8px); }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
+    </>
   );
 }
 
 const styles = {
-  container: {
-    maxWidth: '800px',
-    margin: '20px auto',
-    background: 'white',
-    borderRadius: '20px',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-    overflow: 'hidden',
-    direction: 'rtl',
-    height: 'calc(100vh - 40px)',
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  header: {
-    background: '#1e3c72',
-    color: 'white',
-    padding: '20px'
-  },
-  botInfo: {
+  // ========== الرسالة المنبثقة (بدون رابط) ==========
+  messageOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0, 0, 0, 0.7)',
+    backdropFilter: 'blur(8px)',
     display: 'flex',
     alignItems: 'center',
-    gap: '15px',
-    marginBottom: '10px'
+    justifyContent: 'center',
+    zIndex: 9999,
+    animation: 'fadeIn 0.3s ease',
   },
-  avatar: {
-    width: '50px',
-    height: '50px',
-    background: 'rgba(255,255,255,0.2)',
+  messageCard: {
+    background: 'white',
+    borderRadius: '28px',
+    padding: '35px',
+    maxWidth: '400px',
+    width: '90%',
+    textAlign: 'center',
+    boxShadow: '0 30px 50px rgba(0, 0, 0, 0.4)',
+    animation: 'slideIn 0.4s ease',
+  },
+  messageIconWrapper: {
+    width: '80px',
+    height: '80px',
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '24px'
+    margin: '0 auto 20px',
+    animation: 'float 3s ease-in-out infinite',
   },
-  botName: {
-    margin: 0,
-    fontSize: '20px'
+  messageIcon: {
+    fontSize: '40px',
   },
-  botStatus: {
-    margin: '5px 0 0',
-    fontSize: '12px',
-    opacity: 0.9
+  messageTitle: {
+    fontSize: '24px',
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: '15px',
   },
-  userInfo: {
-    marginBottom: '10px',
-    padding: '5px 10px',
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: '20px',
+  messageText: {
+    fontSize: '16px',
+    color: '#4b5563',
+    lineHeight: '1.7',
+    marginBottom: '25px',
+  },
+  messageButton: {
+    padding: '14px 40px',
+    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '50px',
+    fontSize: '16px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s',
+    marginBottom: '15px',
+    boxShadow: '0 10px 20px rgba(102, 126, 234, 0.3)',
+    '&:hover': {
+      transform: 'translateY(-3px)',
+      boxShadow: '0 15px 25px rgba(102, 126, 234, 0.4)',
+    },
+  },
+  messageFooter: {
+    fontSize: '13px',
+    color: '#94a3b8',
+  },
+  messageOnce: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
-    flexWrap: 'wrap'
+    justifyContent: 'center',
+    gap: '5px',
+  },
+
+  // ========== واجهة البوت - تصميم أنيق ==========
+  container: {
+    maxWidth: '900px',
+    margin: '20px auto',
+    background: 'white',
+    borderRadius: '24px',
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
+    overflow: 'hidden',
+    direction: 'rtl',
+    height: 'calc(100vh - 40px)',
+    display: 'flex',
+    flexDirection: 'column',
+    fontFamily: '"Cairo", "Segoe UI", Tahoma, sans-serif',
+  },
+  header: {
+    background: 'linear-gradient(135deg, #0f172a, #1e293b)',
+    color: 'white',
+    padding: '20px',
+  },
+  headerContent: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '15px',
+    flexWrap: 'wrap',
+    gap: '15px',
+  },
+  logoWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px',
+  },
+  logoAnimated: {
+  width: '55px',
+  height: '55px',
+  background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+  borderRadius: '50%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  // animation: 'float 3s ease-in-out infinite',  // ← تم التعطيل
+  border: '2px solid rgba(255, 255, 255, 0.2)',
+},
+  logoIcon: {
+    fontSize: '28px',
+  },
+  logoText: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  botName: {
+    fontSize: '22px',
+    fontWeight: '700',
+    margin: 0,
+    marginBottom: '5px',
+  },
+  statusWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  statusDot: {
+    width: '8px',
+    height: '8px',
+    background: '#10b981',
+    borderRadius: '50%',
+    display: 'inline-block',
+    animation: 'pulse 2s infinite',
+  },
+  statusText: {
+    fontSize: '13px',
+    opacity: 0.9,
+  },
+  userBadge: {
+    padding: '8px 16px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: '30px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+  },
+  userIcon: {
+    fontSize: '16px',
   },
   userName: {
     fontSize: '14px',
-    color: 'white'
+    fontWeight: '600',
   },
   blockedBadge: {
-    fontSize: '12px',
+    fontSize: '11px',
     background: '#dc2626',
-    padding: '2px 8px',
-    borderRadius: '10px',
-    color: 'white'
-  },
-  badges: {
-    display: 'flex',
-    gap: '10px',
-    flexWrap: 'wrap'
-  },
-  badge: {
-    background: 'rgba(255,255,255,0.15)',
-    padding: '5px 12px',
+    padding: '3px 8px',
     borderRadius: '20px',
-    fontSize: '12px'
+    color: 'white',
+  },
+  specialties: {
+    display: 'flex',
+    gap: '8px',
+    flexWrap: 'wrap',
+  },
+  specialtyItem: {
+    background: 'rgba(255, 255, 255, 0.1)',
+    padding: '6px 14px',
+    borderRadius: '30px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    fontSize: '12px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    transition: 'all 0.2s',
+    '&:hover': {
+      background: 'rgba(255, 255, 255, 0.2)',
+    },
+  },
+  specialtyIcon: {
+    fontSize: '14px',
   },
   chatArea: {
     flex: 1,
     overflowY: 'auto',
     padding: '20px',
-    background: '#f5f7fb'
+    background: '#f8fafc',
   },
   messageRow: {
     display: 'flex',
     alignItems: 'flex-end',
     gap: '10px',
-    marginBottom: '15px'
+    marginBottom: '15px',
+    animation: 'fadeIn 0.3s ease',
   },
   userRow: {
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
   botRow: {
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
   },
   botAvatar: {
-    width: '35px',
-    height: '35px',
-    background: '#1e3c72',
+    width: '36px',
+    height: '36px',
+    background: 'linear-gradient(135deg, #0f172a, #1e293b)',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
-    fontSize: '18px'
+    fontSize: '18px',
+    flexShrink: 0,
+    boxShadow: '0 3px 8px rgba(0, 0, 0, 0.1)',
   },
   userAvatar: {
-    width: '35px',
-    height: '35px',
-    background: '#6c757d',
+    width: '36px',
+    height: '36px',
+    background: 'linear-gradient(135deg, #10b981, #059669)',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
-    fontSize: '18px'
+    fontSize: '18px',
+    flexShrink: 0,
+    boxShadow: '0 3px 8px rgba(0, 0, 0, 0.1)',
   },
   messageBubble: {
-    maxWidth: '70%',
-    padding: '12px 16px',
-    borderRadius: '18px'
+    maxWidth: '65%',
+    padding: '12px 18px',
+    borderRadius: '18px',
+    position: 'relative',
+    wordWrap: 'break-word',
+    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.05)',
   },
   botBubble: {
     background: 'white',
-    border: '1px solid #e9ecef',
+    border: '1px solid #e2e8f0',
     borderBottomRightRadius: '18px',
-    borderBottomLeftRadius: '4px'
+    borderBottomLeftRadius: '4px',
   },
   userBubble: {
-    background: '#1e3c72',
+    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
     color: 'white',
     borderBottomLeftRadius: '18px',
-    borderBottomRightRadius: '4px'
+    borderBottomRightRadius: '4px',
   },
   messageText: {
     margin: 0,
     fontSize: '14px',
-    lineHeight: '1.6',
-    whiteSpace: 'pre-line'
+    lineHeight: '1.7',
+    whiteSpace: 'pre-wrap',
   },
-  typing: {
+  messageTime: {
+    fontSize: '10px',
+    opacity: 0.7,
+    display: 'block',
+    textAlign: 'left',
+    marginTop: '4px',
+  },
+  typingContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
-    marginTop: '10px'
   },
   typingBubble: {
     background: 'white',
-    padding: '10px 15px',
+    padding: '12px 18px',
     borderRadius: '18px',
-    border: '1px solid #e9ecef',
-    fontSize: '13px',
-    color: '#6c757d'
-  },
-  inputArea: {
-    padding: '20px',
-    background: 'white',
-    borderTop: '1px solid #e9ecef',
+    border: '1px solid #e2e8f0',
     display: 'flex',
-    gap: '10px'
+    gap: '4px',
+  },
+  typingDot: {
+    width: '6px',
+    height: '6px',
+    background: '#94a3b8',
+    borderRadius: '50%',
+    display: 'inline-block',
+    animation: 'typing 1.4s infinite ease-in-out',
+    '&:nth-child(1)': { animationDelay: '0s' },
+    '&:nth-child(2)': { animationDelay: '0.2s' },
+    '&:nth-child(3)': { animationDelay: '0.4s' },
+  },
+  inputContainer: {
+    padding: '15px 20px',
+    background: 'white',
+    borderTop: '1px solid #e2e8f0',
+  },
+  inputWrapper: {
+    display: 'flex',
+    gap: '10px',
   },
   input: {
     flex: 1,
-    padding: '12px 16px',
-    border: '2px solid #e9ecef',
-    borderRadius: '25px',
-    fontSize: '14px',
-    outline: 'none'
+    padding: '14px 18px',
+    border: '2px solid #e2e8f0',
+    borderRadius: '30px',
+    fontSize: '15px',
+    outline: 'none',
+    transition: 'all 0.3s',
+    fontFamily: '"Cairo", "Segoe UI", Tahoma, sans-serif',
+    '&:focus': {
+      borderColor: '#3b82f6',
+      boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+    },
+    '&:disabled': {
+      background: '#f1f5f9',
+      borderColor: '#cbd5e1',
+    },
   },
-  button: {
-    padding: '12px 24px',
+  sendButton: {
+    padding: '0 25px',
     border: 'none',
-    borderRadius: '25px',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    cursor: 'pointer'
+    borderRadius: '30px',
+    fontSize: '15px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s',
+    minWidth: '90px',
   },
-  buttonActive: {
-    background: '#1e3c72',
-    color: 'white'
+  sendButtonActive: {
+    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+    color: 'white',
+    boxShadow: '0 5px 12px rgba(59, 130, 246, 0.3)',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 8px 18px rgba(59, 130, 246, 0.4)',
+    },
   },
-  buttonDisabled: {
-    background: '#e9ecef',
-    color: '#adb5bd',
-    cursor: 'not-allowed'
-  }
+  sendButtonDisabled: {
+    background: '#e2e8f0',
+    color: '#94a3b8',
+    cursor: 'not-allowed',
+  },
 };
