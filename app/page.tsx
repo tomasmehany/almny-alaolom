@@ -1,3 +1,352 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+
+export default function Home() {
+  const router = useRouter()
+  const [isVisible, setIsVisible] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    setIsVisible(true)
+    
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+    
+    window.addEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', checkMobile)
+    }
+  }, [])
+
+  return (
+    <div style={styles.container}>
+      {/* خلفية متحركة */}
+      <div style={styles.background}></div>
+      <div style={styles.backgroundOverlay}></div>
+      
+      {/* الهيدر */}
+      <header style={{
+        ...styles.header,
+        background: scrolled ? 'rgba(10, 25, 47, 0.95)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(10px)' : 'none',
+        boxShadow: scrolled ? '0 10px 30px rgba(0, 0, 0, 0.2)' : 'none'
+      }}>
+        <div style={{
+          ...styles.headerContent,
+          flexDirection: isMobile ? 'column' : 'row',
+          textAlign: isMobile ? 'center' : 'left',
+          gap: isMobile ? '15px' : '0'
+        }}>
+          <div style={styles.logo}>
+            <div style={styles.logoIconWrapper}>
+              <span style={styles.logoIcon}>🎓</span>
+            </div>
+            <div style={styles.logoText}>
+              <h1 style={{
+                ...styles.logoMain,
+                fontSize: isMobile ? '18px' : '20px'
+              }}>علمني العلوم</h1>
+              <p style={{
+                ...styles.logoSub,
+                fontSize: isMobile ? '10px' : '12px'
+              }}>منصة مستر بيشوي التعليمية</p>
+            </div>
+          </div>
+          
+          <nav style={{
+            ...styles.nav,
+            width: isMobile ? '100%' : 'auto',
+            justifyContent: isMobile ? 'center' : 'flex-start'
+          }}>
+            <button 
+              style={{
+                ...styles.navButton,
+                padding: isMobile ? '8px 16px' : '10px 20px',
+                fontSize: isMobile ? '13px' : '14px'
+              }}
+              onClick={() => router.push('/login')}
+            >
+              تسجيل الدخول
+            </button>
+            <button 
+              style={{
+                ...styles.navButtonPrimary,
+                padding: isMobile ? '8px 16px' : '10px 20px',
+                fontSize: isMobile ? '13px' : '14px'
+              }}
+              onClick={() => router.push('/register')}
+            >
+              إنشاء حساب
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      {/* المحتوى الرئيسي */}
+      <main style={{
+        ...styles.main,
+        padding: isMobile ? '20px 15px' : '40px 20px'
+      }}>
+        {/* Hero Section */}
+        <div style={{
+          ...styles.hero,
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? '30px' : '50px',
+          marginBottom: isMobile ? '40px' : '60px',
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+          transition: 'all 0.8s ease'
+        }}>
+          <div style={styles.heroContent}>
+            <span style={{
+              ...styles.heroBadge,
+              fontSize: isMobile ? '11px' : '12px'
+            }}>منصة تعليمية متكاملة</span>
+            
+            <h1 style={{
+              ...styles.heroTitle,
+              fontSize: isMobile ? '28px' : '48px'
+            }}>
+              أهلاً بك في  
+              <span style={styles.heroHighlight}> "علمني العلوم"</span>
+            </h1>
+            
+            <p style={{
+              ...styles.heroSubtitle,
+              fontSize: isMobile ? '16px' : '18px'
+            }}>
+              مع مستر بيشوي، رحلتك نحو التفوق تبدأ من هنا
+            </p>
+
+            <p style={{
+              ...styles.heroDescription,
+              fontSize: isMobile ? '13px' : '15px'
+            }}>
+              أنشئ حسابك أو سجل دخولك للوصول إلى الكورسات التعليمية المتخصصة 
+              والمحتوى التفاعلي المعد خصيصاً لطلاب المراحل الإعدادية والثانوية
+            </p>
+
+            <div style={{
+              ...styles.heroButtons,
+              justifyContent: isMobile ? 'center' : 'flex-start'
+            }}>
+              <button 
+                style={{
+                  ...styles.primaryButton,
+                  padding: isMobile ? '10px 20px' : '12px 28px',
+                  fontSize: isMobile ? '14px' : '16px'
+                }}
+                onClick={() => router.push('/register')}
+              >
+                <span style={styles.buttonIcon}>✨</span>
+                ابدأ رحلتك الآن
+              </button>
+
+              <button 
+                style={{
+                  ...styles.secondaryButton,
+                  padding: isMobile ? '10px 20px' : '12px 28px',
+                  fontSize: isMobile ? '14px' : '16px'
+                }}
+                onClick={() => router.push('/login')}
+              >
+                <span style={styles.buttonIcon}>🔐</span>
+                تسجيل الدخول
+              </button>
+            </div>
+          </div>
+
+          <div style={styles.heroImage}>
+            <div style={styles.imageWrapper}>
+              <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                style={{
+                  width: '100%',
+                  height: isMobile ? '200px' : '380px',
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+              >
+                <source src="/videos/my-video.mp4" type="video/mp4" />
+              </video>
+              <div style={styles.imageOverlay}></div>
+              <div style={{
+                ...styles.imageBadge,
+                fontSize: isMobile ? '10px' : '12px',
+                padding: isMobile ? '4px 10px' : '6px 14px'
+              }}>
+                <span>🎬 التعلم التفاعلي</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* مميزات المنصة */}
+        <div style={styles.featuresSection}>
+          <div style={styles.sectionHeader}>
+            <span style={styles.sectionBadge}>لماذا تختارنا؟</span>
+            <h2 style={{
+              ...styles.sectionTitle,
+              fontSize: isMobile ? '24px' : '36px'
+            }}>مميزات المنصة</h2>
+            <p style={{
+              ...styles.sectionSubtitle,
+              fontSize: isMobile ? '14px' : '16px',
+              padding: isMobile ? '0 15px' : '0'
+            }}>
+              نقدم لك تجربة تعليمية متكاملة تجمع بين الشرح المبسط والتقييم المستمر
+            </p>
+          </div>
+          
+          <div style={{
+            ...styles.featuresGrid,
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
+            gap: isMobile ? '15px' : '25px'
+          }}>
+            <div style={styles.featureCard}>
+              <div style={styles.featureIconWrapper}>
+                <span style={styles.featureIcon}>📚</span>
+              </div>
+              <h3 style={{
+                ...styles.featureTitle,
+                fontSize: isMobile ? '16px' : '18px'
+              }}>كورسات متخصصة</h3>
+              <p style={{
+                ...styles.featureText,
+                fontSize: isMobile ? '13px' : '14px'
+              }}>
+                شروح مفصلة للعلوم والكيمياء والفيزياء لكل المراحل الدراسية
+              </p>
+            </div>
+
+            <div style={styles.featureCard}>
+              <div style={styles.featureIconWrapper}>
+                <span style={styles.featureIcon}>🎬</span>
+              </div>
+              <h3 style={{
+                ...styles.featureTitle,
+                fontSize: isMobile ? '16px' : '18px'
+              }}>فيديوهات تعليمية</h3>
+              <p style={{
+                ...styles.featureText,
+                fontSize: isMobile ? '13px' : '14px'
+              }}>
+                محتوى مرئي مع شرح مبسط وسهل الفهم لكل درس
+              </p>
+            </div>
+
+            <div style={styles.featureCard}>
+              <div style={styles.featureIconWrapper}>
+                <span style={styles.featureIcon}>👨‍🏫</span>
+              </div>
+              <h3 style={{
+                ...styles.featureTitle,
+                fontSize: isMobile ? '16px' : '18px'
+              }}>متابعة شخصية</h3>
+              <p style={{
+                ...styles.featureText,
+                fontSize: isMobile ? '13px' : '14px'
+              }}>
+                إجابات على أسئلتك من المدرس والمساعد الذكي الخاص بك
+              </p>
+            </div>
+
+            <div style={styles.featureCard}>
+              <div style={styles.featureIconWrapper}>
+                <span style={styles.featureIcon}>📊</span>
+              </div>
+              <h3 style={{
+                ...styles.featureTitle,
+                fontSize: isMobile ? '16px' : '18px'
+              }}>تقييم وتقارير</h3>
+              <p style={{
+                ...styles.featureText,
+                fontSize: isMobile ? '13px' : '14px'
+              }}>
+                متابعة تقدمك الدراسي وتقارير أداء مفصلة عن مستوى فهمك
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* قسم الكورسات */}
+        <div style={styles.coursesSection}>
+          <div style={styles.sectionHeader}>
+            <span style={styles.sectionBadge}>كورساتنا</span>
+            <h2 style={{
+              ...styles.sectionTitle,
+              fontSize: isMobile ? '24px' : '36px'
+            }}>الكورسات المتاحة</h2>
+            <p style={{
+              ...styles.sectionSubtitle,
+              fontSize: isMobile ? '14px' : '16px',
+              padding: isMobile ? '0 15px' : '0'
+            }}>
+              اختر المرحلة الدراسية وابدأ رحلة التعلم معنا
+            </p>
+          </div>
+
+          <div style={{
+            ...styles.coursesGrid,
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+            gap: isMobile ? '15px' : '25px',
+            maxWidth: isMobile ? '100%' : '800px'
+          }}>
+            <div style={styles.courseCard}>
+              <div style={styles.courseIcon}>📘</div>
+              <h3 style={{
+                ...styles.courseTitle,
+                fontSize: isMobile ? '18px' : '22px'
+              }}>المرحلة الإعدادية</h3>
+              <div style={styles.courseDetails}>
+                <span>📗 الصف الأول الإعدادي</span>
+                <span>📘 الصف الثاني الإعدادي</span>
+                <span>📙 الصف الثالث الإعدادي</span>
+              </div>
+              <button 
+                style={styles.courseButton}
+                onClick={() => router.push('/register')}
+              >
+                ابدأ التعلم ←
+              </button>
+            </div>
+
+            <div style={styles.courseCard}>
+              <div style={styles.courseIcon}>📙</div>
+              <h3 style={{
+                ...styles.courseTitle,
+                fontSize: isMobile ? '18px' : '22px'
+              }}>المرحلة الثانوية</h3>
+              <div style={styles.courseDetails}>
+                <span>📕 الصف الأول الثانوي</span>
+                <span>⚗️ الصف الثاني الثانوي - كيمياء</span>
+                <span>⚛️ الصف الثاني الثانوي - فيزياء</span>
+              </div>
+              <button 
+                style={styles.courseButton}
+                onClick={() => router.push('/register')}
+              >
+                ابدأ التعلم ←
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* قسم الدعم */}
         <div style={styles.supportSection}>
           <div style={{
@@ -10,30 +359,30 @@
               ...styles.supportIcon,
               width: isMobile ? '50px' : '60px',
               height: isMobile ? '50px' : '60px',
-              fontSize: isMobile ? '28px' : '36px'
+              fontSize: isMobile ? '24px' : '30px'
             }}>💬</div>
             <div style={styles.supportTextContent}>
               <h3 style={{
                 ...styles.supportTitle,
                 fontSize: isMobile ? '16px' : '18px'
-              }}> للمساعدة تواصل مع الادمن </h3>
+              }}>للمساعدة تواصل مع الأدمن</h3>
               <p style={{
                 ...styles.supportText,
                 fontSize: isMobile ? '13px' : '14px'
               }}>
-                لديك استفسار؟ تواصل معنا 
+                لديك استفسار؟ تواصل معنا عبر واتساب
               </p>
             </div>
             <button 
               style={{
                 ...styles.supportButton,
-                padding: isMobile ? '8px 16px' : '10px 20px',
+                padding: isMobile ? '8px 20px' : '10px 25px',
                 fontSize: isMobile ? '13px' : '14px',
                 width: isMobile ? '100%' : 'auto'
               }}
               onClick={() => window.open('https://wa.me/message/UKASWZCU5BNLN1?src=qr', '_blank')}
             >
-              تواصل عبر واتساب
+              📱 تواصل عبر واتساب
             </button>
           </div>
         </div>
@@ -45,17 +394,15 @@
           <div style={{
             ...styles.footerTop,
             gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr',
-            gap: isMobile ? '30px' : '40px'
+            gap: isMobile ? '30px' : '40px',
+            textAlign: isMobile ? 'center' : 'right'
           }}>
             <div style={{
               ...styles.footerInfo,
-              textAlign: isMobile ? 'center' : 'right',
               alignItems: isMobile ? 'center' : 'flex-start'
             }}>
               <div style={styles.footerLogo}>
-                <div style={styles.footerLogoIcon}>
-                  <span>🎓</span>
-                </div>
+                <div style={styles.footerLogoIcon}>🎓</div>
                 <div>
                   <h3 style={styles.footerTitle}>علمني العلوم</h3>
                   <p style={styles.footerSubtitle}>منصة مستر بيشوي التعليمية</p>
@@ -127,12 +474,16 @@
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.05); }
         }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
     </div>
   )
 }
 
-// باقي الـ styles نفس الكود اللي عندك بس محتاج تعديل بسيط
 const styles: any = {
   container: {
     minHeight: '100vh',
@@ -170,7 +521,7 @@ const styles: any = {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    padding: '15px',
+    padding: '15px 20px',
     transition: 'all 0.3s ease'
   },
 
@@ -182,19 +533,18 @@ const styles: any = {
     alignItems: 'center',
     position: 'relative',
     zIndex: 2,
-    flexWrap: 'wrap',
-    gap: '15px'
+    flexWrap: 'wrap'
   },
 
   logo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px'
+    gap: '12px'
   },
 
   logoIconWrapper: {
-    width: '50px',
-    height: '50px',
+    width: '45px',
+    height: '45px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     borderRadius: '50%',
     display: 'flex',
@@ -226,7 +576,7 @@ const styles: any = {
 
   nav: {
     display: 'flex',
-    gap: '10px',
+    gap: '12px',
     alignItems: 'center'
   },
 
@@ -234,7 +584,7 @@ const styles: any = {
     background: 'transparent',
     color: 'white',
     border: '2px solid rgba(255,255,255,0.2)',
-    borderRadius: '8px',
+    borderRadius: '10px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s'
@@ -244,11 +594,11 @@ const styles: any = {
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '10px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s',
-    boxShadow: '0 10px 20px rgba(37,99,235,0.3)'
+    boxShadow: '0 4px 15px rgba(37,99,235,0.3)'
   },
 
   main: {
@@ -259,51 +609,52 @@ const styles: any = {
   },
 
   hero: {
-    display: 'grid',
+    display: 'flex',
     alignItems: 'center'
   },
 
   heroContent: {
+    flex: 1,
     color: 'white'
   },
 
   heroBadge: {
     display: 'inline-block',
-    padding: '6px 12px',
-    background: 'rgba(37,99,235,0.1)',
+    padding: '5px 12px',
+    background: 'rgba(37,99,235,0.15)',
     border: '1px solid rgba(37,99,235,0.3)',
     borderRadius: '50px',
     fontWeight: '600',
     color: '#60a5fa',
-    marginBottom: '15px'
+    marginBottom: '20px'
   },
 
   heroTitle: {
     fontWeight: '800',
-    marginBottom: '15px',
+    marginBottom: '20px',
     lineHeight: 1.2,
     color: 'white'
   },
 
   heroHighlight: {
-    color: '#2563eb'
+    color: '#3b82f6'
   },
 
   heroSubtitle: {
-    color: '#94a3b8',
-    marginBottom: '15px'
+    color: '#cbd5e1',
+    marginBottom: '20px',
+    fontWeight: '500'
   },
 
   heroDescription: {
     lineHeight: 1.6,
-    color: '#cbd5e1',
-    marginBottom: '25px'
+    color: '#94a3b8',
+    marginBottom: '30px'
   },
 
   heroButtons: {
     display: 'flex',
     gap: '15px',
-    marginBottom: '25px',
     flexWrap: 'wrap'
   },
 
@@ -318,7 +669,7 @@ const styles: any = {
     alignItems: 'center',
     gap: '8px',
     transition: 'all 0.3s',
-    boxShadow: '0 10px 20px rgba(37,99,235,0.3)'
+    boxShadow: '0 4px 15px rgba(37,99,235,0.3)'
   },
 
   secondaryButton: {
@@ -339,7 +690,7 @@ const styles: any = {
   },
 
   heroImage: {
-    position: 'relative',
+    flex: 1,
     animation: 'float 6s ease-in-out infinite'
   },
 
@@ -347,7 +698,7 @@ const styles: any = {
     position: 'relative',
     borderRadius: '20px',
     overflow: 'hidden',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+    boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
     border: '1px solid rgba(255,255,255,0.1)'
   },
 
@@ -357,35 +708,35 @@ const styles: any = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.7))'
+    background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))'
   },
 
   imageBadge: {
     position: 'absolute',
     top: '15px',
-    left: '15px',
+    right: '15px',
     background: 'rgba(37,99,235,0.9)',
     backdropFilter: 'blur(10px)',
     borderRadius: '50px',
     color: 'white',
     fontWeight: '600',
     border: '1px solid rgba(255,255,255,0.2)',
-    boxShadow: '0 10px 20px rgba(0,0,0,0.3)'
+    boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
   },
 
   featuresSection: {
-    marginBottom: '60px'
+    marginBottom: '70px'
   },
 
   sectionHeader: {
     textAlign: 'center',
-    marginBottom: '40px'
+    marginBottom: '50px'
   },
 
   sectionBadge: {
     display: 'inline-block',
-    padding: '6px 12px',
-    background: 'rgba(37,99,235,0.1)',
+    padding: '5px 12px',
+    background: 'rgba(37,99,235,0.15)',
     border: '1px solid rgba(37,99,235,0.3)',
     borderRadius: '50px',
     fontWeight: '600',
@@ -407,40 +758,38 @@ const styles: any = {
   },
 
   featuresGrid: {
-    display: 'grid',
-    gap: '20px'
+    display: 'grid'
   },
 
   featureCard: {
-    background: 'rgba(255,255,255,0.05)',
-    borderRadius: '16px',
-    padding: '20px',
+    background: 'rgba(255,255,255,0.03)',
+    borderRadius: '20px',
+    padding: '25px',
     textAlign: 'center',
     transition: 'all 0.3s',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.05)',
     backdropFilter: 'blur(10px)'
   },
 
   featureIconWrapper: {
-    width: '60px',
-    height: '60px',
-    background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
-    borderRadius: '16px',
+    width: '70px',
+    height: '70px',
+    background: 'linear-gradient(135deg, rgba(37,99,235,0.2), rgba(124,58,237,0.2))',
+    borderRadius: '20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    margin: '0 auto 15px',
-    animation: 'pulse 2s infinite'
+    margin: '0 auto 20px'
   },
 
   featureIcon: {
-    fontSize: '28px'
+    fontSize: '32px'
   },
 
   featureTitle: {
-    fontWeight: '600',
+    fontWeight: '700',
     color: 'white',
-    marginBottom: '10px'
+    marginBottom: '12px'
   },
 
   featureText: {
@@ -449,27 +798,26 @@ const styles: any = {
   },
 
   coursesSection: {
-    marginBottom: '60px'
+    marginBottom: '70px'
   },
 
   coursesGrid: {
     display: 'grid',
-    gap: '20px',
     margin: '0 auto'
   },
 
   courseCard: {
-    background: 'rgba(255,255,255,0.05)',
-    borderRadius: '20px',
+    background: 'rgba(255,255,255,0.03)',
+    borderRadius: '24px',
     padding: '30px',
     textAlign: 'center',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.05)',
     backdropFilter: 'blur(10px)',
     transition: 'all 0.3s'
   },
 
   courseIcon: {
-    fontSize: '40px',
+    fontSize: '48px',
     marginBottom: '15px'
   },
 
@@ -482,14 +830,14 @@ const styles: any = {
   courseDetails: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
-    marginBottom: '20px',
+    gap: '10px',
+    marginBottom: '25px',
     color: '#94a3b8',
     fontSize: '14px'
   },
 
   courseButton: {
-    padding: '10px 20px',
+    padding: '12px 25px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     color: 'white',
     border: 'none',
@@ -502,13 +850,13 @@ const styles: any = {
   },
 
   supportSection: {
-    marginBottom: '40px'
+    marginBottom: '50px'
   },
 
   supportCard: {
-    background: 'linear-gradient(135deg, #1e293b, #334155)',
-    borderRadius: '20px',
-    padding: '25px',
+    background: 'linear-gradient(135deg, rgba(30,41,59,0.9), rgba(51,65,85,0.9))',
+    borderRadius: '24px',
+    padding: '25px 30px',
     display: 'flex',
     alignItems: 'center',
     gap: '20px',
@@ -551,9 +899,9 @@ const styles: any = {
   },
 
   footer: {
-    background: 'rgba(0,0,0,0.3)',
+    background: 'rgba(0,0,0,0.4)',
     backdropFilter: 'blur(10px)',
-    borderTop: '1px solid rgba(255,255,255,0.1)',
+    borderTop: '1px solid rgba(255,255,255,0.05)',
     padding: '40px 20px 20px',
     position: 'relative',
     zIndex: 2
@@ -566,7 +914,6 @@ const styles: any = {
 
   footerTop: {
     display: 'grid',
-    gap: '40px',
     marginBottom: '40px'
   },
 
@@ -579,18 +926,18 @@ const styles: any = {
   footerLogo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px'
+    gap: '12px'
   },
 
   footerLogoIcon: {
-    width: '50px',
-    height: '50px',
+    width: '45px',
+    height: '45px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '24px'
+    fontSize: '22px'
   },
 
   footerTitle: {
@@ -615,7 +962,7 @@ const styles: any = {
   footerLinks: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px'
+    gap: '12px'
   },
 
   footerLinksTitle: {
@@ -638,7 +985,7 @@ const styles: any = {
 
   footerBottom: {
     paddingTop: '20px',
-    borderTop: '1px solid rgba(255,255,255,0.1)',
+    borderTop: '1px solid rgba(255,255,255,0.05)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -659,7 +1006,7 @@ const styles: any = {
   },
 
   developerLink: {
-    color: '#2563eb',
+    color: '#60a5fa',
     textDecoration: 'none',
     transition: 'all 0.3s'
   }
