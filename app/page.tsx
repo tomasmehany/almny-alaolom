@@ -45,9 +45,9 @@ export default function Home() {
       }}>
         <div style={{
           ...styles.headerContent,
-          flexDirection: isMobile ? 'column' : 'row',
-          textAlign: isMobile ? 'center' : 'left',
-          gap: isMobile ? '15px' : '0'
+          flexDirection: 'row',
+          justifyContent: isMobile ? 'space-between' : 'space-between',
+          alignItems: 'center'
         }}>
           <div style={styles.logo}>
             <div style={styles.logoIconWrapper}>
@@ -56,25 +56,25 @@ export default function Home() {
             <div style={styles.logoText}>
               <h1 style={{
                 ...styles.logoMain,
-                fontSize: isMobile ? '18px' : '20px'
+                fontSize: isMobile ? '16px' : '20px'
               }}>علمني العلوم</h1>
               <p style={{
                 ...styles.logoSub,
-                fontSize: isMobile ? '10px' : '12px'
+                fontSize: isMobile ? '9px' : '12px',
+                display: isMobile ? 'none' : 'block'
               }}>منصة مستر بيشوي التعليمية</p>
             </div>
           </div>
           
           <nav style={{
             ...styles.nav,
-            width: isMobile ? '100%' : 'auto',
-            justifyContent: isMobile ? 'center' : 'flex-start'
+            gap: isMobile ? '8px' : '12px'
           }}>
             <button 
               style={{
                 ...styles.navButton,
-                padding: isMobile ? '8px 16px' : '10px 20px',
-                fontSize: isMobile ? '13px' : '14px'
+                padding: isMobile ? '6px 12px' : '10px 20px',
+                fontSize: isMobile ? '12px' : '14px'
               }}
               onClick={() => router.push('/login')}
             >
@@ -83,8 +83,8 @@ export default function Home() {
             <button 
               style={{
                 ...styles.navButtonPrimary,
-                padding: isMobile ? '8px 16px' : '10px 20px',
-                fontSize: isMobile ? '13px' : '14px'
+                padding: isMobile ? '6px 12px' : '10px 20px',
+                fontSize: isMobile ? '12px' : '14px'
               }}
               onClick={() => router.push('/register')}
             >
@@ -103,7 +103,7 @@ export default function Home() {
         <div style={{
           ...styles.hero,
           flexDirection: isMobile ? 'column' : 'row',
-          gap: isMobile ? '30px' : '50px',
+          gap: isMobile ? '40px' : '50px',
           marginBottom: isMobile ? '40px' : '60px',
           opacity: isVisible ? 1 : 0,
           transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
@@ -140,7 +140,7 @@ export default function Home() {
 
             <div style={{
               ...styles.heroButtons,
-              justifyContent: isMobile ? 'center' : 'flex-start'
+              justifyContent: 'flex-start'
             }}>
               <button 
                 style={{
@@ -177,7 +177,7 @@ export default function Home() {
                 playsInline
                 style={{
                   width: '100%',
-                  height: isMobile ? '200px' : '380px',
+                  height: isMobile ? '280px' : '380px',
                   objectFit: 'cover',
                   display: 'block'
                 }}
@@ -539,12 +539,12 @@ const styles: any = {
   logo: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px'
+    gap: '10px'
   },
 
   logoIconWrapper: {
-    width: '45px',
-    height: '45px',
+    width: '40px',
+    height: '40px',
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     borderRadius: '50%',
     display: 'flex',
@@ -554,7 +554,7 @@ const styles: any = {
   },
 
   logoIcon: {
-    fontSize: '24px'
+    fontSize: '20px'
   },
 
   logoText: {
@@ -576,7 +576,6 @@ const styles: any = {
 
   nav: {
     display: 'flex',
-    gap: '12px',
     alignItems: 'center'
   },
 
@@ -584,7 +583,7 @@ const styles: any = {
     background: 'transparent',
     color: 'white',
     border: '2px solid rgba(255,255,255,0.2)',
-    borderRadius: '10px',
+    borderRadius: '8px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s'
@@ -594,7 +593,7 @@ const styles: any = {
     background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
     color: 'white',
     border: 'none',
-    borderRadius: '10px',
+    borderRadius: '8px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s',
