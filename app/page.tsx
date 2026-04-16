@@ -168,28 +168,37 @@ export default function Home() {
             </div>
           </div>
 
-           <div style={styles.heroImage}>
-  <div style={styles.imageWrapper}>
-    <video 
-      autoPlay 
-      loop 
-      muted 
-      playsInline
-      style={{
-        width: '100%',
-        height: '500px',
-        objectFit: 'cover',
-        display: 'block'
-      }}
-    >
-      <source src="/videos/my-video.mp4" type="video/mp4" />
-    </video>
-    <div style={styles.imageOverlay}></div>
-    <div style={styles.imageBadge}>
-      <span>🎬 التعلم التفاعلي</span>
-    </div>
-  </div>
-</div>
+          <div style={styles.heroImage}>
+            <div style={{
+              ...styles.imageWrapper,
+              width: isMobile ? '100%' : 'auto',
+              aspectRatio: isMobile ? '1/1' : 'auto',
+              height: isMobile ? 'auto' : '380px'
+            }}>
+              <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+              >
+                <source src="/videos/my-video.mp4" type="video/mp4" />
+              </video>
+              <div style={styles.imageOverlay}></div>
+              <div style={{
+                ...styles.imageBadge,
+                fontSize: isMobile ? '10px' : '12px',
+                padding: isMobile ? '4px 10px' : '6px 14px'
+              }}>
+                <span>🎬 التعلم التفاعلي</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* مميزات المنصة */}
