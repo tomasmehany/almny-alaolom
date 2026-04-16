@@ -46,7 +46,7 @@ export default function Home() {
         <div style={{
           ...styles.headerContent,
           flexDirection: 'row',
-          justifyContent: isMobile ? 'space-between' : 'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center'
         }}>
           <div style={styles.logo}>
@@ -169,7 +169,12 @@ export default function Home() {
           </div>
 
           <div style={styles.heroImage}>
-            <div style={styles.imageWrapper}>
+            <div style={{
+              ...styles.imageWrapper,
+              width: isMobile ? '100%' : 'auto',
+              aspectRatio: isMobile ? '1/1' : 'auto',
+              height: isMobile ? 'auto' : '380px'
+            }}>
               <video 
                 autoPlay 
                 loop 
@@ -177,7 +182,7 @@ export default function Home() {
                 playsInline
                 style={{
                   width: '100%',
-                  height: isMobile ? '280px' : '380px',
+                  height: '100%',
                   objectFit: 'cover',
                   display: 'block'
                 }}
