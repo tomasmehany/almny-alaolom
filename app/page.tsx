@@ -443,7 +443,7 @@ export default function Home() {
                 style={styles.footerLink}
                 onClick={() => window.open('https://wa.me/message/UKASWZCU5BNLN1?src=qr', '_blank')}
               >
-                الدعم الفني
+          ادمن المنصة
               </button>
             </div>
           </div>
