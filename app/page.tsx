@@ -62,7 +62,7 @@ export default function Home() {
                 ...styles.logoSub,
                 fontSize: isMobile ? '9px' : '12px',
                 display: isMobile ? 'none' : 'block'
-              }}>منصة مستر بيشوي التعليمية</p>
+              }}>منصة مستر بيشوي مالك التعليمية</p>
             </div>
           </div>
           
