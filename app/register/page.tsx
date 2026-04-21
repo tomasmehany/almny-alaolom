@@ -268,7 +268,7 @@ export default function RegisterPage() {
         <div style={styles.mobileLinks}>
           <button type="button" onClick={contactAdmin} style={{...styles.mobileLink, ...styles.greenButtonMobile}}>
             <span style={styles.linkIcon}>💬</span>
-            <span>تواصل مع الدعم عبر واتساب</span>
+            <span>تواصل مع الادمن عبر واتساب</span>
           </button>
 
           <Link href="/" style={{...styles.mobileLink, ...styles.whiteButtonMobile}}>
