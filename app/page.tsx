@@ -204,7 +204,7 @@ export default function Home() {
         {/* مميزات المنصة */}
         <div style={styles.featuresSection}>
           <div style={styles.sectionHeader}>
-            <span style={styles.sectionBadge}>لماذا تختارنا؟</span>
+            <span style={styles.sectionBadge}>ماذا نقدم؟</span>
             <h2 style={{
               ...styles.sectionTitle,
               fontSize: isMobile ? '24px' : '36px'
