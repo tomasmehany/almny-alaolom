@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { db } from '@/lib/firebase'
 import { collection, getDocs, query, where } from 'firebase/firestore'
+import NotificationsPanel from '@/app/components/NotificationsPanel'
 
 export default function PlatformPage() {
   const [user, setUser] = useState<any>(null)
@@ -13,7 +14,7 @@ export default function PlatformPage() {
   const [activeCategory, setActiveCategory] = useState<string>('all')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [fetchError, setFetchError] = useState<string | null>(null) // 👈 جديد: لتتبع أخطاء الجلب
+  const [fetchError, setFetchError] = useState<string | null>(null)
   const [stats, setStats] = useState({
     total: 0,
     opened: 0,
@@ -24,7 +25,6 @@ export default function PlatformPage() {
   const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
   const telegramBotLink = 'https://t.me/AskMrBishoy_bot'
 
-  // كشف حجم الشاشة
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768)
@@ -50,7 +50,6 @@ export default function PlatformPage() {
 
         const parsedUser = JSON.parse(userData)
         
-        // استخراج userId بعدة طرق
         let userId = parsedUser.id || parsedUser.userId || parsedUser.uid || parsedUser._id || parsedUser.phone || ''
         
         if (!userId) {
@@ -61,7 +60,6 @@ export default function PlatformPage() {
 
         setUserId(userId)
 
-        // تحويل grade إلى year إذا لزم الأمر
         if (parsedUser.grade && !parsedUser.year) {
           parsedUser.year = parsedUser.grade
         }
@@ -72,7 +70,6 @@ export default function PlatformPage() {
 
         setUser(parsedUser)
 
-        // جلب الكورسات إذا كان لدينا سنة دراسية ومعرف مستخدم
         if (parsedUser.year && userId) {
           await fetchCourses(parsedUser.year, userId)
         }
@@ -94,7 +91,6 @@ export default function PlatformPage() {
       
       const yearCode = convertYearToCode(userYear)
       
-      // جلب الكورسات المتاحة للسنة الدراسية
       const coursesQuery = query(
         collection(db, "courses"),
         where("grade", "==", yearCode),
@@ -111,7 +107,6 @@ export default function PlatformPage() {
         })
       })
       
-      // جلب الكورسات المفتوحة للطالب
       const studentCoursesQuery = query(
         collection(db, "student_courses"),
         where("studentId", "==", studentId),
@@ -133,7 +128,6 @@ export default function PlatformPage() {
       
       setCourses(coursesWithStatus)
       
-      // تحديث الإحصائيات
       const openedCount = coursesWithStatus.filter(c => c.isOpened).length
       setStats({
         total: coursesWithStatus.length,
@@ -158,22 +152,18 @@ export default function PlatformPage() {
       'أولى اعدادي': '1-prep',
       'الصف الأول الإعدادي': '1-prep',
       '1-prep': '1-prep',
-      
       'ثانية إعدادي': '2-prep',
       'ثانيه اعدادي': '2-prep',
       'الصف الثاني الإعدادي': '2-prep',
       '2-prep': '2-prep',
-      
       'ثالثة إعدادي': '3-prep',
       'ثالثه اعدادي': '3-prep',
       'الصف الثالث الإعدادي': '3-prep',
       '3-prep': '3-prep',
-      
       'أولى ثانوي': '1-secondary',
       'اولى ثانوي': '1-secondary',
       'الصف الأول الثانوي': '1-secondary',
       '1-secondary': '1-secondary',
-      
       'ثانية ثانوي': '2-secondary',
       'ثانيه ثانوي': '2-secondary',
       'الصف الثاني الثانوي': '2-secondary',
@@ -247,7 +237,6 @@ export default function PlatformPage() {
     }
   }
 
-  // عرض حالة التحميل
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
@@ -257,7 +246,6 @@ export default function PlatformPage() {
     )
   }
 
-  // إذا لم يكن هناك مستخدم مسجل دخول
   if (!user) {
     return (
       <div style={styles.loadingContainer}>
@@ -270,7 +258,6 @@ export default function PlatformPage() {
     )
   }
 
-  // عرض رسالة خطأ إذا فشل جلب الكورسات
   if (fetchError) {
     return (
       <div style={styles.loadingContainer}>
@@ -298,7 +285,6 @@ export default function PlatformPage() {
 
   return (
     <div style={styles.container}>
-      {/* الهيدر العلوي */}
       <header style={styles.header}>
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
@@ -315,6 +301,8 @@ export default function PlatformPage() {
           </div>
           
           <div style={styles.userSection}>
+            <NotificationsPanel studentId={userId} studentGrade={userYear} />
+            
             <div style={styles.userAvatar}>
               {user.name?.charAt(0) || 'ط'}
             </div>
@@ -326,9 +314,7 @@ export default function PlatformPage() {
         </div>
       </header>
 
-      {/* المحتوى الرئيسي */}
       <div style={styles.mainContent}>
-        {/* القائمة الجانبية المنبثقة */}
         {isSidebarOpen && (
           <aside style={{
             ...styles.sidebar,
@@ -340,7 +326,6 @@ export default function PlatformPage() {
             boxShadow: '-5px 0 15px rgba(0,0,0,0.2)',
             height: 'calc(100vh - 80px)',
           }}>
-            {/* زر إغلاق القائمة (اختياري) */}
             <button 
               onClick={() => setIsSidebarOpen(false)}
               style={styles.closeSidebarButton}
@@ -349,7 +334,6 @@ export default function PlatformPage() {
             </button>
             
             <div style={styles.sidebarContent}>
-              {/* بطاقة السنة الدراسية */}
               <div style={styles.yearCard}>
                 <div style={styles.yearIcon}>📚</div>
                 <div style={styles.yearInfo}>
@@ -358,7 +342,6 @@ export default function PlatformPage() {
                 </div>
               </div>
 
-              {/* إحصائيات سريعة */}
               <div style={styles.statsCard}>
                 <h3 style={styles.statsTitle}>إحصائياتك</h3>
                 <div style={styles.statsList}>
@@ -386,7 +369,6 @@ export default function PlatformPage() {
                 </div>
               </div>
 
-              {/* فولدرات تانية ثانوي */}
               {userYear === 'ثانية ثانوي' && categoryStats && (
                 <div style={styles.foldersCard}>
                   <h4 style={styles.foldersTitle}>فولدرات المواد</h4>
@@ -435,7 +417,6 @@ export default function PlatformPage() {
                 </div>
               )}
 
-              {/* روابط سريعة */}
               <div style={styles.quickLinks}>
                 <h4 style={styles.quickTitle}>روابط سريعة</h4>
                 
@@ -479,13 +460,11 @@ export default function PlatformPage() {
           </aside>
         )}
 
-        {/* منطقة المحتوى الرئيسي */}
         <main style={{
           ...styles.mainArea,
           padding: isMobile ? '15px' : '25px',
           width: '100%'
         }}>
-          {/* شريط التنقل العلوي */}
           <div style={styles.navBar}>
             <div style={styles.breadcrumb}>
               <span>الرئيسية</span>
@@ -498,7 +477,6 @@ export default function PlatformPage() {
             </div>
           </div>
 
-          {/* الترحيب */}
           <div style={isMobile ? styles.welcomeBannerMobile : styles.welcomeBanner}>
             <div>
               <h2 style={isMobile ? styles.welcomeTitleMobile : styles.welcomeTitle}>
@@ -547,7 +525,6 @@ export default function PlatformPage() {
             </div>
           </div>
 
-          {/* شريط التصنيفات */}
           {userYear === 'ثانية ثانوي' && (
             <div style={isMobile ? styles.categoriesBarMobile : styles.categoriesBar}>
               <button
@@ -589,7 +566,6 @@ export default function PlatformPage() {
             </div>
           )}
 
-          {/* شبكة الكورسات */}
           {coursesLoading ? (
             <div style={styles.loadingCourses}>
               <div style={styles.spinner}></div>
@@ -673,7 +649,6 @@ export default function PlatformPage() {
         </main>
       </div>
 
-      {/* الفوتر */}
       <footer style={styles.oldFooter}>
         <div style={isMobile ? styles.footerContentMobile : styles.footerContent}>
           <p style={styles.footerText}>
@@ -697,7 +672,6 @@ export default function PlatformPage() {
         </div>
       </footer>
 
-      {/* الأزرار العائمة */}
       <div style={isMobile ? styles.floatingButtonsMobile : styles.floatingButtons}>
         <Link 
           href="/support/chat"
