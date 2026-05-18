@@ -239,19 +239,19 @@ export default function PlatformPage() {
 
   if (loading) {
     return (
-      <div style={s.loadingContainer}>
-        <div style={s.loadingSpinner}></div>
-        <p style={s.loadingText}>جاري تحميل المنصة...</p>
+      <div style={styles.loadingContainer}>
+        <div style={styles.loadingSpinner}></div>
+        <p style={styles.loadingText}>جاري تحميل المنصة...</p>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div style={s.loadingContainer}>
-        <div style={s.lockIcon}>🔒</div>
-        <p style={s.loadingText}>يجب تسجيل الدخول أولاً</p>
-        <Link href="/login" style={s.loginLink}>
+      <div style={styles.loadingContainer}>
+        <div style={styles.lockIcon}>🔒</div>
+        <p style={styles.loadingText}>يجب تسجيل الدخول أولاً</p>
+        <Link href="/login" style={styles.loginLink}>
           تسجيل الدخول
         </Link>
       </div>
@@ -260,13 +260,13 @@ export default function PlatformPage() {
 
   if (fetchError) {
     return (
-      <div style={s.loadingContainer}>
-        <div style={s.errorIcon}>⚠️</div>
-        <p style={s.loadingText}>حدث خطأ في تحميل البيانات</p>
-        <p style={s.errorText}>{fetchError}</p>
+      <div style={styles.loadingContainer}>
+        <div style={styles.errorIcon}>⚠️</div>
+        <p style={styles.loadingText}>حدث خطأ في تحميل البيانات</p>
+        <p style={styles.errorText}>{fetchError}</p>
         <button 
           onClick={() => window.location.reload()}
-          style={s.retryButton}
+          style={styles.retryButton}
         >
           إعادة المحاولة
         </button>
@@ -283,43 +283,41 @@ export default function PlatformPage() {
     window.location.href = '/login'
   }
 
-  const s = getStyles(isMobile)
-
   return (
-    <div style={s.container}>
-      <header style={s.header}>
-        <div style={s.headerContent}>
-          <div style={s.logoSection}>
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <div style={styles.headerContent}>
+          <div style={styles.logoSection}>
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              style={s.menuToggle}
+              style={styles.menuToggle}
             >
               ☰
             </button>
             <div>
-              <h1 style={s.logo}>🎓 علمني العلوم</h1>
-              <p style={s.logoSub}>منصة مستر بيشوي التعليمية</p>
+              <h1 style={styles.logo}>🎓 علمني العلوم</h1>
+              <p style={styles.logoSub}>منصة مستر بيشوي التعليمية</p>
             </div>
           </div>
           
-          <div style={s.userSection}>
+          <div style={styles.userSection}>
             <NotificationsPanel studentId={userId} studentGrade={userYear} />
             
-            <div style={s.userAvatar}>
+            <div style={styles.userAvatar}>
               {user.name?.charAt(0) || 'ط'}
             </div>
-            <div style={s.userInfo}>
-              <div style={s.userName}>{user.name || 'طالب'}</div>
-              <div style={s.userBadge}>{userYear}</div>
+            <div style={styles.userInfo}>
+              <div style={styles.userName}>{user.name || 'طالب'}</div>
+              <div style={styles.userBadge}>{userYear}</div>
             </div>
           </div>
         </div>
       </header>
 
-      <div style={s.mainContent}>
+      <div style={styles.mainContent}>
         {isSidebarOpen && (
           <aside style={{
-            ...s.sidebar,
+            ...styles.sidebar,
             width: isMobile ? '250px' : '300px',
             position: 'fixed',
             top: '80px',
@@ -330,63 +328,63 @@ export default function PlatformPage() {
           }}>
             <button 
               onClick={() => setIsSidebarOpen(false)}
-              style={s.closeSidebarButton}
+              style={styles.closeSidebarButton}
             >
               ✕
             </button>
             
-            <div style={s.sidebarContent}>
-              <div style={s.yearCard}>
-                <div style={s.yearIcon}>📚</div>
-                <div style={s.yearInfo}>
-                  <div style={s.yearLabel}>سنتك الدراسية</div>
-                  <div style={s.yearValue}>{userYear}</div>
+            <div style={styles.sidebarContent}>
+              <div style={styles.yearCard}>
+                <div style={styles.yearIcon}>📚</div>
+                <div style={styles.yearInfo}>
+                  <div style={styles.yearLabel}>سنتك الدراسية</div>
+                  <div style={styles.yearValue}>{userYear}</div>
                 </div>
               </div>
 
-              <div style={s.statsCard}>
-                <h3 style={s.statsTitle}>إحصائياتك</h3>
-                <div style={s.statsList}>
-                  <div style={s.statItem}>
-                    <span style={s.statIcon}>📊</span>
+              <div style={styles.statsCard}>
+                <h3 style={styles.statsTitle}>إحصائياتك</h3>
+                <div style={styles.statsList}>
+                  <div style={styles.statItem}>
+                    <span style={styles.statIcon}>📊</span>
                     <div>
-                      <div style={s.statNumber}>{stats.total}</div>
-                      <div style={s.statLabel}>كورسات</div>
+                      <div style={styles.statNumber}>{stats.total}</div>
+                      <div style={styles.statLabel}>كورسات</div>
                     </div>
                   </div>
-                  <div style={s.statItem}>
-                    <span style={s.statIcon}>✅</span>
+                  <div style={styles.statItem}>
+                    <span style={styles.statIcon}>✅</span>
                     <div>
-                      <div style={s.statNumber}>{stats.opened}</div>
-                      <div style={s.statLabel}>مفتوح</div>
+                      <div style={styles.statNumber}>{stats.opened}</div>
+                      <div style={styles.statLabel}>مفتوح</div>
                     </div>
                   </div>
-                  <div style={s.statItem}>
-                    <span style={s.statIcon}>📈</span>
+                  <div style={styles.statItem}>
+                    <span style={styles.statIcon}>📈</span>
                     <div>
-                      <div style={s.statNumber}>{stats.progress}%</div>
-                      <div style={s.statLabel}>تقدم</div>
+                      <div style={styles.statNumber}>{stats.progress}%</div>
+                      <div style={styles.statLabel}>تقدم</div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {userYear === 'ثانية ثانوي' && categoryStats && (
-                <div style={s.foldersCard}>
-                  <h4 style={s.foldersTitle}>فولدرات المواد</h4>
+                <div style={styles.foldersCard}>
+                  <h4 style={styles.foldersTitle}>فولدرات المواد</h4>
                   <button
                     onClick={() => {
                       setActiveCategory('all')
                       setIsSidebarOpen(false)
                     }}
                     style={{
-                      ...s.folderItem,
+                      ...styles.folderItem,
                       background: activeCategory === 'all' ? '#f0f9ff' : 'transparent',
                       borderRight: activeCategory === 'all' ? '4px solid #3b82f6' : '4px solid transparent'
                     }}
                   >
                     <span>📚 كل المواد</span>
-                    <span style={s.folderCount}>{categoryStats.total}</span>
+                    <span style={styles.folderCount}>{categoryStats.total}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -394,13 +392,13 @@ export default function PlatformPage() {
                       setIsSidebarOpen(false)
                     }}
                     style={{
-                      ...s.folderItem,
+                      ...styles.folderItem,
                       background: activeCategory === 'كيمياء' ? '#f0f9ff' : 'transparent',
                       borderRight: activeCategory === 'كيمياء' ? '4px solid #8b5cf6' : '4px solid transparent'
                     }}
                   >
                     <span>⚗️ كيمياء</span>
-                    <span style={s.folderCount}>{categoryStats.chemistry}</span>
+                    <span style={styles.folderCount}>{categoryStats.chemistry}</span>
                   </button>
                   <button
                     onClick={() => {
@@ -408,36 +406,36 @@ export default function PlatformPage() {
                       setIsSidebarOpen(false)
                     }}
                     style={{
-                      ...s.folderItem,
+                      ...styles.folderItem,
                       background: activeCategory === 'فيزياء' ? '#f0f9ff' : 'transparent',
                       borderRight: activeCategory === 'فيزياء' ? '4px solid #ef4444' : '4px solid transparent'
                     }}
                   >
                     <span>⚛️ فيزياء</span>
-                    <span style={s.folderCount}>{categoryStats.physics}</span>
+                    <span style={styles.folderCount}>{categoryStats.physics}</span>
                   </button>
                 </div>
               )}
 
-              <div style={s.quickLinks}>
-                <h4 style={s.quickTitle}>روابط سريعة</h4>
+              <div style={styles.quickLinks}>
+                <h4 style={styles.quickTitle}>روابط سريعة</h4>
                 
-                <a href={whatsappLink} target="_blank" style={s.quickLink}>
+                <a href={whatsappLink} target="_blank" style={styles.quickLink}>
                   <span>📱</span>
                   <span>واتساب</span>
                 </a>
                 
-                <a href={telegramBotLink} target="_blank" style={s.quickLink}>
+                <a href={telegramBotLink} target="_blank" style={styles.quickLink}>
                   <span>✈️</span>
                   <span>تليجرام</span>
                 </a>
                 
-                <Link href="/bot" style={s.quickLink}>
+                <Link href="/bot" style={styles.quickLink}>
                   <span>🤖</span>
                   <span>المساعد الذكي</span>
                 </Link>
                 
-                <Link href="/support/chat" style={s.quickLink}>
+                <Link href="/support/chat" style={styles.quickLink}>
                   <span>💬</span>
                   <span>الدعم الفني</span>
                 </Link>
@@ -445,7 +443,7 @@ export default function PlatformPage() {
                 <button 
                   onClick={handleLogout}
                   style={{
-                    ...s.quickLink,
+                    ...styles.quickLink,
                     background: '#fee2e2',
                     color: '#dc2626',
                     border: 'none',
@@ -463,35 +461,35 @@ export default function PlatformPage() {
         )}
 
         <main style={{
-          ...s.mainArea,
+          ...styles.mainArea,
           padding: isMobile ? '15px' : '25px',
           width: '100%'
         }}>
-          <div style={s.navBar}>
-            <div style={s.breadcrumb}>
+          <div style={styles.navBar}>
+            <div style={styles.breadcrumb}>
               <span>الرئيسية</span>
               {activeCategory !== 'all' && (
                 <>
-                  <span style={s.breadcrumbSeparator}>/</span>
-                  <span style={s.breadcrumbActive}>{activeCategory}</span>
+                  <span style={styles.breadcrumbSeparator}>/</span>
+                  <span style={styles.breadcrumbActive}>{activeCategory}</span>
                 </>
               )}
             </div>
           </div>
 
-          <div style={isMobile ? s.welcomeBannerMobile : s.welcomeBanner}>
+          <div style={isMobile ? styles.welcomeBannerMobile : styles.welcomeBanner}>
             <div>
-              <h2 style={isMobile ? s.welcomeTitleMobile : s.welcomeTitle}>
+              <h2 style={isMobile ? styles.welcomeTitleMobile : styles.welcomeTitle}>
                 مرحباً {user.name} 👋
               </h2>
-              <p style={isMobile ? s.welcomeTextMobile : s.welcomeText}>
+              <p style={isMobile ? styles.welcomeTextMobile : styles.welcomeText}>
                 {userYear === 'ثانية ثانوي' 
                   ? 'استعرض كورسات الكيمياء والفيزياء حسب المادة'
                   : `هذه هي الكورسات المتاحة لسنتك الدراسية (${userYear})`
                 }
               </p>
             </div>
-            <div style={s.progressRing}>
+            <div style={styles.progressRing}>
               <svg width={isMobile ? "50" : "60"} height={isMobile ? "50" : "60"} viewBox="0 0 60 60">
                 <circle
                   cx="30"
@@ -528,11 +526,11 @@ export default function PlatformPage() {
           </div>
 
           {userYear === 'ثانية ثانوي' && (
-            <div style={isMobile ? s.categoriesBarMobile : s.categoriesBar}>
+            <div style={isMobile ? styles.categoriesBarMobile : styles.categoriesBar}>
               <button
                 onClick={() => setActiveCategory('all')}
                 style={{
-                  ...s.categoryButton,
+                  ...styles.categoryButton,
                   background: activeCategory === 'all' ? '#3b82f6' : '#f3f4f6',
                   color: activeCategory === 'all' ? 'white' : '#4b5563',
                   fontSize: isMobile ? '14px' : '15px',
@@ -544,7 +542,7 @@ export default function PlatformPage() {
               <button
                 onClick={() => setActiveCategory('كيمياء')}
                 style={{
-                  ...s.categoryButton,
+                  ...styles.categoryButton,
                   background: activeCategory === 'كيمياء' ? '#8b5cf6' : '#f3f4f6',
                   color: activeCategory === 'كيمياء' ? 'white' : '#4b5563',
                   fontSize: isMobile ? '14px' : '15px',
@@ -556,7 +554,7 @@ export default function PlatformPage() {
               <button
                 onClick={() => setActiveCategory('فيزياء')}
                 style={{
-                  ...s.categoryButton,
+                  ...styles.categoryButton,
                   background: activeCategory === 'فيزياء' ? '#ef4444' : '#f3f4f6',
                   color: activeCategory === 'فيزياء' ? 'white' : '#4b5563',
                   fontSize: isMobile ? '14px' : '15px',
@@ -569,20 +567,20 @@ export default function PlatformPage() {
           )}
 
           {coursesLoading ? (
-            <div style={s.loadingCourses}>
-              <div style={s.spinner}></div>
+            <div style={styles.loadingCourses}>
+              <div style={styles.spinner}></div>
               <p>جاري تحميل الكورسات...</p>
             </div>
           ) : displayedCourses.length === 0 ? (
-            <div style={s.emptyState}>
-              <div style={s.emptyIcon}>📭</div>
-              <h3 style={s.emptyTitle}>
+            <div style={styles.emptyState}>
+              <div style={styles.emptyIcon}>📭</div>
+              <h3 style={styles.emptyTitle}>
                 {userYear === 'ثانية ثانوي' && activeCategory !== 'all'
                   ? `لا توجد كورسات في ${activeCategory}`
                   : 'لا توجد كورسات متاحة'
                 }
               </h3>
-              <p style={s.emptyText}>
+              <p style={styles.emptyText}>
                 {userYear === 'ثانية ثانوي' && activeCategory !== 'all'
                   ? 'سيتم إضافة كورسات قريباً'
                   : 'يمكنك التواصل مع الدعم لمعرفة المزيد'
@@ -590,18 +588,18 @@ export default function PlatformPage() {
               </p>
             </div>
           ) : (
-            <div style={isMobile ? s.coursesGridMobile : s.coursesGrid}>
+            <div style={isMobile ? styles.coursesGridMobile : styles.coursesGrid}>
               {displayedCourses.map(course => (
-                <div key={course.id} style={isMobile ? s.courseCardMobile : s.courseCard}>
-                  <div style={s.courseHeader}>
-                    <div style={s.courseIcon}>
+                <div key={course.id} style={isMobile ? styles.courseCardMobile : styles.courseCard}>
+                  <div style={styles.courseHeader}>
+                    <div style={styles.courseIcon}>
                       {course.isOpened ? '📖' : '📚'}
                     </div>
                     <div>
-                      <h3 style={isMobile ? s.courseTitleMobile : s.courseTitle}>{course.title}</h3>
+                      <h3 style={isMobile ? styles.courseTitleMobile : styles.courseTitle}>{course.title}</h3>
                       {course.category && (
                         <span style={{
-                          ...s.courseCategory,
+                          ...styles.courseCategory,
                           background: course.category === 'كيمياء' ? '#ede9fe' : '#fee2e2',
                           color: course.category === 'كيمياء' ? '#6b21a8' : '#991b1b'
                         }}>
@@ -611,18 +609,18 @@ export default function PlatformPage() {
                     </div>
                   </div>
                   
-                  <p style={isMobile ? s.courseDescriptionMobile : s.courseDescription}>
+                  <p style={isMobile ? styles.courseDescriptionMobile : styles.courseDescription}>
                     {course.description || 'شرح مبسط ومتكامل للمنهج الدراسي'}
                   </p>
                   
-                  <div style={s.courseMeta}>
+                  <div style={styles.courseMeta}>
                     <span>📅 {new Date(course.createdAt).toLocaleDateString('ar-EG')}</span>
                     {course.price && <span>💰 {course.price} ج.م</span>}
                   </div>
                   
-                  <div style={s.courseFooter}>
+                  <div style={styles.courseFooter}>
                     <span style={{
-                      ...s.statusBadge,
+                      ...styles.statusBadge,
                       background: course.isOpened ? '#d1fae5' : '#fee2e2',
                       color: course.isOpened ? '#065f46' : '#991b1b'
                     }}>
@@ -630,15 +628,15 @@ export default function PlatformPage() {
                     </span>
                     
                     {course.isOpened ? (
-                      <Link href={`/course/${course.id}`} style={s.courseButton}>
+                      <Link href={`/course/${course.id}`} style={styles.courseButton}>
                         دخول الكورس ←
                       </Link>
                     ) : (
-                      <div style={s.requestButtons}>
-                        <a href={whatsappLink} target="_blank" style={s.whatsappSmall}>
+                      <div style={styles.requestButtons}>
+                        <a href={whatsappLink} target="_blank" style={styles.whatsappSmall}>
                           📱
                         </a>
-                        <a href={telegramBotLink} target="_blank" style={s.telegramSmall}>
+                        <a href={telegramBotLink} target="_blank" style={styles.telegramSmall}>
                           ✈️
                         </a>
                       </div>
@@ -651,34 +649,34 @@ export default function PlatformPage() {
         </main>
       </div>
 
-      <footer style={s.oldFooter}>
-        <div style={isMobile ? s.footerContentMobile : s.footerContent}>
-          <p style={s.footerText}>
+      <footer style={styles.oldFooter}>
+        <div style={isMobile ? styles.footerContentMobile : styles.footerContent}>
+          <p style={styles.footerText}>
             © 2026 علمني العلوم مستر بيشوي - منصة التعليم الإلكتروني
           </p>
-          <div style={isMobile ? s.footerLinksMobile : s.footerLinks}>
-            <span style={s.footerLink}>سياسة الخصوصية</span>
-            <span style={s.footerLink}>الشروط والأحكام</span>
-            <span style={s.footerLink}>اتصل بنا</span>
+          <div style={isMobile ? styles.footerLinksMobile : styles.footerLinks}>
+            <span style={styles.footerLink}>سياسة الخصوصية</span>
+            <span style={styles.footerLink}>الشروط والأحكام</span>
+            <span style={styles.footerLink}>اتصل بنا</span>
           </div>
-          <div style={s.footerSupport}>
-            <p style={s.supportInfo}>
-              تطوير: <a href="mailto:tomasmehany@gmail.com" style={s.footerSupportLink}>tomasmehany@gmail.com</a>
+          <div style={styles.footerSupport}>
+            <p style={styles.supportInfo}>
+              تطوير: <a href="mailto:tomasmehany@gmail.com" style={styles.footerSupportLink}>tomasmehany@gmail.com</a>
             </p>
-            <p style={s.supportInfo}>
+            <p style={styles.supportInfo}>
               للدعم: 
-              <a href={whatsappLink} target="_blank" style={s.footerSupportLink}>واتساب</a> | 
-              <a href={telegramBotLink} target="_blank" style={s.footerSupportLink}>تليجرام</a>
+              <a href={whatsappLink} target="_blank" style={styles.footerSupportLink}>واتساب</a> | 
+              <a href={telegramBotLink} target="_blank" style={styles.footerSupportLink}>تليجرام</a>
             </p>
           </div>
         </div>
       </footer>
 
-      <div style={isMobile ? s.floatingButtonsMobile : s.floatingButtons}>
+      <div style={isMobile ? styles.floatingButtonsMobile : styles.floatingButtons}>
         <Link 
           href="/support/chat"
           style={{
-            ...s.floatingButton,
+            ...styles.floatingButton,
             backgroundColor: '#2563eb',
           }}
           title="الدعم الفني"
@@ -689,7 +687,7 @@ export default function PlatformPage() {
         <Link 
           href="/bot"
           style={{
-            ...s.floatingButton,
+            ...styles.floatingButton,
             background: 'linear-gradient(135deg, #10b981, #059669)',
           }}
           title="المساعد الذكي"
@@ -724,659 +722,696 @@ export default function PlatformPage() {
   )
 }
 
-function getStyles(isMobile) {
-  return {
-    container: {
-      minHeight: '100vh',
-      background: '#f9fafb',
-      direction: 'rtl',
-      fontFamily: '"Cairo", "Segoe UI", Tahoma, sans-serif'
-    },
-    loadingContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    },
-    loadingSpinner: {
-      width: '50px',
-      height: '50px',
-      border: '4px solid rgba(255,255,255,0.3)',
-      borderTopColor: 'white',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite',
-      marginBottom: '20px'
-    },
-    loadingText: {
-      color: 'white',
-      fontSize: '18px',
-      marginBottom: '20px'
-    },
-    lockIcon: {
-      fontSize: '48px',
-      marginBottom: '20px'
-    },
-    errorIcon: {
-      fontSize: '48px',
-      marginBottom: '20px'
-    },
-    errorText: {
-      color: '#ffcccc',
-      fontSize: '14px',
-      marginBottom: '20px',
-      maxWidth: '400px',
-      textAlign: 'center'
-    },
-    retryButton: {
-      padding: '12px 30px',
-      background: 'white',
-      color: '#667eea',
-      borderRadius: '8px',
-      textDecoration: 'none',
-      fontWeight: 'bold',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '16px'
-    },
-    loginLink: {
-      padding: '12px 30px',
-      background: 'white',
-      color: '#667eea',
-      borderRadius: '8px',
-      textDecoration: 'none',
-      fontWeight: 'bold',
-      transition: 'all 0.3s'
-    },
-    header: {
-      background: 'white',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-      position: 'sticky',
-      top: 0,
-      zIndex: 100,
-      padding: isMobile ? '8px 0' : '0'
-    },
-    headerContent: {
-      maxWidth: '1600px',
-      margin: '0 auto',
-      padding: '15px 20px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center'
-    },
-    logoSection: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '15px'
-    },
-    menuToggle: {
-      background: 'none',
-      border: 'none',
-      fontSize: '24px',
-      cursor: 'pointer',
-      color: '#4b5563',
-      padding: '5px 10px',
-      borderRadius: '8px',
-      transition: 'background 0.3s'
-    },
-    logo: {
-      fontSize: isMobile ? '16px' : '24px',
-      fontWeight: '800',
-      color: '#1f2937',
-      margin: 0
-    },
-    logoSub: {
-      fontSize: isMobile ? '8px' : '12px',
-      color: '#6b7280',
-      margin: 0,
-      display: isMobile ? 'none' : 'block'
-    },
-    userSection: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '15px'
-    },
-    userAvatar: {
-      width: '45px',
-      height: '45px',
-      background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-      color: 'white',
-      borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '18px',
-      fontWeight: 'bold'
-    },
-    userInfo: {
-      textAlign: 'right',
-      display: isMobile ? 'none' : 'block'
-    },
-    userName: {
-      fontSize: '15px',
-      fontWeight: '600',
-      color: '#1f2937'
-    },
-    userBadge: {
-      fontSize: '12px',
-      color: '#3b82f6',
-      fontWeight: '600',
-      background: '#eff6ff',
-      padding: '2px 8px',
-      borderRadius: '12px',
-      display: 'inline-block',
-      marginTop: '4px'
-    },
-    mainContent: {
-      position: 'relative',
-      minHeight: 'calc(100vh - 140px)'
-    },
-    sidebar: {
-      background: 'white',
-      transition: 'transform 0.3s ease',
-      overflowX: 'hidden',
-      overflowY: 'auto',
-      zIndex: 1000
-    },
-    closeSidebarButton: {
-      position: 'sticky',
-      top: '10px',
-      left: '10px',
-      background: '#f3f4f6',
-      border: 'none',
-      borderRadius: '50%',
-      width: '30px',
-      height: '30px',
-      fontSize: '16px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      margin: '10px 10px 0 auto',
-      color: '#4b5563'
-    },
-    sidebarContent: {
-      padding: '20px 15px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '25px'
-    },
-    yearCard: {
-      background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-      color: 'white',
-      borderRadius: '12px',
-      padding: '15px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '15px'
-    },
-    yearIcon: {
-      fontSize: '28px',
-      background: 'rgba(255,255,255,0.2)',
-      width: '50px',
-      height: '50px',
-      borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    yearInfo: {
-      flex: 1
-    },
-    yearLabel: {
-      fontSize: '12px',
-      opacity: 0.9,
-      marginBottom: '2px'
-    },
-    yearValue: {
-      fontSize: '18px',
-      fontWeight: 'bold'
-    },
-    statsCard: {
-      background: '#f8fafc',
-      borderRadius: '12px',
-      padding: '15px'
-    },
-    statsTitle: {
-      fontSize: '16px',
-      fontWeight: '600',
-      color: '#1f2937',
-      margin: '0 0 15px 0'
-    },
-    statsList: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '15px'
-    },
-    statItem: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px'
-    },
-    statIcon: {
-      fontSize: '24px',
-      width: '40px',
-      height: '40px',
-      background: 'white',
-      borderRadius: '10px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
-    },
-    statNumber: {
-      fontSize: '20px',
-      fontWeight: 'bold',
-      color: '#1f2937'
-    },
-    statLabel: {
-      fontSize: '12px',
-      color: '#6b7280'
-    },
-    foldersCard: {
-      background: '#f8fafc',
-      borderRadius: '12px',
-      padding: '15px'
-    },
-    foldersTitle: {
-      fontSize: '14px',
-      fontWeight: '600',
-      color: '#1f2937',
-      margin: '0 0 12px 0'
-    },
-    folderItem: {
-      width: '100%',
-      padding: '12px 15px',
-      border: 'none',
-      background: 'transparent',
-      cursor: 'pointer',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      fontSize: '14px',
-      fontWeight: '500',
-      color: '#4b5563',
-      transition: 'all 0.2s',
-      textAlign: 'right'
-    },
-    folderCount: {
-      background: '#e5e7eb',
-      padding: '2px 8px',
-      borderRadius: '12px',
-      fontSize: '12px',
-      fontWeight: '600'
-    },
-    quickLinks: {
-      background: '#f8fafc',
-      borderRadius: '12px',
-      padding: '15px'
-    },
-    quickTitle: {
-      fontSize: '14px',
-      fontWeight: '600',
-      color: '#1f2937',
-      margin: '0 0 12px 0'
-    },
-    quickLink: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      padding: '10px 12px',
-      color: '#4b5563',
-      textDecoration: 'none',
-      borderRadius: '8px',
-      transition: 'all 0.2s',
-      fontSize: '14px'
-    },
-    mainArea: {
-      padding: '25px',
-      maxWidth: '1300px',
-      margin: '0 auto'
-    },
-    navBar: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '25px'
-    },
-    breadcrumb: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontSize: '14px',
-      color: '#6b7280'
-    },
-    breadcrumbSeparator: {
-      color: '#d1d5db'
-    },
-    breadcrumbActive: {
-      color: '#2563eb',
-      fontWeight: '600'
-    },
-    welcomeBanner: {
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      borderRadius: '16px',
-      padding: '25px',
-      color: 'white',
-      marginBottom: '25px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center'
-    },
-    welcomeBannerMobile: {
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      borderRadius: '16px',
-      padding: '20px',
-      color: 'white',
-      marginBottom: '20px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '15px',
-      alignItems: 'center',
-      textAlign: 'center'
-    },
-    welcomeTitle: {
-      fontSize: '24px',
-      fontWeight: 'bold',
-      margin: '0 0 10px 0'
-    },
-    welcomeTitleMobile: {
-      fontSize: '20px',
-      fontWeight: 'bold',
-      margin: '0 0 5px 0'
-    },
-    welcomeText: {
-      fontSize: '16px',
-      opacity: 0.95,
-      margin: 0
-    },
-    welcomeTextMobile: {
-      fontSize: '14px',
-      opacity: 0.95,
-      margin: 0
-    },
-    progressRing: {
-      background: 'rgba(255,255,255,0.2)',
-      borderRadius: '50%',
-      padding: '5px'
-    },
-    categoriesBar: {
-      display: 'flex',
-      gap: '10px',
-      marginBottom: '25px',
-      flexWrap: 'wrap'
-    },
-    categoriesBarMobile: {
-      display: 'flex',
-      gap: '8px',
-      marginBottom: '20px',
-      overflowX: 'auto',
-      padding: '5px 0',
-      whiteSpace: 'nowrap',
-      WebkitOverflowScrolling: 'touch'
-    },
-    categoryButton: {
-      padding: '10px 20px',
-      border: 'none',
-      borderRadius: '12px',
-      fontSize: '15px',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.3s'
-    },
-    coursesGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-      gap: '20px',
-      animation: 'fadeIn 0.5s ease'
-    },
-    coursesGridMobile: {
-      display: 'grid',
-      gridTemplateColumns: '1fr',
-      gap: '15px',
-      animation: 'fadeIn 0.5s ease'
-    },
-    courseCard: {
-      background: 'white',
-      borderRadius: '16px',
-      padding: '20px',
-      boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-      border: '2px solid #f3f4f6',
-      transition: 'all 0.3s'
-    },
-    courseCardMobile: {
-      background: 'white',
-      borderRadius: '12px',
-      padding: '15px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-      border: '1px solid #f3f4f6',
-      transition: 'all 0.3s'
-    },
-    courseHeader: {
-      display: 'flex',
-      gap: '15px',
-      marginBottom: '15px'
-    },
-    courseIcon: {
-      fontSize: '32px',
-      background: '#f3f4f6',
-      width: '50px',
-      height: '50px',
-      borderRadius: '12px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    courseTitle: {
-      fontSize: '18px',
-      fontWeight: '600',
-      color: '#1f2937',
-      margin: '0 0 5px 0'
-    },
-    courseTitleMobile: {
-      fontSize: '16px',
-      fontWeight: '600',
-      color: '#1f2937',
-      margin: '0 0 3px 0'
-    },
-    courseCategory: {
-      fontSize: '12px',
-      fontWeight: '600',
-      padding: '3px 10px',
-      borderRadius: '20px',
-      display: 'inline-block'
-    },
-    courseDescription: {
-      fontSize: '14px',
-      color: '#6b7280',
-      marginBottom: '15px',
-      lineHeight: 1.6
-    },
-    courseDescriptionMobile: {
-      fontSize: '13px',
-      color: '#6b7280',
-      marginBottom: '12px',
-      lineHeight: 1.5
-    },
-    courseMeta: {
-      display: 'flex',
-      gap: '15px',
-      fontSize: '13px',
-      color: '#9ca3af',
-      marginBottom: '15px'
-    },
-    courseFooter: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center'
-    },
-    statusBadge: {
-      padding: '6px 12px',
-      borderRadius: '20px',
-      fontSize: '13px',
-      fontWeight: '600'
-    },
-    courseButton: {
-      padding: '8px 16px',
-      background: '#10b981',
-      color: 'white',
-      textDecoration: 'none',
-      borderRadius: '8px',
-      fontSize: '14px',
-      fontWeight: '600',
-      transition: 'all 0.3s'
-    },
-    requestButtons: {
-      display: 'flex',
-      gap: '8px'
-    },
-    whatsappSmall: {
-      width: '36px',
-      height: '36px',
-      background: '#25D366',
-      color: 'white',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textDecoration: 'none',
-      fontSize: '18px',
-      transition: 'all 0.3s'
-    },
-    telegramSmall: {
-      width: '36px',
-      height: '36px',
-      background: '#0088cc',
-      color: 'white',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textDecoration: 'none',
-      fontSize: '18px',
-      transition: 'all 0.3s'
-    },
-    loadingCourses: {
-      textAlign: 'center',
-      padding: '50px',
-      color: '#6b7280'
-    },
-    spinner: {
-      width: '40px',
-      height: '40px',
-      border: '3px solid #e5e7eb',
-      borderTopColor: '#3b82f6',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite',
-      margin: '0 auto 20px'
-    },
-    emptyState: {
-      textAlign: 'center',
-      padding: '60px 20px',
-      background: 'white',
-      borderRadius: '16px'
-    },
-    emptyIcon: {
-      fontSize: '48px',
-      marginBottom: '20px'
-    },
-    emptyTitle: {
-      fontSize: '20px',
-      color: '#1f2937',
-      marginBottom: '10px'
-    },
-    emptyText: {
-      color: '#6b7280'
-    },
-    oldFooter: {
-      background: '#1f2937',
-      color: 'white',
-      padding: '30px 20px',
-      marginTop: '40px'
-    },
-    footerContent: {
-      maxWidth: '1600px',
-      margin: '0 auto',
-      textAlign: 'center'
-    },
-    footerContentMobile: {
-      maxWidth: '1600px',
-      margin: '0 auto',
-      textAlign: 'center',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '15px'
-    },
-    footerText: {
-      color: '#d1d5db',
-      marginBottom: '15px',
-      fontSize: '14px'
-    },
-    footerLinks: {
-      display: 'flex',
-      justifyContent: 'center',
-      gap: '20px',
-      marginBottom: '20px',
-      flexWrap: 'wrap'
-    },
-    footerLinksMobile: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '10px',
-      marginBottom: '15px'
-    },
-    footerLink: {
-      color: '#9ca3af',
-      textDecoration: 'none',
-      fontSize: '13px',
-      cursor: 'default'
-    },
-    footerSupport: {
-      marginTop: '20px'
-    },
-    supportInfo: {
-      color: '#9ca3af',
-      fontSize: '12px',
-      marginTop: '8px'
-    },
-    footerSupportLink: {
-      color: '#60a5fa',
-      textDecoration: 'none',
-      margin: '0 5px'
-    },
-    floatingButtons: {
-      position: 'fixed',
-      bottom: '20px',
-      left: '20px',
-      zIndex: 99999,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '15px'
-    },
-    floatingButtonsMobile: {
-      position: 'fixed',
-      bottom: '15px',
-      left: '15px',
-      zIndex: 99999,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '10px'
-    },
-    floatingButton: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '60px',
-      height: '60px',
-      color: 'white',
-      borderRadius: '50%',
-      textDecoration: 'none',
-      boxShadow: '0 8px 20px rgba(37, 99, 235, 0.4)',
-      fontSize: '26px',
-      border: '2px solid white',
-      transition: 'all 0.3s ease',
-      cursor: 'pointer'
+const styles: any = {
+  container: {
+    minHeight: '100vh',
+    background: '#f9fafb',
+    direction: 'rtl',
+    fontFamily: '"Cairo", "Segoe UI", Tahoma, sans-serif'
+  },
+
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  },
+  loadingSpinner: {
+    width: '50px',
+    height: '50px',
+    border: '4px solid rgba(255,255,255,0.3)',
+    borderTopColor: 'white',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    marginBottom: '20px'
+  },
+  loadingText: {
+    color: 'white',
+    fontSize: '18px',
+    marginBottom: '20px'
+  },
+  lockIcon: {
+    fontSize: '48px',
+    marginBottom: '20px'
+  },
+  errorIcon: {
+    fontSize: '48px',
+    marginBottom: '20px'
+  },
+  errorText: {
+    color: '#ffcccc',
+    fontSize: '14px',
+    marginBottom: '20px',
+    maxWidth: '400px',
+    textAlign: 'center'
+  },
+  retryButton: {
+    padding: '12px 30px',
+    background: 'white',
+    color: '#667eea',
+    borderRadius: '8px',
+    textDecoration: 'none',
+    fontWeight: 'bold',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '16px'
+  },
+  loginLink: {
+    padding: '12px 30px',
+    background: 'white',
+    color: '#667eea',
+    borderRadius: '8px',
+    textDecoration: 'none',
+    fontWeight: 'bold',
+    transition: 'all 0.3s'
+  },
+
+  header: {
+    background: 'white',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+    position: 'sticky' as const,
+    top: 0,
+    zIndex: 100
+  },
+  headerContent: {
+    maxWidth: '1600px',
+    margin: '0 auto',
+    padding: '15px 20px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  logoSection: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px'
+  },
+  menuToggle: {
+    background: 'none',
+    border: 'none',
+    fontSize: '24px',
+    cursor: 'pointer',
+    color: '#4b5563',
+    padding: '5px 10px',
+    borderRadius: '8px',
+    transition: 'background 0.3s',
+    ':hover': {
+      background: '#f3f4f6'
+    }
+  },
+  logo: {
+    fontSize: '24px',
+    fontWeight: '800',
+    color: '#1f2937',
+    margin: 0
+  },
+  logoSub: {
+    fontSize: '12px',
+    color: '#6b7280',
+    margin: 0
+  },
+  userSection: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px'
+  },
+  userAvatar: {
+    width: '45px',
+    height: '45px',
+    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+    color: 'white',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '18px',
+    fontWeight: 'bold'
+  },
+  userInfo: {
+    textAlign: 'right'
+  },
+  userName: {
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#1f2937'
+  },
+  userBadge: {
+    fontSize: '12px',
+    color: '#3b82f6',
+    fontWeight: '600',
+    background: '#eff6ff',
+    padding: '2px 8px',
+    borderRadius: '12px',
+    display: 'inline-block',
+    marginTop: '4px'
+  },
+
+  mainContent: {
+    position: 'relative' as const,
+    minHeight: 'calc(100vh - 140px)'
+  },
+
+  sidebar: {
+    background: 'white',
+    transition: 'transform 0.3s ease',
+    overflowX: 'hidden' as const,
+    overflowY: 'auto' as const,
+    zIndex: 1000
+  },
+  closeSidebarButton: {
+    position: 'sticky' as const,
+    top: '10px',
+    left: '10px',
+    background: '#f3f4f6',
+    border: 'none',
+    borderRadius: '50%',
+    width: '30px',
+    height: '30px',
+    fontSize: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    margin: '10px 10px 0 auto',
+    color: '#4b5563',
+    ':hover': {
+      background: '#e5e7eb'
+    }
+  },
+  sidebarContent: {
+    padding: '20px 15px',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '25px'
+  },
+  yearCard: {
+    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+    color: 'white',
+    borderRadius: '12px',
+    padding: '15px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px'
+  },
+  yearIcon: {
+    fontSize: '28px',
+    background: 'rgba(255,255,255,0.2)',
+    width: '50px',
+    height: '50px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  yearInfo: {
+    flex: 1
+  },
+  yearLabel: {
+    fontSize: '12px',
+    opacity: 0.9,
+    marginBottom: '2px'
+  },
+  yearValue: {
+    fontSize: '18px',
+    fontWeight: 'bold'
+  },
+  statsCard: {
+    background: '#f8fafc',
+    borderRadius: '12px',
+    padding: '15px'
+  },
+  statsTitle: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#1f2937',
+    margin: '0 0 15px 0'
+  },
+  statsList: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '15px'
+  },
+  statItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  },
+  statIcon: {
+    fontSize: '24px',
+    width: '40px',
+    height: '40px',
+    background: 'white',
+    borderRadius: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+  },
+  statNumber: {
+    fontSize: '20px',
+    fontWeight: 'bold',
+    color: '#1f2937'
+  },
+  statLabel: {
+    fontSize: '12px',
+    color: '#6b7280'
+  },
+  foldersCard: {
+    background: '#f8fafc',
+    borderRadius: '12px',
+    padding: '15px'
+  },
+  foldersTitle: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#1f2937',
+    margin: '0 0 12px 0'
+  },
+  folderItem: {
+    width: '100%',
+    padding: '12px 15px',
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: '14px',
+    fontWeight: '500',
+    color: '#4b5563',
+    transition: 'all 0.2s',
+    textAlign: 'right',
+    ':hover': {
+      background: '#f1f5f9'
+    }
+  },
+  folderCount: {
+    background: '#e5e7eb',
+    padding: '2px 8px',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: '600'
+  },
+  quickLinks: {
+    background: '#f8fafc',
+    borderRadius: '12px',
+    padding: '15px'
+  },
+  quickTitle: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#1f2937',
+    margin: '0 0 12px 0'
+  },
+  quickLink: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '10px 12px',
+    color: '#4b5563',
+    textDecoration: 'none',
+    borderRadius: '8px',
+    transition: 'all 0.2s',
+    fontSize: '14px',
+    ':hover': {
+      background: '#f1f5f9',
+      color: '#2563eb'
+    }
+  },
+
+  mainArea: {
+    padding: '25px',
+    maxWidth: '1300px',
+    margin: '0 auto'
+  },
+  navBar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '25px'
+  },
+  breadcrumb: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '14px',
+    color: '#6b7280'
+  },
+  breadcrumbSeparator: {
+    color: '#d1d5db'
+  },
+  breadcrumbActive: {
+    color: '#2563eb',
+    fontWeight: '600'
+  },
+  welcomeBanner: {
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    borderRadius: '16px',
+    padding: '25px',
+    color: 'white',
+    marginBottom: '25px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  welcomeBannerMobile: {
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    borderRadius: '16px',
+    padding: '20px',
+    color: 'white',
+    marginBottom: '20px',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '15px',
+    alignItems: 'center',
+    textAlign: 'center' as const
+  },
+  welcomeTitle: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    margin: '0 0 10px 0'
+  },
+  welcomeTitleMobile: {
+    fontSize: '20px',
+    fontWeight: 'bold',
+    margin: '0 0 5px 0'
+  },
+  welcomeText: {
+    fontSize: '16px',
+    opacity: 0.95,
+    margin: 0
+  },
+  welcomeTextMobile: {
+    fontSize: '14px',
+    opacity: 0.95,
+    margin: 0
+  },
+  progressRing: {
+    background: 'rgba(255,255,255,0.2)',
+    borderRadius: '50%',
+    padding: '5px'
+  },
+  categoriesBar: {
+    display: 'flex',
+    gap: '10px',
+    marginBottom: '25px',
+    flexWrap: 'wrap' as const
+  },
+  categoriesBarMobile: {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '20px',
+    overflowX: 'auto' as const,
+    padding: '5px 0',
+    whiteSpace: 'nowrap' as const,
+    WebkitOverflowScrolling: 'touch' as const,
+    scrollbarWidth: 'none' as const,
+    '&::-webkit-scrollbar': {
+      display: 'none'
+    }
+  },
+  categoryButton: {
+    padding: '10px 20px',
+    border: 'none',
+    borderRadius: '12px',
+    fontSize: '15px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s'
+  },
+
+  coursesGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+    gap: '20px',
+    animation: 'fadeIn 0.5s ease'
+  },
+  coursesGridMobile: {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: '15px',
+    animation: 'fadeIn 0.5s ease'
+  },
+  courseCard: {
+    background: 'white',
+    borderRadius: '16px',
+    padding: '20px',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+    border: '2px solid #f3f4f6',
+    transition: 'all 0.3s',
+    ':hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 10px 15px rgba(0,0,0,0.1)'
+    }
+  },
+  courseCardMobile: {
+    background: 'white',
+    borderRadius: '12px',
+    padding: '15px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+    border: '1px solid #f3f4f6',
+    transition: 'all 0.3s'
+  },
+  courseHeader: {
+    display: 'flex',
+    gap: '15px',
+    marginBottom: '15px'
+  },
+  courseIcon: {
+    fontSize: '32px',
+    background: '#f3f4f6',
+    width: '50px',
+    height: '50px',
+    borderRadius: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  courseTitle: {
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#1f2937',
+    margin: '0 0 5px 0'
+  },
+  courseTitleMobile: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#1f2937',
+    margin: '0 0 3px 0'
+  },
+  courseCategory: {
+    fontSize: '12px',
+    fontWeight: '600',
+    padding: '3px 10px',
+    borderRadius: '20px',
+    display: 'inline-block'
+  },
+  courseDescription: {
+    fontSize: '14px',
+    color: '#6b7280',
+    marginBottom: '15px',
+    lineHeight: 1.6
+  },
+  courseDescriptionMobile: {
+    fontSize: '13px',
+    color: '#6b7280',
+    marginBottom: '12px',
+    lineHeight: 1.5
+  },
+  courseMeta: {
+    display: 'flex',
+    gap: '15px',
+    fontSize: '13px',
+    color: '#9ca3af',
+    marginBottom: '15px'
+  },
+  courseFooter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  statusBadge: {
+    padding: '6px 12px',
+    borderRadius: '20px',
+    fontSize: '13px',
+    fontWeight: '600'
+  },
+  courseButton: {
+    padding: '8px 16px',
+    background: '#10b981',
+    color: 'white',
+    textDecoration: 'none',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '600',
+    transition: 'all 0.3s',
+    ':hover': {
+      background: '#059669'
+    }
+  },
+  requestButtons: {
+    display: 'flex',
+    gap: '8px'
+  },
+  whatsappSmall: {
+    width: '36px',
+    height: '36px',
+    background: '#25D366',
+    color: 'white',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textDecoration: 'none',
+    fontSize: '18px',
+    transition: 'all 0.3s',
+    ':hover': {
+      transform: 'scale(1.1)'
+    }
+  },
+  telegramSmall: {
+    width: '36px',
+    height: '36px',
+    background: '#0088cc',
+    color: 'white',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textDecoration: 'none',
+    fontSize: '18px',
+    transition: 'all 0.3s',
+    ':hover': {
+      transform: 'scale(1.1)'
+    }
+  },
+  loadingCourses: {
+    textAlign: 'center' as const,
+    padding: '50px',
+    color: '#6b7280'
+  },
+  spinner: {
+    width: '40px',
+    height: '40px',
+    border: '3px solid #e5e7eb',
+    borderTopColor: '#3b82f6',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    margin: '0 auto 20px'
+  },
+  emptyState: {
+    textAlign: 'center' as const,
+    padding: '60px 20px',
+    background: 'white',
+    borderRadius: '16px'
+  },
+  emptyIcon: {
+    fontSize: '48px',
+    marginBottom: '20px'
+  },
+  emptyTitle: {
+    fontSize: '20px',
+    color: '#1f2937',
+    marginBottom: '10px'
+  },
+  emptyText: {
+    color: '#6b7280'
+  },
+
+  oldFooter: {
+    background: '#1f2937',
+    color: 'white',
+    padding: '30px 20px',
+    marginTop: '40px'
+  },
+  footerContent: {
+    maxWidth: '1600px',
+    margin: '0 auto',
+    textAlign: 'center' as const
+  },
+  footerContentMobile: {
+    maxWidth: '1600px',
+    margin: '0 auto',
+    textAlign: 'center' as const,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '15px'
+  },
+  footerText: {
+    color: '#d1d5db',
+    marginBottom: '15px',
+    fontSize: '14px'
+  },
+  footerLinks: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '20px',
+    marginBottom: '20px',
+    flexWrap: 'wrap' as const
+  },
+  footerLinksMobile: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '10px',
+    marginBottom: '15px'
+  },
+  footerLink: {
+    color: '#9ca3af',
+    textDecoration: 'none',
+    fontSize: '13px',
+    cursor: 'default'
+  },
+  footerSupport: {
+    marginTop: '20px'
+  },
+  supportInfo: {
+    color: '#9ca3af',
+    fontSize: '12px',
+    marginTop: '8px'
+  },
+  footerSupportLink: {
+    color: '#60a5fa',
+    textDecoration: 'none',
+    margin: '0 5px'
+  },
+
+  floatingButtons: {
+    position: 'fixed',
+    bottom: '20px',
+    left: '20px',
+    zIndex: 99999,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '15px',
+  },
+  floatingButtonsMobile: {
+    position: 'fixed',
+    bottom: '15px',
+    left: '15px',
+    zIndex: 99999,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '10px',
+  },
+  floatingButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '60px',
+    height: '60px',
+    color: 'white',
+    borderRadius: '50%',
+    textDecoration: 'none',
+    boxShadow: '0 8px 20px rgba(37, 99, 235, 0.4)',
+    fontSize: '26px',
+    border: '2px solid white',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
+    ':hover': {
+      transform: 'scale(1.1)',
+      boxShadow: '0 12px 25px rgba(37, 99, 235, 0.6)'
     }
   }
 }
