@@ -22,7 +22,7 @@ export default function PlatformPage() {
     progress: 0
   })
   
-  // ✅ تأثير اختفاء الهيدر
+  // تأثير اختفاء الهيدر
   const [headerOpacity, setHeaderOpacity] = useState(1)
 
   const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
@@ -42,7 +42,7 @@ export default function PlatformPage() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // ✅ تأثير التمرير على الهيدر
+  // تأثير التمرير على الهيدر
   useEffect(() => {
     if (!isMobile) return;
     
@@ -304,6 +304,31 @@ export default function PlatformPage() {
 
   return (
     <div style={styles.container}>
+      {/* زر القائمة الثابت المنفصل - يظهر فقط على الموبايل وعندما يختفي الهيدر */}
+      {isMobile && headerOpacity < 0.2 && (
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          style={{
+            position: 'fixed',
+            top: '12px',
+            right: '12px',
+            zIndex: 1001,
+            background: 'white',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: '10px 14px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          ☰
+        </button>
+      )}
+
       <header style={{
         ...styles.header,
         opacity: isMobile ? headerOpacity : 1,
