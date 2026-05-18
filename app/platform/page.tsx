@@ -21,15 +21,10 @@ export default function PlatformPage() {
     completed: 0,
     progress: 0
   })
-  
-  // ✅ جديد: للتحكم في إخفاء/إظهار الهيدر على الموبايل
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
 
   const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
   const telegramBotLink = 'https://t.me/AskMrBishoy_bot'
 
-  // كشف حجم الشاشة
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768)
@@ -43,27 +38,6 @@ export default function PlatformPage() {
 
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  // ✅ جديد: التحكم في إخفاء/إظهار الهيدر عند التمرير (للموبايل فقط)
-  useEffect(() => {
-    if (!isMobile) return;
-    
-    const controlHeader = () => {
-      const currentScrollY = window.scrollY;
-      
-      if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        // نزول للأسفل → إخفاء الهيدر
-        setIsHeaderVisible(false);
-      } else {
-        // طلوع للأعلى → إظهار الهيدر
-        setIsHeaderVisible(true);
-      }
-      setLastScrollY(currentScrollY);
-    };
-    
-    window.addEventListener('scroll', controlHeader);
-    return () => window.removeEventListener('scroll', controlHeader);
-  }, [isMobile, lastScrollY]);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -311,18 +285,8 @@ export default function PlatformPage() {
 
   return (
     <div style={styles.container}>
-      {/* الهيدر العلوي - مع إمكانية الإخفاء على الموبايل */}
-      <header style={{
-        ...styles.header,
-        transform: isMobile && !isHeaderVisible ? 'translateY(-100%)' : 'translateY(0)',
-        transition: 'transform 0.3s ease-in-out'
-      }}>
-        <div style={{
-          ...styles.headerContent,
-          flexDirection: isMobile ? 'row' : 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
+      <header style={styles.header}>
+        <div style={styles.headerContent}>
           <div style={styles.logoSection}>
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -330,16 +294,9 @@ export default function PlatformPage() {
             >
               ☰
             </button>
-            <div style={isMobile && !isHeaderVisible ? styles.logoHidden : styles.logoVisible}>
-              <h1 style={{
-                ...styles.logo,
-                fontSize: isMobile && !isHeaderVisible ? '0px' : '24px',
-                display: isMobile && !isHeaderVisible ? 'none' : 'block'
-              }}>🎓 علمني العلوم</h1>
-              <p style={{
-                ...styles.logoSub,
-                display: isMobile && !isHeaderVisible ? 'none' : 'block'
-              }}>منصة مستر بيشوي التعليمية</p>
+            <div>
+              <h1 style={styles.logo}>🎓 علمني العلوم</h1>
+              <p style={styles.logoSub}>منصة مستر بيشوي التعليمية</p>
             </div>
           </div>
           
@@ -349,10 +306,7 @@ export default function PlatformPage() {
             <div style={styles.userAvatar}>
               {user.name?.charAt(0) || 'ط'}
             </div>
-            <div style={{
-              ...styles.userInfo,
-              display: isMobile && !isHeaderVisible ? 'none' : 'block'
-            }}>
+            <div style={styles.userInfo}>
               <div style={styles.userName}>{user.name || 'طالب'}</div>
               <div style={styles.userBadge}>{userYear}</div>
             </div>
@@ -840,7 +794,7 @@ const styles: any = {
     position: 'sticky' as const,
     top: 0,
     zIndex: 100,
-    transition: 'transform 0.3s ease-in-out'
+    padding: isMobile ? '8px 0' : '0'
   },
   headerContent: {
     maxWidth: '1600px',
@@ -854,12 +808,6 @@ const styles: any = {
     display: 'flex',
     alignItems: 'center',
     gap: '15px'
-  },
-  logoVisible: {
-    display: 'block'
-  },
-  logoHidden: {
-    display: 'none'
   },
   menuToggle: {
     background: 'none',
@@ -875,15 +823,16 @@ const styles: any = {
     }
   },
   logo: {
-    fontSize: '24px',
+    fontSize: isMobile ? '16px' : '24px',
     fontWeight: '800',
     color: '#1f2937',
     margin: 0
   },
   logoSub: {
-    fontSize: '12px',
+    fontSize: isMobile ? '8px' : '12px',
     color: '#6b7280',
-    margin: 0
+    margin: 0,
+    display: isMobile ? 'none' : 'block'
   },
   userSection: {
     display: 'flex',
@@ -903,7 +852,8 @@ const styles: any = {
     fontWeight: 'bold'
   },
   userInfo: {
-    textAlign: 'right'
+    textAlign: 'right',
+    display: isMobile ? 'none' : 'block'
   },
   userName: {
     fontSize: '15px',
