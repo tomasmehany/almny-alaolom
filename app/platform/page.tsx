@@ -21,10 +21,15 @@ export default function PlatformPage() {
     completed: 0,
     progress: 0
   })
+  
+  // ✅ جديد: للتحكم في إخفاء/إظهار الهيدر على الموبايل
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
 
   const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
   const telegramBotLink = 'https://t.me/AskMrBishoy_bot'
 
+  // كشف حجم الشاشة
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768)
@@ -38,6 +43,27 @@ export default function PlatformPage() {
 
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // ✅ جديد: التحكم في إخفاء/إظهار الهيدر عند التمرير (للموبايل فقط)
+  useEffect(() => {
+    if (!isMobile) return;
+    
+    const controlHeader = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        // نزول للأسفل → إخفاء الهيدر
+        setIsHeaderVisible(false);
+      } else {
+        // طلوع للأعلى → إظهار الهيدر
+        setIsHeaderVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+    
+    window.addEventListener('scroll', controlHeader);
+    return () => window.removeEventListener('scroll', controlHeader);
+  }, [isMobile, lastScrollY]);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -285,8 +311,18 @@ export default function PlatformPage() {
 
   return (
     <div style={styles.container}>
-      <header style={styles.header}>
-        <div style={styles.headerContent}>
+      {/* الهيدر العلوي - مع إمكانية الإخفاء على الموبايل */}
+      <header style={{
+        ...styles.header,
+        transform: isMobile && !isHeaderVisible ? 'translateY(-100%)' : 'translateY(0)',
+        transition: 'transform 0.3s ease-in-out'
+      }}>
+        <div style={{
+          ...styles.headerContent,
+          flexDirection: isMobile ? 'row' : 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
           <div style={styles.logoSection}>
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -294,9 +330,16 @@ export default function PlatformPage() {
             >
               ☰
             </button>
-            <div>
-              <h1 style={styles.logo}>🎓 علمني العلوم</h1>
-              <p style={styles.logoSub}>منصة مستر بيشوي التعليمية</p>
+            <div style={isMobile && !isHeaderVisible ? styles.logoHidden : styles.logoVisible}>
+              <h1 style={{
+                ...styles.logo,
+                fontSize: isMobile && !isHeaderVisible ? '0px' : '24px',
+                display: isMobile && !isHeaderVisible ? 'none' : 'block'
+              }}>🎓 علمني العلوم</h1>
+              <p style={{
+                ...styles.logoSub,
+                display: isMobile && !isHeaderVisible ? 'none' : 'block'
+              }}>منصة مستر بيشوي التعليمية</p>
             </div>
           </div>
           
@@ -306,7 +349,10 @@ export default function PlatformPage() {
             <div style={styles.userAvatar}>
               {user.name?.charAt(0) || 'ط'}
             </div>
-            <div style={styles.userInfo}>
+            <div style={{
+              ...styles.userInfo,
+              display: isMobile && !isHeaderVisible ? 'none' : 'block'
+            }}>
               <div style={styles.userName}>{user.name || 'طالب'}</div>
               <div style={styles.userBadge}>{userYear}</div>
             </div>
@@ -793,7 +839,8 @@ const styles: any = {
     boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
     position: 'sticky' as const,
     top: 0,
-    zIndex: 100
+    zIndex: 100,
+    transition: 'transform 0.3s ease-in-out'
   },
   headerContent: {
     maxWidth: '1600px',
@@ -807,6 +854,12 @@ const styles: any = {
     display: 'flex',
     alignItems: 'center',
     gap: '15px'
+  },
+  logoVisible: {
+    display: 'block'
+  },
+  logoHidden: {
+    display: 'none'
   },
   menuToggle: {
     background: 'none',
