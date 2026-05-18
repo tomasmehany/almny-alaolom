@@ -21,6 +21,9 @@ export default function PlatformPage() {
     completed: 0,
     progress: 0
   })
+  
+  // ✅ تأثير اختفاء الهيدر
+  const [headerOpacity, setHeaderOpacity] = useState(1)
 
   const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
   const telegramBotLink = 'https://t.me/AskMrBishoy_bot'
@@ -38,6 +41,22 @@ export default function PlatformPage() {
 
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // ✅ تأثير التمرير على الهيدر
+  useEffect(() => {
+    if (!isMobile) return;
+    
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      let newOpacity = 1 - (currentScrollY / 120);
+      if (newOpacity < 0) newOpacity = 0;
+      if (newOpacity > 1) newOpacity = 1;
+      setHeaderOpacity(newOpacity);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isMobile]);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -285,7 +304,11 @@ export default function PlatformPage() {
 
   return (
     <div style={styles.container}>
-      <header style={styles.header}>
+      <header style={{
+        ...styles.header,
+        opacity: isMobile ? headerOpacity : 1,
+        transition: 'opacity 0.1s ease-out'
+      }}>
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
             <button 
@@ -722,14 +745,13 @@ export default function PlatformPage() {
   )
 }
 
-const styles: any = {
+const styles = {
   container: {
     minHeight: '100vh',
     background: '#f9fafb',
     direction: 'rtl',
     fontFamily: '"Cairo", "Segoe UI", Tahoma, sans-serif'
   },
-
   loadingContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -787,11 +809,10 @@ const styles: any = {
     fontWeight: 'bold',
     transition: 'all 0.3s'
   },
-
   header: {
     background: 'white',
     boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-    position: 'sticky' as const,
+    position: 'sticky',
     top: 0,
     zIndex: 100
   },
@@ -816,10 +837,7 @@ const styles: any = {
     color: '#4b5563',
     padding: '5px 10px',
     borderRadius: '8px',
-    transition: 'background 0.3s',
-    ':hover': {
-      background: '#f3f4f6'
-    }
+    transition: 'background 0.3s'
   },
   logo: {
     fontSize: '24px',
@@ -867,21 +885,19 @@ const styles: any = {
     display: 'inline-block',
     marginTop: '4px'
   },
-
   mainContent: {
-    position: 'relative' as const,
+    position: 'relative',
     minHeight: 'calc(100vh - 140px)'
   },
-
   sidebar: {
     background: 'white',
     transition: 'transform 0.3s ease',
-    overflowX: 'hidden' as const,
-    overflowY: 'auto' as const,
+    overflowX: 'hidden',
+    overflowY: 'auto',
     zIndex: 1000
   },
   closeSidebarButton: {
-    position: 'sticky' as const,
+    position: 'sticky',
     top: '10px',
     left: '10px',
     background: '#f3f4f6',
@@ -895,15 +911,12 @@ const styles: any = {
     justifyContent: 'center',
     cursor: 'pointer',
     margin: '10px 10px 0 auto',
-    color: '#4b5563',
-    ':hover': {
-      background: '#e5e7eb'
-    }
+    color: '#4b5563'
   },
   sidebarContent: {
     padding: '20px 15px',
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '25px'
   },
   yearCard: {
@@ -950,7 +963,7 @@ const styles: any = {
   },
   statsList: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '15px'
   },
   statItem: {
@@ -1002,10 +1015,7 @@ const styles: any = {
     fontWeight: '500',
     color: '#4b5563',
     transition: 'all 0.2s',
-    textAlign: 'right',
-    ':hover': {
-      background: '#f1f5f9'
-    }
+    textAlign: 'right'
   },
   folderCount: {
     background: '#e5e7eb',
@@ -1034,13 +1044,8 @@ const styles: any = {
     textDecoration: 'none',
     borderRadius: '8px',
     transition: 'all 0.2s',
-    fontSize: '14px',
-    ':hover': {
-      background: '#f1f5f9',
-      color: '#2563eb'
-    }
+    fontSize: '14px'
   },
-
   mainArea: {
     padding: '25px',
     maxWidth: '1300px',
@@ -1083,10 +1088,10 @@ const styles: any = {
     color: 'white',
     marginBottom: '20px',
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '15px',
     alignItems: 'center',
-    textAlign: 'center' as const
+    textAlign: 'center'
   },
   welcomeTitle: {
     fontSize: '24px',
@@ -1117,20 +1122,16 @@ const styles: any = {
     display: 'flex',
     gap: '10px',
     marginBottom: '25px',
-    flexWrap: 'wrap' as const
+    flexWrap: 'wrap'
   },
   categoriesBarMobile: {
     display: 'flex',
     gap: '8px',
     marginBottom: '20px',
-    overflowX: 'auto' as const,
+    overflowX: 'auto',
     padding: '5px 0',
-    whiteSpace: 'nowrap' as const,
-    WebkitOverflowScrolling: 'touch' as const,
-    scrollbarWidth: 'none' as const,
-    '&::-webkit-scrollbar': {
-      display: 'none'
-    }
+    whiteSpace: 'nowrap',
+    WebkitOverflowScrolling: 'touch'
   },
   categoryButton: {
     padding: '10px 20px',
@@ -1141,7 +1142,6 @@ const styles: any = {
     cursor: 'pointer',
     transition: 'all 0.3s'
   },
-
   coursesGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
@@ -1160,11 +1160,7 @@ const styles: any = {
     padding: '20px',
     boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
     border: '2px solid #f3f4f6',
-    transition: 'all 0.3s',
-    ':hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 10px 15px rgba(0,0,0,0.1)'
-    }
+    transition: 'all 0.3s'
   },
   courseCardMobile: {
     background: 'white',
@@ -1246,10 +1242,7 @@ const styles: any = {
     borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '600',
-    transition: 'all 0.3s',
-    ':hover': {
-      background: '#059669'
-    }
+    transition: 'all 0.3s'
   },
   requestButtons: {
     display: 'flex',
@@ -1266,10 +1259,7 @@ const styles: any = {
     justifyContent: 'center',
     textDecoration: 'none',
     fontSize: '18px',
-    transition: 'all 0.3s',
-    ':hover': {
-      transform: 'scale(1.1)'
-    }
+    transition: 'all 0.3s'
   },
   telegramSmall: {
     width: '36px',
@@ -1282,13 +1272,10 @@ const styles: any = {
     justifyContent: 'center',
     textDecoration: 'none',
     fontSize: '18px',
-    transition: 'all 0.3s',
-    ':hover': {
-      transform: 'scale(1.1)'
-    }
+    transition: 'all 0.3s'
   },
   loadingCourses: {
-    textAlign: 'center' as const,
+    textAlign: 'center',
     padding: '50px',
     color: '#6b7280'
   },
@@ -1302,7 +1289,7 @@ const styles: any = {
     margin: '0 auto 20px'
   },
   emptyState: {
-    textAlign: 'center' as const,
+    textAlign: 'center',
     padding: '60px 20px',
     background: 'white',
     borderRadius: '16px'
@@ -1319,7 +1306,6 @@ const styles: any = {
   emptyText: {
     color: '#6b7280'
   },
-
   oldFooter: {
     background: '#1f2937',
     color: 'white',
@@ -1329,14 +1315,14 @@ const styles: any = {
   footerContent: {
     maxWidth: '1600px',
     margin: '0 auto',
-    textAlign: 'center' as const
+    textAlign: 'center'
   },
   footerContentMobile: {
     maxWidth: '1600px',
     margin: '0 auto',
-    textAlign: 'center' as const,
+    textAlign: 'center',
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '15px'
   },
   footerText: {
@@ -1349,11 +1335,11 @@ const styles: any = {
     justifyContent: 'center',
     gap: '20px',
     marginBottom: '20px',
-    flexWrap: 'wrap' as const
+    flexWrap: 'wrap'
   },
   footerLinksMobile: {
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
     gap: '10px',
     marginBottom: '15px'
   },
@@ -1376,15 +1362,14 @@ const styles: any = {
     textDecoration: 'none',
     margin: '0 5px'
   },
-
   floatingButtons: {
     position: 'fixed',
     bottom: '20px',
     left: '20px',
     zIndex: 99999,
     display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '15px',
+    flexDirection: 'column',
+    gap: '15px'
   },
   floatingButtonsMobile: {
     position: 'fixed',
@@ -1392,8 +1377,8 @@ const styles: any = {
     left: '15px',
     zIndex: 99999,
     display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '10px',
+    flexDirection: 'column',
+    gap: '10px'
   },
   floatingButton: {
     display: 'flex',
@@ -1408,10 +1393,6 @@ const styles: any = {
     fontSize: '26px',
     border: '2px solid white',
     transition: 'all 0.3s ease',
-    cursor: 'pointer',
-    ':hover': {
-      transform: 'scale(1.1)',
-      boxShadow: '0 12px 25px rgba(37, 99, 235, 0.6)'
-    }
+    cursor: 'pointer'
   }
 }
