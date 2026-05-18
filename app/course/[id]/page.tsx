@@ -24,6 +24,7 @@ export default function CoursePage() {
   const [activeLesson, setActiveLesson] = useState<any>(null)
   const [user, setUser] = useState<any>(null)
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set())
+  const [isMobile, setIsMobile] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -41,6 +42,16 @@ export default function CoursePage() {
     whatsapp: "https://wa.me/message/UKASWZCU5BNLN1",
     telegram: "https://t.me/AskMrBishoy_bot"
   }
+
+  // كشف حجم الشاشة
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const toggleModule = (moduleId: string) => {
     const newExpanded = new Set(expandedModules)
@@ -347,10 +358,8 @@ export default function CoursePage() {
             <h2 style={styles.accessTitle}>الكورس مقفل</h2>
             <p style={styles.accessText}>ليس لديك صلاحية للوصول لكورس <strong>{course.title}</strong></p>
             <div style={styles.contactButtons}>
-              <Link href="/bot" style={styles.whatsappButton}>
-  🤖 المساعد الذكي
-</Link>
-              <a href={SUPPORT_LINKS.telegram} target="_blank" style={styles.telegramButton}>📱 بوت التيلجرام</a>
+              <a href={SUPPORT_LINKS.whatsapp} target="_blank" style={styles.whatsappButton}>💬 تواصل على واتساب</a>
+              <a href={SUPPORT_LINKS.telegram} target="_blank" style={styles.telegramButton}>📱 تواصل على تليجرام</a>
             </div>
           </div>
         </main>
@@ -371,16 +380,14 @@ export default function CoursePage() {
 
       <main style={styles.main}>
         <div style={styles.courseHeader}>
-          <h1 style={styles.courseTitle}>{course.title}</h1>
-          <p style={styles.courseDescription}>{course.description || 'لا يوجد وصف'}</p>
+          <h1 style={isMobile ? styles.courseTitleMobile : styles.courseTitle}>{course.title}</h1>
+          <p style={isMobile ? styles.courseDescriptionMobile : styles.courseDescription}>{course.description || 'لا يوجد وصف'}</p>
           <div style={styles.courseMeta}>
-            <span style={styles.metaItem}> {course.grade}</span>
+            <span style={styles.metaItem}>📚 {course.grade}</span>
             <span style={styles.metaItem}>📖 {allLessons.length} درس</span>
-            <span style={styles.metaItem}>📚 {modules.length} وحدة</span>
+            <span style={styles.metaItem}>📁 {modules.length} وحدة</span>
           </div>
         </div>
-
-       
 
         {allLessons.length === 0 ? (
           <div style={styles.emptyLessons}>
@@ -388,18 +395,16 @@ export default function CoursePage() {
             <h3 style={styles.emptyTitle}>لا توجد دروس بعد</h3>
             <p style={styles.emptyText}>لم يتم إضافة دروس لهذا الكورس بعد. سيتم إضافتها قريباً.</p>
             <div style={styles.contactButtons}>
-              <Link href="/bot" style={styles.telegramButton}>
-  🤖 المساعد الذكي
-</Link>
-              <a href={SUPPORT_LINKS.whatsapp} target="_blank" style={styles.whatsappButton}>💬 تواصل على واتساب</a>
+              <a href={SUPPORT_LINKS.whatsapp} target="_blank" style={styles.whatsappButton}>💬 واتساب الدعم</a>
+              <a href={SUPPORT_LINKS.telegram} target="_blank" style={styles.telegramButton}>📱 تليجرام الدعم</a>
             </div>
           </div>
         ) : (
-          <div style={styles.content}>
+          <div style={isMobile ? styles.contentMobile : styles.content}>
             <div style={styles.videoSection}>
               <div style={styles.videoPlayer}>
                 {activeLesson?.videoUrl && isValidVideoUrl(activeLesson.videoUrl) ? (
-                  <div ref={videoContainerRef} style={styles.videoContainer} onMouseMove={resetControlsTimeout}>
+                  <div ref={videoContainerRef} style={isMobile ? styles.videoContainerMobile : styles.videoContainer} onMouseMove={resetControlsTimeout}>
                     <div style={styles.videoWrapper}>
                       <div ref={playerContainerRef} style={{ width: '100%', height: '100%' }} />
                       <div style={styles.protectionOverlay} onClick={togglePlayPause} onContextMenu={(e) => { e.preventDefault(); alert('ممنوع النسخ'); }} />
@@ -431,24 +436,24 @@ export default function CoursePage() {
                     </div>
                   </div>
                 ) : (
-                  <div style={styles.videoPlaceholder}>
+                  <div style={isMobile ? styles.videoPlaceholderMobile : styles.videoPlaceholder}>
                     <div style={styles.placeholderIcon}>🎬</div>
                     <p style={styles.placeholderText}>اختر درساً لعرض الفيديو</p>
                   </div>
                 )}
                 {activeLesson && (
                   <div style={styles.currentLessonInfo}>
-                    <h2 style={styles.currentLessonTitle}>{activeLesson.title}</h2>
-                    {activeLesson.description && <p style={styles.currentLessonDesc}>{activeLesson.description}</p>}
+                    <h2 style={isMobile ? styles.currentLessonTitleMobile : styles.currentLessonTitle}>{activeLesson.title}</h2>
+                    {activeLesson.description && <p style={isMobile ? styles.currentLessonDescMobile : styles.currentLessonDesc}>{activeLesson.description}</p>}
                     <div style={styles.lessonMeta}>
-                      {activeLesson.moduleTitle && <span style={styles.lessonDuration}>📚 {activeLesson.moduleTitle}</span>}
+                      {activeLesson.moduleTitle && <span style={styles.lessonDuration}>📁 {activeLesson.moduleTitle}</span>}
                       <span style={styles.currentSpeedBadge}>السرعة: {playbackRate}x</span>
                     </div>
                   </div>
                 )}
               </div>
               {activeLesson && (
-                <div style={styles.actionsBar}>
+                <div style={isMobile ? styles.actionsBarMobile : styles.actionsBar}>
                   {activeLesson.assignmentLink && <a href={activeLesson.assignmentLink} target="_blank" style={styles.actionButton}>📝 الواجب</a>}
                   {activeLesson.examLink && <a href={activeLesson.examLink} target="_blank" style={styles.actionButton}>📊 الامتحان</a>}
                 </div>
@@ -457,10 +462,10 @@ export default function CoursePage() {
 
             <div style={styles.lessonsSection}>
               <div style={styles.lessonsHeader}>
-                <h2 style={styles.lessonsTitle}>📖 محتوى الكورس</h2>
+                <h2 style={isMobile ? styles.lessonsTitleMobile : styles.lessonsTitle}>📖 محتوى الكورس</h2>
                 <div style={styles.expandButtons}>
-                  <button onClick={expandAllModules} style={styles.expandButton}> توسيع الكل</button>
-                  <button onClick={collapseAllModules} style={styles.collapseButton}> طي الكل</button>
+                  <button onClick={expandAllModules} style={isMobile ? styles.expandButtonMobile : styles.expandButton}>📂 توسيع الكل</button>
+                  <button onClick={collapseAllModules} style={isMobile ? styles.collapseButtonMobile : styles.collapseButton}>📁 طي الكل</button>
                 </div>
               </div>
 
@@ -468,9 +473,9 @@ export default function CoursePage() {
                 {modules.map(module => (
                   <div key={module.id} style={styles.moduleItem}>
                     <div onClick={() => toggleModule(module.id)} style={styles.moduleHeader}>
-                      <span style={styles.moduleIcon}>{expandedModules.has(module.id) ? '📚' : '📚'}</span>
+                      <span style={styles.moduleIcon}>{expandedModules.has(module.id) ? '📂' : '📁'}</span>
                       <div style={styles.moduleInfo}>
-                        <span style={styles.moduleTitle}>{module.title}</span>
+                        <span style={isMobile ? styles.moduleTitleMobile : styles.moduleTitle}>{module.title}</span>
                         <span style={styles.moduleCount}>{module.lessons?.length || 0} دروس</span>
                       </div>
                       <span style={styles.moduleArrow}>{expandedModules.has(module.id) ? '▲' : '▼'}</span>
@@ -481,8 +486,8 @@ export default function CoursePage() {
                           <div key={lesson.id} onClick={() => setActiveLesson(lesson)} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
                             <div style={styles.lessonNumber}>{idx + 1}</div>
                             <div style={styles.lessonContent}>
-                              <div style={styles.lessonTitleSmall}>{lesson.title}</div>
-                              {lesson.description && <div style={styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
+                              <div style={isMobile ? styles.lessonTitleSmallMobile : styles.lessonTitleSmall}>{lesson.title}</div>
+                              {lesson.description && <div style={isMobile ? styles.lessonDescSmallMobile : styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
                             </div>
                           </div>
                         ))}
@@ -504,8 +509,8 @@ export default function CoursePage() {
                         <div key={lesson.id} onClick={() => setActiveLesson(lesson)} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
                           <div style={styles.lessonNumber}>{idx + 1}</div>
                           <div style={styles.lessonContent}>
-                            <div style={styles.lessonTitleSmall}>{lesson.title}</div>
-                            {lesson.description && <div style={styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
+                            <div style={isMobile ? styles.lessonTitleSmallMobile : styles.lessonTitleSmall}>{lesson.title}</div>
+                            {lesson.description && <div style={isMobile ? styles.lessonDescSmallMobile : styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
                           </div>
                         </div>
                       ))}
@@ -515,12 +520,10 @@ export default function CoursePage() {
               </div>
 
               <div style={styles.supportSection}>
-                <h3 style={styles.supportTitle}>💬 لديك سؤال؟</h3>
+                <h3 style={isMobile ? styles.supportTitleMobile : styles.supportTitle}>💬 لديك سؤال أو تحتاج مساعدة؟</h3>
                 <div style={styles.supportButtons}>
-                 <Link href="/bot" style={styles.whatsappButton}>
-  🤖 المساعد الذكي
-</Link>
-                  <a href={SUPPORT_LINKS.telegram} target="_blank" style={styles.telegramSupportButton}>📱 تواصل عبر بوت التليجرام</a>
+                  <a href={SUPPORT_LINKS.whatsapp} target="_blank" style={styles.whatsappSupportButton}>💬 تواصل على واتساب</a>
+                  <a href={SUPPORT_LINKS.telegram} target="_blank" style={styles.telegramSupportButton}>📱 تواصل على تليجرام</a>
                 </div>
               </div>
             </div>
@@ -557,7 +560,9 @@ const styles: any = {
   accessText: { fontSize: '18px', color: '#4b5563', marginBottom: '30px' },
   courseHeader: { background: 'white', borderRadius: '12px', padding: '30px', marginBottom: '30px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
   courseTitle: { fontSize: '32px', fontWeight: 'bold', color: '#1f2937', marginBottom: '15px' },
+  courseTitleMobile: { fontSize: '22px', fontWeight: 'bold', color: '#1f2937', marginBottom: '10px' },
   courseDescription: { fontSize: '18px', color: '#6b7280', marginBottom: '20px', lineHeight: 1.6 },
+  courseDescriptionMobile: { fontSize: '14px', color: '#6b7280', marginBottom: '15px', lineHeight: 1.5 },
   courseMeta: { display: 'flex', gap: '15px', flexWrap: 'wrap' },
   metaItem: { background: '#f3f4f6', padding: '8px 16px', borderRadius: '20px', fontSize: '14px', color: '#4b5563' },
   emptyLessons: { background: 'white', borderRadius: '12px', padding: '50px', textAlign: 'center' },
@@ -565,9 +570,11 @@ const styles: any = {
   emptyTitle: { fontSize: '24px', color: '#1f2937', marginBottom: '15px' },
   emptyText: { fontSize: '16px', color: '#6b7280', marginBottom: '30px' },
   content: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' },
+  contentMobile: { display: 'flex', flexDirection: 'column', gap: '20px' },
   videoSection: { display: 'flex', flexDirection: 'column', gap: '25px' },
   videoPlayer: { background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
   videoContainer: { width: '100%', height: '450px', overflow: 'hidden', position: 'relative', background: '#000' },
+  videoContainerMobile: { width: '100%', height: '240px', overflow: 'hidden', position: 'relative', background: '#000' },
   videoWrapper: { position: 'relative', width: '100%', height: '100%' },
   protectionOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, cursor: 'pointer', background: 'transparent', zIndex: 2 },
   customControls: { position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', padding: '20px', zIndex: 3 },
@@ -575,34 +582,42 @@ const styles: any = {
   progressBar: { width: '100%', height: '6px', WebkitAppearance: 'none', background: 'rgba(255,255,255,0.2)', borderRadius: '3px', outline: 'none', cursor: 'pointer' },
   timeDisplay: { display: 'flex', justifyContent: 'space-between', color: 'white', fontSize: '13px', marginTop: '8px' },
   controlsRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  controlsLeft: { display: 'flex', alignItems: 'center', gap: '10px' },
+  controlsLeft: { display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' },
   controlButton: { background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px', borderRadius: '4px', cursor: 'pointer', fontSize: '16px', minWidth: '40px' },
   seekButton: { background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '6px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
   speedSelect: { background: 'rgba(0,0,0,0.7)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '4px', padding: '6px 10px', fontSize: '13px', cursor: 'pointer' },
   fullscreenButton: { background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' },
   videoPlaceholder: { width: '100%', height: '450px', background: '#1f2937', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white' },
+  videoPlaceholderMobile: { width: '100%', height: '240px', background: '#1f2937', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white' },
   placeholderIcon: { fontSize: '4rem', marginBottom: '20px' },
   placeholderText: { fontSize: '20px', fontWeight: '600' },
   currentLessonInfo: { padding: '20px', borderTop: '1px solid #e5e7eb' },
   currentLessonTitle: { fontSize: '22px', fontWeight: 'bold', color: '#1f2937', marginBottom: '10px' },
+  currentLessonTitleMobile: { fontSize: '18px', fontWeight: 'bold', color: '#1f2937', marginBottom: '8px' },
   currentLessonDesc: { color: '#6b7280', marginBottom: '15px', lineHeight: 1.6 },
+  currentLessonDescMobile: { color: '#6b7280', marginBottom: '10px', lineHeight: 1.5, fontSize: '13px' },
   lessonMeta: { display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' },
   lessonDuration: { color: '#6b7280', fontSize: '14px', background: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' },
   currentSpeedBadge: { background: '#10b981', color: 'white', padding: '3px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: '600' },
   actionsBar: { display: 'flex', gap: '15px', background: 'white', padding: '20px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
+  actionsBarMobile: { display: 'flex', gap: '10px', background: 'white', padding: '15px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', flexDirection: 'column' },
   actionButton: { flex: 1, padding: '15px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: '600', textDecoration: 'none', textAlign: 'center' },
   lessonsSection: { display: 'flex', flexDirection: 'column', gap: '25px' },
   lessonsHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' },
   lessonsTitle: { fontSize: '24px', fontWeight: 'bold', color: '#1f2937', margin: 0 },
+  lessonsTitleMobile: { fontSize: '20px', fontWeight: 'bold', color: '#1f2937', margin: 0 },
   expandButtons: { display: 'flex', gap: '10px' },
   expandButton: { padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' },
+  expandButtonMobile: { padding: '6px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '11px' },
   collapseButton: { padding: '8px 16px', background: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' },
+  collapseButtonMobile: { padding: '6px 12px', background: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '11px' },
   lessonsList: { display: 'flex', flexDirection: 'column', gap: '15px', maxHeight: '600px', overflowY: 'auto' },
   moduleItem: { background: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb' },
   moduleHeader: { display: 'flex', alignItems: 'center', gap: '12px', padding: '15px 20px', cursor: 'pointer', background: '#f9fafb', borderBottom: '1px solid #e5e7eb' },
   moduleIcon: { fontSize: '24px' },
   moduleInfo: { flex: 1, display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' },
   moduleTitle: { fontSize: '16px', fontWeight: '600', color: '#1f2937' },
+  moduleTitleMobile: { fontSize: '14px', fontWeight: '600', color: '#1f2937' },
   moduleCount: { fontSize: '12px', color: '#6b7280', background: '#e5e7eb', padding: '2px 8px', borderRadius: '12px' },
   moduleArrow: { fontSize: '12px', color: '#6b7280' },
   moduleLessons: { padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' },
@@ -615,12 +630,15 @@ const styles: any = {
   lessonNumber: { width: '30px', height: '30px', background: '#3b82f6', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold', flexShrink: 0 },
   lessonContent: { flex: 1 },
   lessonTitleSmall: { fontSize: '15px', fontWeight: '600', color: '#1f2937', marginBottom: '4px' },
+  lessonTitleSmallMobile: { fontSize: '13px', fontWeight: '600', color: '#1f2937', marginBottom: '2px' },
   lessonDescSmall: { fontSize: '12px', color: '#6b7280' },
+  lessonDescSmallMobile: { fontSize: '11px', color: '#6b7280' },
   supportSection: { background: 'white', padding: '25px', borderRadius: '12px', textAlign: 'center' },
   supportTitle: { fontSize: '20px', fontWeight: '600', color: '#1f2937', marginBottom: '15px' },
+  supportTitleMobile: { fontSize: '16px', fontWeight: '600', color: '#1f2937', marginBottom: '10px' },
   supportButtons: { display: 'flex', flexDirection: 'column', gap: '15px' },
   whatsappButton: { padding: '15px', background: '#25D366', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center' },
-  telegramButton: { padding: '15px', background: 'rgb(40, 22, 56)', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center' },
+  telegramButton: { padding: '15px', background: '#0088cc', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center' },
   whatsappSupportButton: { padding: '15px', background: '#25D366', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' },
   telegramSupportButton: { padding: '15px', background: '#0088cc', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' },
   footer: { background: '#1f2937', marginTop: '50px', padding: '30px 0' },
