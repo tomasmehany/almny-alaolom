@@ -206,8 +206,8 @@ export default function TeacherDashboard() {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h1 style={styles.title}>👨‍🏫 لوحة تحكم المعلم</h1>
-        <p style={styles.subtitle}>مرحباً {teacher?.name}</p>
+        <h1 style={styles.title}>👨‍🏫 لوحة تحكم المستر</h1>
+        <p style={styles.subtitle}>مرحباً مستر بيشوي {teacher?.name}</p>
         <button onClick={() => {
           localStorage.removeItem('currentUser');
           localStorage.removeItem('impersonating');
