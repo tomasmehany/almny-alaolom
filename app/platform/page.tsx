@@ -26,7 +26,6 @@ export default function PlatformPage() {
   const [headerOpacity, setHeaderOpacity] = useState(1)
 
   const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
-  const telegramBotLink = 'https://t.me/AskMrBishoy_bot'
 
   useEffect(() => {
     const checkMobile = () => {
@@ -407,13 +406,6 @@ export default function PlatformPage() {
                       <div style={styles.statLabel}>مفتوح</div>
                     </div>
                   </div>
-                  <div style={styles.statItem}>
-                    <span style={styles.statIcon}>📈</span>
-                    <div>
-                      <div style={styles.statNumber}>{stats.progress}%</div>
-                      <div style={styles.statLabel}>تقدم</div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -473,11 +465,6 @@ export default function PlatformPage() {
                   <span>واتساب</span>
                 </a>
                 
-                <a href={telegramBotLink} target="_blank" style={styles.quickLink}>
-                  <span>✈️</span>
-                  <span>تليجرام</span>
-                </a>
-                
                 <Link href="/bot" style={styles.quickLink}>
                   <span>🤖</span>
                   <span>المساعد الذكي</span>
@@ -532,44 +519,10 @@ export default function PlatformPage() {
               </h2>
               <p style={isMobile ? styles.welcomeTextMobile : styles.welcomeText}>
                 {userYear === 'ثانية ثانوي' 
-                  ? 'استعرض كورسات الكيمياء والفيزياء حسب المادة'
+                  ? 'يعرض هنا كورسات الكيمياء والفيزياء حسب المادة'
                   : `هذه هي الكورسات المتاحة لسنتك الدراسية (${userYear})`
                 }
               </p>
-            </div>
-            <div style={styles.progressRing}>
-              <svg width={isMobile ? "50" : "60"} height={isMobile ? "50" : "60"} viewBox="0 0 60 60">
-                <circle
-                  cx="30"
-                  cy="30"
-                  r="26"
-                  fill="none"
-                  stroke="#e5e7eb"
-                  strokeWidth="4"
-                />
-                <circle
-                  cx="30"
-                  cy="30"
-                  r="26"
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="4"
-                  strokeDasharray={`${2 * Math.PI * 26}`}
-                  strokeDashoffset={`${2 * Math.PI * 26 * (1 - stats.progress / 100)}`}
-                  transform="rotate(-90 30 30)"
-                />
-                <text
-                  x="30"
-                  y="30"
-                  textAnchor="middle"
-                  dy="7"
-                  fill="#10b981"
-                  fontSize={isMobile ? "10" : "12"}
-                  fontWeight="bold"
-                >
-                  {stats.progress}%
-                </text>
-              </svg>
             </div>
           </div>
 
@@ -680,14 +633,9 @@ export default function PlatformPage() {
                         دخول الكورس ←
                       </Link>
                     ) : (
-                      <div style={styles.requestButtons}>
-                        <a href={whatsappLink} target="_blank" style={styles.whatsappSmall}>
-                          📱
-                        </a>
-                        <a href={telegramBotLink} target="_blank" style={styles.telegramSmall}>
-                          ✈️
-                        </a>
-                      </div>
+                      <a href={whatsappLink} target="_blank" style={styles.whatsappSmall}>
+                        💬
+                      </a>
                     )}
                   </div>
                 </div>
@@ -713,25 +661,14 @@ export default function PlatformPage() {
             </p>
             <p style={styles.supportInfo}>
               للدعم: 
-              <a href={whatsappLink} target="_blank" style={styles.footerSupportLink}>واتساب</a> | 
-              <a href={telegramBotLink} target="_blank" style={styles.footerSupportLink}>تليجرام</a>
+              <a href={whatsappLink} target="_blank" style={styles.footerSupportLink}>واتساب</a>
             </p>
           </div>
         </div>
       </footer>
 
+      {/* ✅ زر المساعد الذكي العائم فقط */}
       <div style={isMobile ? styles.floatingButtonsMobile : styles.floatingButtons}>
-        <Link 
-          href="/support/chat"
-          style={{
-            ...styles.floatingButton,
-            backgroundColor: '#2563eb',
-          }}
-          title="الدعم الفني"
-        >
-          💬
-        </Link>
-
         <Link 
           href="/bot"
           style={{
@@ -1138,11 +1075,6 @@ const styles = {
     opacity: 0.95,
     margin: 0
   },
-  progressRing: {
-    background: 'rgba(255,255,255,0.2)',
-    borderRadius: '50%',
-    padding: '5px'
-  },
   categoriesBar: {
     display: 'flex',
     gap: '10px',
@@ -1269,27 +1201,10 @@ const styles = {
     fontWeight: '600',
     transition: 'all 0.3s'
   },
-  requestButtons: {
-    display: 'flex',
-    gap: '8px'
-  },
   whatsappSmall: {
     width: '36px',
     height: '36px',
     background: '#25D366',
-    color: 'white',
-    borderRadius: '8px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    textDecoration: 'none',
-    fontSize: '18px',
-    transition: 'all 0.3s'
-  },
-  telegramSmall: {
-    width: '36px',
-    height: '36px',
-    background: '#0088cc',
     color: 'white',
     borderRadius: '8px',
     display: 'flex',
