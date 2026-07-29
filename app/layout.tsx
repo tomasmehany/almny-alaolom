@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'googlef84f955f03d02fe0.html', // 👈 هات الكود من Google Search Console وحطه هنا
+    google: 'EnJDNgIGDkDT_W6IcBzqbI5Ub7nhlzSXGZaZn4DJaMc', // 👈 هات الكود من Google Search Console وحطه هنا
   },
   openGraph: {
     title: 'علمني العلوم | منصة مستر بيشوي التعليمية',
