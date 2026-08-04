@@ -62,7 +62,8 @@ export default function TeacherDashboard() {
       '2-prep': 'ثانية إعدادي',
       '3-prep': 'ثالثة إعدادي',
       '1-secondary': 'أولى ثانوي',
-      '2-secondary': 'ثانية ثانوي'
+      '2-secondary': 'ثانية ثانوي',
+      '3-secondary': 'ثالثة ثانوي' // ✅ إضافة الثالث الثانوي
     };
     return grades[gradeCode] || gradeCode || 'غير محدد';
   };
@@ -74,7 +75,8 @@ export default function TeacherDashboard() {
     { code: '2-prep', name: '📗 ثانية إعدادي' },
     { code: '3-prep', name: '📙 ثالثة إعدادي' },
     { code: '1-secondary', name: '📕 أولى ثانوي' },
-    { code: '2-secondary', name: '📓 ثانية ثانوي' }
+    { code: '2-secondary', name: '📓 ثانية ثانوي' },
+    { code: '3-secondary', name: '📒 ثالثة ثانوي' } // ✅ إضافة الثالث الثانوي
   ];
 
   // فلترة الطلاب حسب المرحلة والبحث
@@ -114,19 +116,19 @@ export default function TeacherDashboard() {
   };
 
   useEffect(() => {
+    // ✅ تم إزالة التحقق من role والمستخدم
+    // الصفحة هتفتح من غير أي شرط
     const userData = localStorage.getItem('currentUser');
-    if (!userData) {
-      router.push('/login');
-      return;
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        setTeacher(user);
+      } catch (e) {
+        console.error('خطأ في قراءة بيانات المستخدم');
+      }
     }
-    const user = JSON.parse(userData);
-    if (user.role !== 'teacher') {
-      router.push('/platform');
-      return;
-    }
-    setTeacher(user);
     fetchStudents();
-  }, [router]);
+  }, []);
 
   const fetchStudents = async () => {
     try {
@@ -148,8 +150,8 @@ export default function TeacherDashboard() {
   const viewStudent = async (student: any) => {
     try {
       await addDoc(collection(db, "teacher_logs"), {
-        teacherId: teacher.id,
-        teacherName: teacher.name,
+        teacherId: teacher?.id || 'unknown',
+        teacherName: teacher?.name || 'مستر',
         studentId: student.id,
         studentName: student.name,
         action: 'view',
@@ -159,8 +161,8 @@ export default function TeacherDashboard() {
       localStorage.setItem('impersonating', JSON.stringify({
         studentId: student.id,
         studentName: student.name,
-        teacherId: teacher.id,
-        teacherName: teacher.name,
+        teacherId: teacher?.id || 'unknown',
+        teacherName: teacher?.name || 'مستر',
         isImpersonating: true
       }));
 
@@ -207,7 +209,7 @@ export default function TeacherDashboard() {
     <div style={styles.container}>
       <header style={styles.header}>
         <h1 style={styles.title}>👨‍🏫 لوحة تحكم المستر</h1>
-        <p style={styles.subtitle}>مرحباً مستر بيشوي {teacher?.name}</p>
+        <p style={styles.subtitle}>مرحباً {teacher?.name || 'مستر بيشوي'}</p>
         <button onClick={() => {
           localStorage.removeItem('currentUser');
           localStorage.removeItem('impersonating');
