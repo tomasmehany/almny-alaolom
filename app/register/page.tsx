@@ -1,12 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  generateDeviceId, 
-  saveDeviceId, 
-  getDeviceFingerprint,
-  registerFirstDevice  
-} from '@/utils/deviceManager'
 
 export default function RegisterPage() {
   const [message, setMessage] = useState('');
@@ -76,40 +70,19 @@ export default function RegisterPage() {
         return;
       }
 
-      // ✅ 1. إنشاء Device ID
-      let deviceId = localStorage.getItem('deviceId');
-      if (!deviceId) {
-        deviceId = generateDeviceId();
-        saveDeviceId(deviceId);
-      }
-
-      // ✅ 2. الحصول على بصمة الجهاز
-      const fingerprintData = await getDeviceFingerprint();
-
       setMessage('🔄 جاري إنشاء الحساب...');
 
-      // ✅ 3. إنشاء حساب المستخدم
+      // ✅ إنشاء حساب المستخدم (من غير أي حاجة متعلقة بالأجهزة)
       const userData = {
         name: nameInput?.value || 'مستخدم',
         phone: phone,
         grade: gradeSelect?.value || 'غير محدد',
         password: passwordInput?.value || '123456',
         status: 'pending',
-        deviceId: deviceId, // حفظ deviceId في حساب المستخدم
         createdAt: new Date().toISOString(),
       };
 
-      const docRef = await addDoc(collection(db, 'users'), userData);
-
-      // ✅ 4. ربط الجهاز بالحساب
-      await registerDevice(
-        docRef.id,
-        deviceId,
-        fingerprintData.fingerprint,
-        fingerprintData.userAgent,
-        fingerprintData.platform,
-        'الجهاز الأساسي'
-      );
+      await addDoc(collection(db, 'users'), userData);
 
       setMessage('✅ تم التسجيل بنجاح! سيتم مراجعة طلبك من قبل الأدمن.');
       form.reset();
@@ -120,9 +93,10 @@ export default function RegisterPage() {
       setTimeout(() => {
         setMessage('📞 سيتواصل معك الأدمن قريباً للتفعيل');
       }, 2000);
+      
     } catch (error: any) {
-      console.error('Firebase error:', error);
-      setMessage('❌ حدث خطأ في التسجيل');
+      console.error('❌ خطأ في التسجيل:', error);
+      setMessage('❌ حدث خطأ في التسجيل: ' + (error.message || 'يرجى المحاولة مرة أخرى'));
     } finally {
       setLoading(false);
     }
