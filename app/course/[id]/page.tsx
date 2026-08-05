@@ -33,7 +33,7 @@ export default function CoursePage() {
   const [isMuted, setIsMuted] = useState(false)
   const [player, setPlayer] = useState<any>(null)
   const [isPlayerReady, setIsPlayerReady] = useState(false)
-  const [showVideo, setShowVideo] = useState(false)
+  const [showVideo, setShowVideo] = useState(true) // ✅ تغيير: الافتراضي true
   
   const videoContainerRef = useRef<HTMLDivElement>(null)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -322,17 +322,13 @@ export default function CoursePage() {
     return allLessons
   }
 
-  // ✅ دالة لفتح الفيديو
-  const handleWatchVideo = (lesson: any) => {
-    setActiveLesson(lesson)
-    setShowVideo(true)
-  }
-
-  // ✅ دالة لإغلاق الفيديو
-  const handleCloseVideo = () => {
-    setShowVideo(false)
-    if (player && player.pauseVideo) {
-      player.pauseVideo()
+  // ✅ دالة لفتح/إغلاق الفيديو
+  const toggleVideo = (lesson?: any) => {
+    if (lesson) {
+      setActiveLesson(lesson)
+      setShowVideo(true)
+    } else {
+      setShowVideo(!showVideo)
     }
   }
 
@@ -417,12 +413,12 @@ export default function CoursePage() {
           </div>
         ) : (
           <div style={isMobile ? styles.contentMobile : styles.content}>
-            {/* ✅ Video Section - تظهر بس لما المستخدم يدوس على زر مشاهدة الفيديو */}
-            {showVideo && activeLesson?.videoUrl && isValidVideoUrl(activeLesson.videoUrl) && (
+            {/* ✅ Video Section - تظهر دائماً للدرس المختار */}
+            {activeLesson?.videoUrl && isValidVideoUrl(activeLesson.videoUrl) && showVideo && (
               <div style={styles.videoSection}>
                 <div style={styles.videoPlayer}>
                   <div style={styles.videoCloseButtonContainer}>
-                    <button onClick={handleCloseVideo} style={styles.videoCloseButton}>✕ إغلاق الفيديو</button>
+                    <button onClick={() => setShowVideo(false)} style={styles.videoCloseButton}>✕ إغلاق الفيديو</button>
                   </div>
                   <div ref={videoContainerRef} style={styles.videoContainer} onMouseMove={resetControlsTimeout}>
                     <div style={styles.videoWrapper}>
@@ -499,18 +495,19 @@ export default function CoursePage() {
                     {expandedModules.has(module.id) && (
                       <div style={styles.moduleLessons}>
                         {module.lessons?.map((lesson: any, idx: number) => (
-                          <div key={lesson.id} onClick={() => setActiveLesson(lesson)} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
+                          <div key={lesson.id} onClick={() => { setActiveLesson(lesson); setShowVideo(true); }} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
                             <div style={styles.lessonNumber}>{idx + 1}</div>
                             <div style={styles.lessonContent}>
                               <div style={styles.lessonTitleSmall}>{lesson.title}</div>
                               {lesson.description && <div style={styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
                             </div>
-                            {/* ✅ زر مشاهدة الفيديو - يظهر لو فيه فيديو */}
+                            {/* ✅ زر مشاهدة الفيديو - يفتح الفيديو للدرس ده */}
                             {lesson.videoUrl && isValidVideoUrl(lesson.videoUrl) && (
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  handleWatchVideo(lesson)
+                                  setActiveLesson(lesson)
+                                  setShowVideo(true)
                                 }} 
                                 style={styles.watchButton}
                               >
@@ -545,18 +542,19 @@ export default function CoursePage() {
                     </div>
                     <div style={styles.directLessons}>
                       {directLessons.map((lesson: any, idx: number) => (
-                        <div key={lesson.id} onClick={() => setActiveLesson(lesson)} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
+                        <div key={lesson.id} onClick={() => { setActiveLesson(lesson); setShowVideo(true); }} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
                           <div style={styles.lessonNumber}>{idx + 1}</div>
                           <div style={styles.lessonContent}>
                             <div style={styles.lessonTitleSmall}>{lesson.title}</div>
                             {lesson.description && <div style={styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
                           </div>
-                          {/* ✅ زر مشاهدة الفيديو - يظهر لو فيه فيديو */}
+                          {/* ✅ زر مشاهدة الفيديو - يفتح الفيديو للدرس ده */}
                           {lesson.videoUrl && isValidVideoUrl(lesson.videoUrl) && (
                             <button 
                               onClick={(e) => {
                                 e.stopPropagation()
-                                handleWatchVideo(lesson)
+                                setActiveLesson(lesson)
+                                setShowVideo(true)
                               }} 
                               style={styles.watchButton}
                             >
@@ -633,7 +631,7 @@ const styles: any = {
   emptyText: { fontSize: '16px', color: '#6b7280', marginBottom: '30px' },
   // ✅ تعديل: العرض للشاشات الكبيرة
   content: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' },
-  // ✅ تعديل: العرض للشاشات الصغيرة (فيديو فوق ودروس تحت) - من غير ما نلمس الفيديو نفسه
+  // ✅ تعديل: العرض للشاشات الصغيرة (فيديو فوق ودروس تحت)
   contentMobile: { display: 'flex', flexDirection: 'column', gap: '30px' },
   
   videoSection: { display: 'flex', flexDirection: 'column', gap: '25px' },
@@ -689,13 +687,11 @@ const styles: any = {
   lessonContent: { flex: 1, minWidth: '120px' },
   lessonTitleSmall: { fontSize: '15px', fontWeight: '600', color: '#1f2937', marginBottom: '4px' },
   lessonDescSmall: { fontSize: '12px', color: '#6b7280' },
-  // ✅ أزرار جديدة
   watchButton: { padding: '6px 14px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap' },
   examButton: { padding: '6px 14px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', textDecoration: 'none', whiteSpace: 'nowrap' },
   supportSection: { background: 'white', padding: '25px', borderRadius: '12px', textAlign: 'center' },
   supportTitle: { fontSize: '20px', fontWeight: '600', color: '#1f2937', marginBottom: '15px' },
   supportButtons: { display: 'flex', flexDirection: 'column', gap: '15px' },
-  // ✅ حافظنا على المساعد الذكي وضفنا واتساب بدل التيجرام
   botButton: { padding: '15px', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)' },
   whatsappButton: { padding: '15px', background: '#25D366', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center' },
   whatsappSupportButton: { padding: '15px', background: '#25D366', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center', boxShadow: '0 4px 15px rgba(37, 211, 102, 0.4)' },
