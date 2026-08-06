@@ -41,7 +41,7 @@ export default function CoursePage() {
 
   // ✅ تعديل: شيلنا التيجرام بس، خلي المساعد الذكي وواتساب
   const SUPPORT_LINKS = {
-    whatsapp: "https://wa.me/message/UKASWZCU5BNLN1"
+    whatsapp: "https://wa.me/+201210136240"
   }
 
   useEffect(() => {
