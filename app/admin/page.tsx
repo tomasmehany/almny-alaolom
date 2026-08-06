@@ -9,8 +9,8 @@ import {
 import Link from 'next/link'
 
 // بيانات تسجيل الدخول - حسب طلبك
-const ADMIN_EMAIL = "tomasmehany@almny"
-const ADMIN_PASSWORD = "Tomasmehany@2009"
+const ADMIN_EMAIL = "Mr@almny"
+const ADMIN_PASSWORD = "MrBeshoy123"
 const AUTH_KEY = 'admin_authenticated'
 
 export default function AdminPage() {
@@ -115,10 +115,7 @@ export default function AdminPage() {
     { id: 'students', name: 'الطلاب', icon: '👨‍🎓' },
     { id: 'courses', name: 'الكورسات', icon: '📚' },
     { id: 'open-course', name: 'فتح كورس', icon: '🎓' },
-    { id: 'videos', name: 'الفيديوهات', icon: '🎬' },
-    { id: 'upgrade', name: 'ترقية المراحل', icon: '🚀' },
-    { id: 'teacher-logs', name: 'سجل المعلمين', icon: '👨‍🏫' },
-    { id: 'settings', name: 'الإعدادات', icon: '⚙️' }
+    { id: 'videos', name: 'الفيديوهات والدروس', icon: '🎬' },
   ]
   
   return (
@@ -157,15 +154,6 @@ export default function AdminPage() {
           <Link href="/admin/send-notification" style={styles.notificationButton}>
             🔔 إشعارات
           </Link>
-          <Link href="/admin/bot-monitor" style={styles.botMonitorButton}>
-            🤖 مراقبة البوت
-          </Link>
-          <Link href="/admin/support-chat" style={styles.supportChatButton}>
-            💬 رسائل الدعم
-          </Link>
-          <Link href="/platform" style={styles.backButton}>
-            ← عرض المنصة
-          </Link>
           <Link href="/admin/open-course" style={styles.specialButton}>
             🎓 فتح كورس لطالب
           </Link>
@@ -178,20 +166,20 @@ export default function AdminPage() {
             <h2 style={styles.tabTitle}>🏠 لوحة التحكم الرئيسية</h2>
             <div style={styles.statsGrid}>
               <div style={styles.statCard}>
-                <div style={styles.statNumber}>0</div>
+                <div style={styles.statNumber}>.</div>
                 <div style={styles.statLabel}>طلاب مفعلين</div>
               </div>
               <div style={styles.statCard}>
-                <div style={styles.statNumber}>0</div>
+                <div style={styles.statNumber}>.</div>
                 <div style={styles.statLabel}>كورسات</div>
               </div>
               <div style={styles.statCard}>
-                <div style={styles.statNumber}>0</div>
+                <div style={styles.statNumber}>.</div>
                 <div style={styles.statLabel}>دروس</div>
               </div>
               <div style={styles.statCard}>
-                <div style={styles.statNumber}>0 ج.م</div>
-                <div style={styles.statLabel}>إجمالي الإيرادات</div>
+                <div style={styles.statNumber}>.</div>
+                <div style={styles.statLabel}>إجمالي </div>
               </div>
             </div>
           </div>
@@ -1678,10 +1666,10 @@ function OpenCourseTab() {
         <div>
           <h3 style={styles.redirectTitle}>صفحة فتح الكورس</h3>
           <p style={styles.redirectText}>
-            هذه الصفحة تحتوي على أدوات متقدمة لفتح الكورسات للطلاب بشكل فردي أو جماعي.
+             الصفحة دي فيها أدوات لفتح الكورسات للطلاب بشكل فردي أو جماعي.
           </p>
           <Link href="/admin/open-course" style={styles.redirectButton}>
-            الذهاب لصفحة فتح الكورس المتقدمة →
+            الذهاب لصفحة فتح الكورسات→
           </Link>
         </div>
       </div>
@@ -1718,12 +1706,12 @@ function OpenCourseTab() {
 function VideosTab() {
   return (
     <div style={styles.tabContent}>
-      <h2 style={styles.tabTitle}>🎬 إدارة الفيديوهات</h2>
+      <h2 style={styles.tabTitle}>🎬 إدارة الفيديوهات والدروس</h2>
       <p>هنا يمكنك إضافة الدروس والفيديوهات للكورسات</p>
       
       <div style={styles.videosSection}>
         <div style={styles.videoCard}>
-          <h3>📹 إدارة الفيديوهات الكاملة</h3>
+          <h3>📹 إدارة الفيديوهات والدروس الكاملة</h3>
           <p>لإضافة وتعديل وحذف الدروس والفيديوهات بشكل متقدم</p>
           <Link href="/admin/videos" style={styles.linkButton}>
             الذهاب لصفحة الفيديوهات الكاملة →
@@ -1731,10 +1719,10 @@ function VideosTab() {
         </div>
         
         <div style={styles.videoCard}>
-          <h3>🎥 إضافة فيديو سريع</h3>
-          <p>إضافة فيديو جديد لأي كورس</p>
+          <h3>🎥 اعلانات</h3>
+          <p>غير متاح  حاليا</p>
           <button style={styles.quickAddButton}>
-            ➕ إضافة فيديو جديد
+            .
           </button>
         </div>
       </div>
