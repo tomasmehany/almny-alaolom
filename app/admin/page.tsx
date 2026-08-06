@@ -60,7 +60,7 @@ export default function AdminPage() {
         <div style={styles.loginCard}>
           <div style={styles.loginHeader}>
             <h1 style={styles.loginTitle}>👨‍💼 دخول الأدمن</h1>
-            <p style={styles.loginSubtitle}>منصة علمني العلوم - توماس مهني</p>
+            <p style={styles.loginSubtitle}>منصة علمني العلوم -</p>
           </div>
 
           <form onSubmit={handleLogin} style={styles.loginForm}>
