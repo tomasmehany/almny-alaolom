@@ -338,9 +338,9 @@ export default function Home() {
                 fontSize: isMobile ? '18px' : '22px'
               }}>المرحلة الثانوية</h3>
               <div style={styles.courseDetails}>
-                <span>📕 الصف الأول الثانوي - علوم متكاملة</span>
-                <span>⚗️ الصف الثاني الثانوي - كيمياء + فيزياء</span>
-                <span>📓 الصف الثالث الثانوي</span>
+                <span>📕 الصف الأول الثانوي</span>
+                <span>⚗️ الصف الثاني الثانوي - كيمياء</span>
+                <span>⚛️ الصف الثاني الثانوي - فيزياء</span>
               </div>
               <button 
                 style={styles.courseButton}
@@ -385,7 +385,7 @@ export default function Home() {
                 fontSize: isMobile ? '13px' : '14px',
                 width: isMobile ? '100%' : 'auto'
               }}
-              onClick={() => window.open('https://wa.me/message/UKASWZCU5BNLN1?src=qr', '_blank')}
+              onClick={() => window.open('https://wa.me/+201210136240', '_blank')}
             >
               📱 تواصل عبر واتساب
             </button>
@@ -441,7 +441,7 @@ export default function Home() {
               </button>
               <button 
                 style={styles.footerLink}
-                onClick={() => window.open('https://wa.me/message/UKASWZCU5BNLN1?src=qr', '_blank')}
+                onClick={() => window.open('https://wa.me/+201210136240', '_blank')}
               >
                 الادمن
               </button>
