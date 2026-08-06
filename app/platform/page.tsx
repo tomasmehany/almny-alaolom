@@ -4,13 +4,6 @@ import Link from 'next/link'
 import { db } from '@/lib/firebase'
 import { collection, getDocs, query, where, getDoc, doc } from 'firebase/firestore'
 import NotificationsPanel from '@/app/components/NotificationsPanel'
-import {
-  getDeviceId,
-  saveDeviceId,
-  generateDeviceId,
-  getDeviceFingerprint,
-  validateDeviceAccess
-} from '@/utils/deviceManager'
 
 export default function PlatformPage() {
   const [user, setUser] = useState<any>(null)
@@ -24,7 +17,6 @@ export default function PlatformPage() {
   const [fetchError, setFetchError] = useState<string | null>(null)
   const [impersonatedStudentId, setImpersonatedStudentId] = useState(null)
   const [impersonatedStudent, setImpersonatedStudent] = useState(null)
-  const [deviceError, setDeviceError] = useState<string | null>(null)
   const [stats, setStats] = useState({
     total: 0,
     opened: 0,
@@ -32,9 +24,10 @@ export default function PlatformPage() {
     progress: 0
   })
   
+  // تأثير اختفاء الهيدر
   const [headerOpacity, setHeaderOpacity] = useState(1)
 
-  const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
+  const whatsappLink = 'https://wa.me/+201210136240'
 
   useEffect(() => {
     const checkMobile = () => {
@@ -50,6 +43,7 @@ export default function PlatformPage() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // تأثير التمرير على الهيدر
   useEffect(() => {
     if (!isMobile) return;
     
@@ -87,6 +81,7 @@ export default function PlatformPage() {
         
         // لو في وضع معلم، جيب بيانات الطالب
         if (isImpersonating && targetUserId) {
+          // جيب بيانات الطالب من Firebase
           const userDoc = await getDoc(doc(db, "users", targetUserId));
           if (userDoc.exists()) {
             const studentData = userDoc.data();
@@ -126,26 +121,6 @@ export default function PlatformPage() {
         }
 
         setUserId(userId);
-
-        // ✅ التحقق من الجهاز
-        const deviceId = getDeviceId();
-        if (!deviceId) {
-          const newDeviceId = generateDeviceId();
-          saveDeviceId(newDeviceId);
-        }
-
-        const fingerprintData = await getDeviceFingerprint();
-        const validation = await validateDeviceAccess(
-          userId,
-          getDeviceId(),
-          fingerprintData.fingerprint
-        );
-
-        if (!validation.allowed) {
-          setDeviceError(validation.message);
-          setLoading(false);
-          return;
-        }
 
         if (parsedUser.grade && !parsedUser.year) {
           parsedUser.year = parsedUser.grade;
@@ -254,11 +229,7 @@ export default function PlatformPage() {
       'ثانية ثانوي': '2-secondary',
       'ثانيه ثانوي': '2-secondary',
       'الصف الثاني الثانوي': '2-secondary',
-      '2-secondary': '2-secondary',
-      'ثالثة ثانوي': '3-secondary',
-      'ثالثه ثانوي': '3-secondary',
-      'الصف الثالث الثانوي': '3-secondary',
-      '3-secondary': '3-secondary'
+      '2-secondary': '2-secondary'
     }
     
     return yearMap[yearName] || yearName
@@ -271,7 +242,6 @@ export default function PlatformPage() {
       '3-prep': 'ثالثة إعدادي',
       '1-secondary': 'أولى ثانوي',
       '2-secondary': 'ثانية ثانوي',
-      '3-secondary': 'ثالثة ثانوي',
       'first-prep': 'أولى إعدادي',
       'second-prep': 'ثانية إعدادي',
       'third-prep': 'ثالثة إعدادي',
@@ -279,15 +249,14 @@ export default function PlatformPage() {
       'ثانية إعدادي': 'ثانية إعدادي',
       'ثالثة إعدادي': 'ثالثة إعدادي',
       'أولى ثانوي': 'أولى ثانوي',
-      'ثانية ثانوي': 'ثانية ثانوي',
-      'ثالثة ثانوي': 'ثالثة ثانوي'
+      'ثانية ثانوي': 'ثانية ثانوي'
     }
     
     return yearMap[yearCode] || yearCode || 'غير محدد'
   }
 
   const categorizeCourses = () => {
-    if (userYear !== 'ثانية ثانوي' && userYear !== 'ثالثة ثانوي') {
+    if (userYear !== 'ثانية ثانوي') {
       return null
     }
     
@@ -309,7 +278,7 @@ export default function PlatformPage() {
   }
   
   const getDisplayedCourses = () => {
-    if ((userYear !== 'ثانية ثانوي' && userYear !== 'ثالثة ثانوي') || activeCategory === 'all') {
+    if (userYear !== 'ثانية ثانوي' || activeCategory === 'all') {
       return courses
     }
     
@@ -318,7 +287,7 @@ export default function PlatformPage() {
   }
   
   const getCategoryStats = () => {
-    if (userYear !== 'ثانية ثانوي' && userYear !== 'ثالثة ثانوي') return null
+    if (userYear !== 'ثانية ثانوي') return null
     
     const categories = categorizeCourses()
     if (!categories) return null
@@ -335,21 +304,6 @@ export default function PlatformPage() {
       <div style={styles.loadingContainer}>
         <div style={styles.loadingSpinner}></div>
         <p style={styles.loadingText}>جاري تحميل المنصة...</p>
-      </div>
-    )
-  }
-
-  if (deviceError) {
-    return (
-      <div style={styles.loadingContainer}>
-        <div style={styles.lockIcon}>🔒</div>
-        <p style={styles.loadingText}>{deviceError}</p>
-        <p style={styles.errorText}>
-          هذا الجهاز غير مسجل للحساب. يرجى التواصل مع الأدمن لإضافته.
-        </p>
-        <Link href="/login" style={styles.loginLink}>
-          العودة لتسجيل الدخول
-        </Link>
       </div>
     )
   }
@@ -443,7 +397,7 @@ export default function PlatformPage() {
         return null;
       })()}
 
-      {/* زر القائمة الثابت */}
+      {/* زر القائمة الثابت المنفصل - يظهر فقط على الموبايل وعندما يختفي الهيدر */}
       {isMobile && headerOpacity < 0.2 && (
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -549,7 +503,7 @@ export default function PlatformPage() {
                 </div>
               </div>
 
-              {(userYear === 'ثانية ثانوي' || userYear === 'ثالثة ثانوي') && categoryStats && (
+              {userYear === 'ثانية ثانوي' && categoryStats && (
                 <div style={styles.foldersCard}>
                   <h4 style={styles.foldersTitle}>فولدرات المواد</h4>
                   <button
@@ -658,7 +612,7 @@ export default function PlatformPage() {
                 مرحباً {user.name} 👋
               </h2>
               <p style={isMobile ? styles.welcomeTextMobile : styles.welcomeText}>
-                {(userYear === 'ثانية ثانوي' || userYear === 'ثالثة ثانوي') 
+                {userYear === 'ثانية ثانوي' 
                   ? 'يعرض هنا كورسات الكيمياء والفيزياء حسب المادة'
                   : `هذه هي الكورسات المتاحة لسنتك الدراسية (${userYear})`
                 }
@@ -666,7 +620,7 @@ export default function PlatformPage() {
             </div>
           </div>
 
-          {(userYear === 'ثانية ثانوي' || userYear === 'ثالثة ثانوي') && (
+          {userYear === 'ثانية ثانوي' && (
             <div style={isMobile ? styles.categoriesBarMobile : styles.categoriesBar}>
               <button
                 onClick={() => setActiveCategory('all')}
@@ -716,13 +670,13 @@ export default function PlatformPage() {
             <div style={styles.emptyState}>
               <div style={styles.emptyIcon}>📭</div>
               <h3 style={styles.emptyTitle}>
-                {(userYear === 'ثانية ثانوي' || userYear === 'ثالثة ثانوي') && activeCategory !== 'all'
+                {userYear === 'ثانية ثانوي' && activeCategory !== 'all'
                   ? `لا توجد كورسات في ${activeCategory}`
                   : 'لا توجد كورسات متاحة'
                 }
               </h3>
               <p style={styles.emptyText}>
-                {(userYear === 'ثانية ثانوي' || userYear === 'ثالثة ثانوي') && activeCategory !== 'all'
+                {userYear === 'ثانية ثانوي' && activeCategory !== 'all'
                   ? 'سيتم إضافة كورسات قريباً'
                   : 'يمكنك التواصل مع الدعم لمعرفة المزيد'
                 }
@@ -807,6 +761,7 @@ export default function PlatformPage() {
         </div>
       </footer>
 
+      {/* ✅ زر المساعد الذكي العائم فقط */}
       <div style={isMobile ? styles.floatingButtonsMobile : styles.floatingButtons}>
         <Link 
           href="/bot"
