@@ -1,10 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -15,182 +13,25 @@ export default function RegisterPage() {
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [userType, setUserType] = useState('student');
-  const [children, setChildren] = useState([{ name: '' }]);
-  const [countryCode, setCountryCode] = useState('+20');
-  const [phoneError, setPhoneError] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const [grades, setGrades] = useState([]);
-  const [useLocalGrades, setUseLocalGrades] = useState(true);
-  const [gradeType, setGradeType] = useState('egyptian'); // egyptian / gulf
-
-  const countries = [
-    { code: '+20', name: '🇪🇬 مصر', digits: 10 },
-    { code: '+966', name: '🇸🇦 السعودية', digits: 9 },
-    { code: '+971', name: '🇦🇪 الإمارات', digits: 9 },
-    { code: '+962', name: '🇯🇴 الأردن', digits: 9 },
-    { code: '+961', name: '🇱🇧 لبنان', digits: 8 },
-    { code: '+970', name: '🇵🇸 فلسطين', digits: 9 },
-    { code: '+963', name: '🇸🇾 سوريا', digits: 9 },
-    { code: '+964', name: '🇮🇶 العراق', digits: 10 },
-    { code: '+965', name: '🇰🇼 الكويت', digits: 8 },
-    { code: '+974', name: '🇶🇦 قطر', digits: 8 },
-    { code: '+968', name: '🇴🇲 عُمان', digits: 8 },
-    { code: '+973', name: '🇧🇭 البحرين', digits: 8 },
-    { code: '+218', name: '🇱🇾 ليبيا', digits: 10 },
-    { code: '+216', name: '🇹🇳 تونس', digits: 8 },
-    { code: '+213', name: '🇩🇿 الجزائر', digits: 9 },
-    { code: '+212', name: '🇲🇦 المغرب', digits: 9 },
-    { code: '+222', name: '🇲🇷 موريتانيا', digits: 8 },
-    { code: '+249', name: '🇸🇩 السودان', digits: 9 },
-    { code: '+252', name: '🇸🇴 الصومال', digits: 8 },
-    { code: '+967', name: '🇾🇪 اليمن', digits: 9 },
-  ];
-
-  // ===== قائمة المراحل المحلية (المصرية والخليجية) =====
-  const localGrades = [
-    // ===== النظام المصري =====
-    { id: '1-primary-egy', name: 'الصف الأول الابتدائي', stage: 'primary', order: 1, icon: '📘', type: 'egyptian' },
-    { id: '2-primary-egy', name: 'الصف الثاني الابتدائي', stage: 'primary', order: 2, icon: '📗', type: 'egyptian' },
-    { id: '3-primary-egy', name: 'الصف الثالث الابتدائي', stage: 'primary', order: 3, icon: '📕', type: 'egyptian' },
-    { id: '4-primary-egy', name: 'الصف الرابع الابتدائي', stage: 'primary', order: 4, icon: '📙', type: 'egyptian' },
-    { id: '5-primary-egy', name: 'الصف الخامس الابتدائي', stage: 'primary', order: 5, icon: '📔', type: 'egyptian' },
-    { id: '6-primary-egy', name: 'الصف السادس الابتدائي', stage: 'primary', order: 6, icon: '📒', type: 'egyptian' },
-    { id: '1-prep-egy', name: 'الصف الأول الإعدادي', stage: 'prep', order: 7, icon: '📘', type: 'egyptian' },
-    { id: '2-prep-egy', name: 'الصف الثاني الإعدادي', stage: 'prep', order: 8, icon: '📗', type: 'egyptian' },
-    { id: '3-prep-egy', name: 'الصف الثالث الإعدادي', stage: 'prep', order: 9, icon: '📕', type: 'egyptian' },
-    { id: '1-secondary-egy', name: 'الصف الأول الثانوي', stage: 'secondary', order: 10, icon: '📙', type: 'egyptian' },
-    { id: '2-secondary-egy', name: 'الصف الثاني الثانوي', stage: 'secondary', order: 11, icon: '📔', type: 'egyptian' },
-    { id: '3-secondary-egy', name: 'الصف الثالث الثانوي', stage: 'secondary', order: 12, icon: '📒', type: 'egyptian' },
-
-    // ===== النظام الخليجي (السعودي) =====
-    { id: '1-primary-gulf', name: 'الصف الأول الابتدائي', stage: 'primary', order: 1, icon: '📘', type: 'gulf' },
-    { id: '2-primary-gulf', name: 'الصف الثاني الابتدائي', stage: 'primary', order: 2, icon: '📗', type: 'gulf' },
-    { id: '3-primary-gulf', name: 'الصف الثالث الابتدائي', stage: 'primary', order: 3, icon: '📕', type: 'gulf' },
-    { id: '4-primary-gulf', name: 'الصف الرابع الابتدائي', stage: 'primary', order: 4, icon: '📙', type: 'gulf' },
-    { id: '5-primary-gulf', name: 'الصف الخامس الابتدائي', stage: 'primary', order: 5, icon: '📔', type: 'gulf' },
-    { id: '6-primary-gulf', name: 'الصف السادس الابتدائي', stage: 'primary', order: 6, icon: '📒', type: 'gulf' },
-    { id: '1-intermediate-gulf', name: 'الصف الأول المتوسط', stage: 'intermediate', order: 7, icon: '📘', type: 'gulf' },
-    { id: '2-intermediate-gulf', name: 'الصف الثاني المتوسط', stage: 'intermediate', order: 8, icon: '📗', type: 'gulf' },
-    { id: '3-intermediate-gulf', name: 'الصف الثالث المتوسط', stage: 'intermediate', order: 9, icon: '📕', type: 'gulf' },
-    { id: '1-secondary-gulf', name: 'الصف الأول الثانوي', stage: 'secondary', order: 10, icon: '📙', type: 'gulf' },
-    { id: '2-secondary-gulf', name: 'الصف الثاني الثانوي', stage: 'secondary', order: 11, icon: '📔', type: 'gulf' },
-    { id: '3-secondary-gulf', name: 'الصف الثالث الثانوي', stage: 'secondary', order: 12, icon: '📒', type: 'gulf' },
-  ];
 
   useEffect(() => {
     setMounted(true);
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
-    // ===== محاولة جلب المراحل من Firebase =====
-    const fetchGrades = async () => {
-      try {
-        const { db } = await import('@/lib/firebase');
-        const { collection, getDocs, query, orderBy } = await import('firebase/firestore');
-        
-        const gradesRef = collection(db, 'grades');
-        const q = query(gradesRef, orderBy('order'));
-        const snapshot = await getDocs(q);
-        
-        if (!snapshot.empty) {
-          const gradesData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setGrades(gradesData);
-          setUseLocalGrades(false);
-          console.log('✅ تم جلب المراحل من Firebase');
-        } else {
-          console.log('⚠️ لا توجد مراحل في Firebase، سيتم استخدام المراحل المحلية');
-          setGrades(localGrades);
-          setUseLocalGrades(true);
-        }
-      } catch (error) {
-        console.log('❌ خطأ في جلب المراحل من Firebase، سيتم استخدام المراحل المحلية:', error);
-        setGrades(localGrades);
-        setUseLocalGrades(true);
-      }
-    };
-
-    fetchGrades();
     
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const getCountryDigits = (code: string) => {
-    const country = countries.find(c => c.code === code);
-    return country ? country.digits : 10;
-  };
-
-  const validatePhone = (value: string) => {
-    const digits = getCountryDigits(countryCode);
-    const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length === 0) {
-      setPhoneError('');
-      return true;
-    }
-    if (cleaned.length < digits) {
-      setPhoneError(`⚠️ يجب أن يكون ${digits} أرقام (الحالي: ${cleaned.length})`);
-      return false;
-    }
-    if (cleaned.length > digits) {
-      setPhoneError(`⚠️ لا يزيد عن ${digits} أرقام (الحالي: ${cleaned.length})`);
-      return false;
-    }
-    setPhoneError('');
-    return true;
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const cleaned = e.target.value.replace(/\D/g, '');
-    const digits = getCountryDigits(countryCode);
-    if (cleaned.length <= digits) {
-      setPhoneValue(cleaned);
-      e.target.value = cleaned;
-      validatePhone(cleaned);
-    }
-  };
-
-  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newCode = e.target.value;
-    setCountryCode(newCode);
-    setPhoneValue('');
-    setPhoneError('');
-    const phoneInput = document.querySelector('input[name="phone"]') as HTMLInputElement;
-    if (phoneInput) phoneInput.value = '';
-  };
-
-  const addChild = () => {
-    setChildren([...children, { name: '' }]);
-  };
-
-  const removeChild = (index: number) => {
-    if (children.length > 1) {
-      const newChildren = children.filter((_, i) => i !== index);
-      setChildren(newChildren);
-    }
-  };
-
-  const updateChild = (index: number, field: string, value: string) => {
-    const newChildren = [...children];
-    newChildren[index] = { ...newChildren[index], [field]: value };
-    setChildren(newChildren);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (passwordValue !== confirmPassword) {
       setMessage('❌ كلمة السر غير متطابقة');
-      return;
-    }
-
-    const digits = getCountryDigits(countryCode);
-    const cleanedPhone = phoneValue.replace(/\D/g, '');
-    if (cleanedPhone.length !== digits) {
-      setPhoneError(`⚠️ يجب أن يكون ${digits} أرقام (الحالي: ${cleanedPhone.length})`);
-      setMessage(`❌ رقم الهاتف يجب أن يكون ${digits} أرقام`);
       return;
     }
 
@@ -199,132 +40,81 @@ export default function RegisterPage() {
 
     try {
       const { db } = await import('@/lib/firebase');
-      const { collection, addDoc, query, where, getDocs, updateDoc, doc } = await import('firebase/firestore');
+      const { collection, addDoc, query, where, getDocs } = await import('firebase/firestore');
 
       const form = e.target as HTMLFormElement;
       const nameInput = form.querySelector('[name="name"]') as HTMLInputElement;
-      const parentNameInput = form.querySelector('[name="parentName"]') as HTMLInputElement;
-      const parentPhoneInput = form.querySelector('[name="parentPhone"]') as HTMLInputElement;
+      const phoneInput = form.querySelector('[name="phone"]') as HTMLInputElement;
+      const gradeSelect = form.querySelector('[name="grade"]') as HTMLSelectElement;
+      const passwordInput = form.querySelector('[name="password"]') as HTMLInputElement;
 
-      const fullPhone = countryCode + cleanedPhone;
-
-      const userData: any = {
-        name: nameInput?.value || 'مستخدم',
-        phone: fullPhone,
-        countryCode: countryCode,
-        password: passwordValue,
-        role: userType,
-        status: userType === 'student' ? 'pending' : 'active',
-        points: 0,
-        level: 1,
-        xp: 0,
-        streak: 0,
-        createdAt: new Date().toISOString(),
-      };
-
-      if (userType === 'student') {
-        userData.grade = (form.querySelector('[name="grade"]') as HTMLSelectElement)?.value || '';
-        userData.gradeType = gradeType; // ✅ حفظ نوع النظام (مصري / خليجي)
-        userData.parentName = parentNameInput?.value || '';
-        userData.parentPhone = parentPhoneInput?.value || '';
-        userData.isApproved = false;
-      }
-
-      if (userType === 'parent') {
-        userData.parentName = parentNameInput?.value || '';
-        userData.children = children.filter(c => c.name.trim() !== '').map(c => c.name);
-        userData.parentPhone = fullPhone;
-        userData.isApproved = true;
-      }
-
-      if (userType === 'teacher') {
-        userData.isApproved = false;
-        userData.subject = '';
-        userData.grade = '';
-      }
+      const phone = phoneInput?.value || '0000000000';
 
       setMessage('🔍 جاري التحقق من رقم الهاتف...');
+
       const usersRef = collection(db, 'users');
-      const phoneQuery = query(usersRef, where('phone', '==', fullPhone));
+      const phoneQuery = query(usersRef, where('phone', '==', phone));
       const querySnapshot = await getDocs(phoneQuery);
 
       if (!querySnapshot.empty) {
         setMessage('❌ رقم الهاتف هذا مسجل بالفعل');
         setLoading(false);
+        if (phoneInput) {
+          phoneInput.style.borderColor = '#ef4444';
+          phoneInput.style.background = '#fee2e2';
+          setTimeout(() => {
+            phoneInput.style.borderColor = '#e5e7eb';
+            phoneInput.style.background = '#f9fafb';
+          }, 3000);
+        }
         return;
       }
 
       setMessage('🔄 جاري إنشاء الحساب...');
-      const docRef = await addDoc(collection(db, 'users'), userData);
-      const userId = docRef.id;
-      
-      setMessage('✅ تم التسجيل بنجاح! سيتم مراجعة طلبك من قبل الأدمن.');
-      
-      if (userType === 'student') {
-        const parentPhoneRaw = parentPhoneInput?.value || '';
-        const parentPhoneCleaned = parentPhoneRaw.replace(/\D/g, '');
-        const fullParentPhone = parentPhoneCleaned ? countryCode + parentPhoneCleaned : '';
-        
-        if (fullParentPhone) {
-          try {
-            const parentQuery = query(
-              collection(db, 'users'),
-              where('phone', '==', fullParentPhone),
-              where('role', '==', 'parent')
-            );
-            const parentSnapshot = await getDocs(parentQuery);
-            
-            if (!parentSnapshot.empty) {
-              const parentDoc = parentSnapshot.docs[0];
-              const parentData = parentDoc.data();
-              let childrenList = parentData.children || [];
-              
-              childrenList = childrenList.filter((child: any) => typeof child === 'string');
-              
-              if (!childrenList.includes(userId)) {
-                childrenList.push(userId);
-                await updateDoc(doc(db, 'users', parentDoc.id), {
-                  children: childrenList,
-                });
-                console.log(`✅ تم ربط الطالب ${userId} بولي الأمر ${parentDoc.id}`);
-                setMessage('✅ تم التسجيل وربط ولي الأمر بنجاح!');
-              }
-            } else {
-              console.log(`⚠️ لا يوجد ولي أمر برقم ${fullParentPhone}`);
-            }
-          } catch (linkError) {
-            console.error('❌ خطأ في ربط ولي الأمر:', linkError);
-          }
-        }
-      }
 
-      (e.target as HTMLFormElement).reset();
+      // ✅ إنشاء حساب المستخدم (من غير أي حاجة متعلقة بالأجهزة)
+      const userData = {
+        name: nameInput?.value || 'مستخدم',
+        phone: phone,
+        grade: gradeSelect?.value || 'غير محدد',
+        password: passwordInput?.value || '123456',
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      };
+
+      await addDoc(collection(db, 'users'), userData);
+
+      setMessage('✅ تم التسجيل بنجاح! سيتم مراجعة طلبك من قبل الأدمن.');
+      form.reset();
       setPhoneValue('');
       setPasswordValue('');
       setConfirmPassword('');
-      setChildren([{ name: '' }]);
 
       setTimeout(() => {
         setMessage('📞 سيتواصل معك الأدمن قريباً للتفعيل');
       }, 2000);
+      
     } catch (error: any) {
-      console.error('Firebase error:', error);
-      setMessage('❌ حدث خطأ في التسجيل');
+      console.error('❌ خطأ في التسجيل:', error);
+      setMessage('❌ حدث خطأ في التسجيل: ' + (error.message || 'يرجى المحاولة مرة أخرى'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cleaned = e.target.value.replace(/\D/g, '');
+    if (cleaned.length <= 11) {
+      setPhoneValue(cleaned);
+      e.target.value = cleaned;
     }
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
 
-  // ===== تصفية المراحل حسب النظام المختار =====
-  const getFilteredGrades = () => {
-    if (gradeType === 'egyptian') {
-      return localGrades.filter(g => g.type === 'egyptian');
-    } else {
-      return localGrades.filter(g => g.type === 'gulf');
-    }
+  const contactAdmin = () => {
+    window.open('https://wa.me/message/UKASWZCU5BNLN1?src=qr', '_blank');
   };
 
   useEffect(() => {
@@ -337,20 +127,19 @@ export default function RegisterPage() {
 
   if (!mounted) return null;
 
-  const filteredGrades = getFilteredGrades();
-
   return (
     <div style={styles.container}>
       <div style={styles.background}></div>
       <div style={styles.backgroundOverlay}></div>
-
+      
       <div style={isMobile ? styles.contentMobile : styles.content}>
+        {/* ========== الجهة اليمنى ========== */}
         <div style={isMobile ? styles.rightPanelMobile : styles.rightPanel}>
           <div style={styles.imageWrapper}>
             <div style={styles.imageContainer}>
-              <img
-                src="/images/boy-register.png"
-                alt="Student"
+              <img 
+                src="/images/boy-register.png" 
+                alt="Student" 
                 style={styles.image}
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
@@ -358,321 +147,97 @@ export default function RegisterPage() {
                 <span style={styles.fallbackIcon}>👨‍🎓</span>
               </div>
             </div>
-
+            
             <div style={styles.welcomeText}>
               <h2 style={styles.welcomeTitle}>مرحباً بك في</h2>
-              <h1 style={styles.platformName}>Fancy Academy</h1>
-              <p style={styles.welcomeMessage}>منصة التعليم الذكية</p>
+              <h1 style={styles.platformName}>علمني العلوم</h1>
+              <p style={styles.welcomeMessage}>مع مستر بيشوي، رحلتك نحو التفوق تبدأ من هنا</p>
             </div>
 
             {!isMobile && (
               <div style={styles.rightPanelLinks}>
-                <a 
-                  href="https://wa.me/201080217436" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  style={{...styles.rightLink, ...styles.greenButton}}
-                >
+                <button type="button" onClick={contactAdmin} style={{...styles.rightLink, ...styles.greenButton}}>
                   <span style={styles.linkIcon}>💬</span>
-                  <span>تواصل مع الدعم</span>
-                </a>
+                  <span>تواصل مع الادمن عبر واتساب</span>
+                </button>
+
                 <Link href="/" style={{...styles.rightLink, ...styles.whiteButton}}>
                   <span style={styles.linkIcon}>🏠</span>
-                  <span>الصفحة الرئيسية</span>
+                  <span>العودة للصفحة الرئيسية</span>
                 </Link>
               </div>
             )}
           </div>
         </div>
 
+        {/* ========== الجهة اليسرى ========== */}
         <div style={isMobile ? styles.leftPanelMobile : styles.leftPanel}>
           <div style={styles.formCard}>
             <div style={styles.formHeader}>
               <h2 style={styles.formTitle}>إنشاء حساب جديد</h2>
-              <p style={styles.formSubtitle}>اختر نوع الحساب وأدخل بياناتك</p>
+              <p style={styles.formSubtitle}>أدخل بياناتك للتسجيل في المنصة</p>
             </div>
 
             <form onSubmit={handleSubmit} style={styles.form}>
-              {/* نوع المستخدم */}
-              <div style={styles.inputGroup}>
-                <label style={styles.label}><span style={styles.labelIcon}>👤</span>نوع الحساب</label>
-                <div style={styles.userTypeContainer}>
-                  <button type="button" onClick={() => setUserType('student')} style={{...styles.userTypeBtn, ...(userType === 'student' ? styles.userTypeActive : {})}}>
-                    <span>👨‍🎓</span> طالب
-                  </button>
-                  <button type="button" onClick={() => setUserType('parent')} style={{...styles.userTypeBtn, ...(userType === 'parent' ? styles.userTypeActive : {})}}>
-                    <span>👨‍👦</span> ولي أمر
-                  </button>
-                  <button type="button" onClick={() => setUserType('teacher')} style={{...styles.userTypeBtn, ...(userType === 'teacher' ? styles.userTypeActive : {})}}>
-                    <span>👨‍🏫</span> مدرس
-                  </button>
-                </div>
-              </div>
-
-              {/* الاسم */}
               <div style={styles.inputGroup}>
                 <label style={styles.label}><span style={styles.labelIcon}>👤</span>الاسم بالكامل</label>
                 <input type="text" name="name" placeholder="أدخل اسمك الثلاثي" required style={styles.input} />
               </div>
 
-              {/* رقم الهاتف */}
               <div style={styles.inputGroup}>
-                <label style={styles.label}><span style={styles.labelIcon}>📱</span>رقم الهاتف <span style={styles.required}>*</span></label>
-                <div style={styles.phoneWrapper}>
-                  <div style={styles.phoneInputContainer}>
-                    <select
-                      value={countryCode}
-                      onChange={handleCountryChange}
-                      style={styles.countrySelect}
-                    >
-                      {countries.map((country) => (
-                        <option key={country.code} value={country.code}>
-                          {country.code}
-                        </option>
-                      ))}
-                    </select>
-                    <span style={styles.countrySeparator}>|</span>
-                    <input
-                      type="tel"
-                      name="phone"
-                      placeholder={`${getCountryDigits(countryCode)} أرقام`}
-                      required
-                      value={phoneValue}
-                      onChange={handlePhoneChange}
-                      onFocus={() => setIsFocused(true)}
-                      onBlur={() => setIsFocused(false)}
-                      style={{
-                        ...styles.phoneInput,
-                        borderColor: phoneError ? '#ef4444' : isFocused ? '#8b5cf6' : 'rgba(255,255,255,0.15)',
-                        boxShadow: isFocused ? '0 0 0 3px rgba(139, 92, 246, 0.15)' : 'none',
-                      }}
-                      dir="ltr"
-                    />
-                  </div>
-                  {phoneError && (
-                    <span style={styles.phoneErrorText}>{phoneError}</span>
-                  )}
-                </div>
-                <div style={styles.phoneHelper}>
-                  <span style={styles.helperFlag}>🌍</span>
-                  <span style={styles.helperText}>
-                    {countries.find(c => c.code === countryCode)?.name} • {getCountryDigits(countryCode)} أرقام
-                  </span>
+                <label style={styles.label}><span style={styles.labelIcon}>📱</span>رقم التليفون<span style={styles.required}>*</span></label>
+                <input type="tel" name="phone" placeholder="01012345678" required minLength={11} maxLength={11} value={phoneValue} onChange={handlePhoneChange} style={styles.input} dir="ltr" />
+                <span style={styles.hint}>أدخل 11 رقم (مثال: 01012345678)</span>
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}><span style={styles.labelIcon}>📚</span>السنة الدراسية</label>
+                <div style={styles.selectWrapper}>
+                  <select name="grade" required style={styles.select}>
+                    <option value="" disabled selected>اختر مرحلتك الدراسية</option>
+                    <option value="1-prep">📘 الصف الأول الإعدادي</option>
+                    <option value="2-prep">📗 الصف الثاني الإعدادي</option>
+                    <option value="3-prep">📕 الصف الثالث الإعدادي</option>
+                    <option value="1-secondary">📙 الصف الأول الثانوي</option>
+                    <option value="2-secondary">📔 الصف الثاني الثانوي</option>
+                    <option value="3-secondary">📓 الصف الثالث الثانوي</option>
+                  </select>
+                  <span style={styles.selectArrow}>▼</span>
                 </div>
               </div>
 
-              {/* ===== طالب ===== */}
-              {userType === 'student' && (
-                <>
-                  {/* ✅ اختيار النظام (مصري / خليجي) */}
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}><span style={styles.labelIcon}>🌍</span>نظام التعليم</label>
-                    <div style={styles.userTypeContainer}>
-                      <button
-                        type="button"
-                        onClick={() => setGradeType('egyptian')}
-                        style={{
-                          ...styles.userTypeBtn,
-                          ...(gradeType === 'egyptian' ? styles.userTypeActive : {}),
-                        }}
-                      >
-                        🇪🇬 مصري
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setGradeType('gulf')}
-                        style={{
-                          ...styles.userTypeBtn,
-                          ...(gradeType === 'gulf' ? styles.userTypeActive : {}),
-                        }}
-                      >
-                        🇸🇦 خليجي
-                      </button>
-                    </div>
-                  </div>
-
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}><span style={styles.labelIcon}>📚</span>السنة الدراسية</label>
-                    <select name="grade" required style={styles.select}>
-                      <option value="" disabled selected>اختر مرحلتك الدراسية</option>
-                      
-                      {/* ===== عرض المراحل حسب النظام ===== */}
-                      {filteredGrades.map((grade: any) => (
-                        <option key={grade.id} value={grade.id}>
-                          {grade.icon} {grade.name}
-                          {grade.type === 'gulf' && ' 🇸🇦'}
-                        </option>
-                      ))}
-                    </select>
-                    
-                    {/* ===== رسالة توضح النظام ===== */}
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '4px', textAlign: 'left' }}>
-                      {gradeType === 'egyptian' ? '📌 النظام المصري' : '📌 النظام الخليجي'}
-                      {useLocalGrades ? ' (قائمة محلية)' : ' (من Firebase)'}
-                    </div>
-                  </div>
-                  
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}><span style={styles.labelIcon}>👨‍👦</span>ولي الأمر</label>
-                    <div style={styles.parentWrapper}>
-                      <div style={styles.parentRow}>
-                        <div style={styles.phoneInputContainer}>
-                          <select
-                            value={countryCode}
-                            onChange={handleCountryChange}
-                            style={styles.countrySelect}
-                          >
-                            {countries.map((country) => (
-                              <option key={country.code} value={country.code}>
-                                {country.code}
-                              </option>
-                            ))}
-                          </select>
-                          <span style={styles.countrySeparator}>|</span>
-                          <input
-                            type="tel"
-                            name="parentPhone"
-                            placeholder={`${getCountryDigits(countryCode)} أرقام`}
-                            style={styles.phoneInput}
-                            dir="ltr"
-                          />
-                        </div>
-                        <input
-                          type="text"
-                          name="parentName"
-                          placeholder="اسم ولي الأمر"
-                          style={styles.parentNameInput}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* ===== ولي أمر ===== */}
-              {userType === 'parent' && (
-                <>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}><span style={styles.labelIcon}>👤</span>اسم ولي الأمر</label>
-                    <input type="text" name="parentName" placeholder="أدخل اسمك كاملاً" required style={styles.input} />
-                  </div>
-                  
-                  <div style={styles.childrenSection}>
-                    <label style={styles.label}><span style={styles.labelIcon}>👦</span>أسماء الأبناء</label>
-                    {children.map((child, index) => (
-                      <div key={index} style={styles.childRow}>
-                        <input
-                          type="text"
-                          placeholder={`اسم الطالب ${index + 1}`}
-                          value={child.name}
-                          onChange={(e) => updateChild(index, 'name', e.target.value)}
-                          style={styles.childInputOnly}
-                        />
-                        {children.length > 1 && (
-                          <button type="button" onClick={() => removeChild(index)} style={styles.removeChildBtn}>✕</button>
-                        )}
-                      </div>
-                    ))}
-                    <button type="button" onClick={addChild} style={styles.addChildBtn}>➕ إضافة طالب آخر</button>
-                  </div>
-                </>
-              )}
-
-              {/* ===== مدرس ===== */}
-              {userType === 'teacher' && (
-                <div style={styles.infoBox}>
-                  <span style={styles.infoIcon}>ℹ️</span>
-                  <span style={styles.infoText}>سيتم إضافة المواد والمراحل لاحقاً من خلال لوحة التحكم</span>
-                </div>
-              )}
-
-              {/* كلمة السر */}
               <div style={styles.inputGroup}>
                 <label style={styles.label}><span style={styles.labelIcon}>🔐</span>كلمة السر</label>
                 <div style={styles.passwordWrapper}>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    placeholder="●●●●●●●●"
-                    required
-                    minLength={6}
-                    value={passwordValue}
-                    onChange={(e) => setPasswordValue(e.target.value)}
-                    style={styles.passwordInput}
-                  />
-                  <button type="button" onClick={togglePasswordVisibility} style={styles.passwordToggle}>
-                    {showPassword ? "🔒" : "👁️"}
-                  </button>
+                  <input type={showPassword ? "text" : "password"} name="password" placeholder="●●●●●●●●" required minLength={6} value={passwordValue} onChange={(e) => setPasswordValue(e.target.value)} style={styles.passwordInput} />
+                  <button type="button" onClick={togglePasswordVisibility} style={styles.passwordToggle}>{showPassword ? "🔒" : "👁️"}</button>
                 </div>
                 <div style={styles.passwordStrengthContainer}>
                   <div style={styles.passwordStrength}>
-                    <div style={{
-                      ...styles.strengthBar,
-                      width: passwordValue.length >= 6 ? '100%' : `${(passwordValue.length / 6) * 100}%`,
-                      background: passwordValue.length >= 6 ? '#10b981' : passwordValue.length >= 4 ? '#f59e0b' : passwordValue.length >= 2 ? '#ef4444' : 'rgba(255,255,255,0.1)'
-                    }}></div>
+                    <div style={{ ...styles.strengthBar, width: passwordValue.length >= 6 ? '100%' : `${(passwordValue.length / 6) * 100}%`, background: passwordValue.length >= 6 ? '#10b981' : passwordValue.length >= 4 ? '#f59e0b' : passwordValue.length >= 2 ? '#ef4444' : '#e5e7eb' }}></div>
                   </div>
                   <span style={styles.passwordHint}>لا تقل عن 6 أحرف</span>
                 </div>
               </div>
 
-              {/* تأكيد كلمة السر */}
               <div style={styles.inputGroup}>
                 <label style={styles.label}><span style={styles.labelIcon}>🔒</span>تأكيد كلمة السر</label>
                 <div style={styles.passwordWrapper}>
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="●●●●●●●●"
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    style={{
-                      ...styles.passwordInput,
-                      borderColor: !passwordMatch && confirmPassword.length > 0 ? '#ef4444' : 'rgba(255,255,255,0.15)',
-                      boxShadow: !passwordMatch && confirmPassword.length > 0 ? '0 0 0 3px rgba(239, 68, 68, 0.15)' : 'none',
-                    }}
-                  />
-                  <button type="button" onClick={toggleConfirmPasswordVisibility} style={styles.passwordToggle}>
-                    {showConfirmPassword ? "🔒" : "👁️"}
-                  </button>
+                  <input type={showConfirmPassword ? "text" : "password"} placeholder="●●●●●●●●" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} style={{ ...styles.passwordInput, borderColor: !passwordMatch && confirmPassword.length > 0 ? '#ef4444' : '#e5e7eb' }} />
+                  <button type="button" onClick={toggleConfirmPasswordVisibility} style={styles.passwordToggle}>{showConfirmPassword ? "🔒" : "👁️"}</button>
                 </div>
-                {!passwordMatch && confirmPassword.length > 0 && (
-                  <span style={styles.errorMessage}>كلمة السر غير متطابقة</span>
-                )}
+                <span style={styles.confirmHint}>أعد إدخال كلمة السر</span>
+                {!passwordMatch && confirmPassword.length > 0 && <span style={styles.errorMessage}>كلمة السر غير متطابقة</span>}
               </div>
 
-              {/* زر التسجيل */}
-              <button
-                type="submit"
-                style={{ ...styles.submitButton, ...(loading && styles.submitButtonLoading) }}
-                disabled={loading || !passwordMatch}
-              >
-                {loading ? (
-                  <span style={styles.buttonContent}>
-                    <span style={styles.spinner}></span>
-                    جاري إنشاء الحساب...
-                  </span>
-                ) : (
-                  <span style={styles.buttonContent}>
-                    <span>إنشاء حساب</span>
-                    <span style={styles.buttonArrow}>✦</span>
-                  </span>
-                )}
+              <button type="submit" style={{ ...styles.submitButton, ...(loading && styles.submitButtonLoading) }} disabled={loading || !passwordMatch}>
+                {loading ? <span style={styles.buttonContent}><span style={styles.spinner}></span>جاري إنشاء الحساب...</span> : <span style={styles.buttonContent}><span>إنشاء حساب جديد</span><span style={styles.buttonArrow}>←</span></span>}
               </button>
             </form>
 
             {message && (
-              <div style={{
-                ...styles.message,
-                ...(message.includes('✅') && styles.messageSuccess),
-                ...(message.includes('❌') && styles.messageError),
-                ...(message.includes('🔍') && styles.messageInfo),
-                ...(message.includes('🔄') && styles.messageInfo),
-                ...(message.includes('📞') && styles.messageSuccess)
-              }}>
-                <span style={styles.messageIcon}>
-                  {message.includes('✅') ? '✅' : message.includes('❌') ? '❌' : message.includes('🔍') ? '🔍' : message.includes('📞') ? '📞' : '🔄'}
-                </span>
+              <div style={{ ...styles.message, ...(message.includes('✅') && styles.messageSuccess), ...(message.includes('❌') && styles.messageError), ...(message.includes('🔍') && styles.messageInfo), ...(message.includes('🔄') && styles.messageInfo), ...(message.includes('📞') && styles.messageSuccess) }}>
+                <span style={styles.messageIcon}>{message.includes('✅') ? '✅' : message.includes('❌') ? '❌' : message.includes('🔍') ? '🔍' : message.includes('📞') ? '📞' : '🔄'}</span>
                 <span>{message}</span>
               </div>
             )}
@@ -689,18 +254,14 @@ export default function RegisterPage() {
 
       {isMobile && (
         <div style={styles.mobileLinks}>
-          <a 
-            href="https://wa.me/201080217436" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{...styles.mobileLink, ...styles.greenButtonMobile}}
-          >
+          <button type="button" onClick={contactAdmin} style={{...styles.mobileLink, ...styles.greenButtonMobile}}>
             <span style={styles.linkIcon}>💬</span>
-            <span>تواصل مع الدعم</span>
-          </a>
+            <span>تواصل مع الدعم عبر واتساب</span>
+          </button>
+
           <Link href="/" style={{...styles.mobileLink, ...styles.whiteButtonMobile}}>
             <span style={styles.linkIcon}>🏠</span>
-            <span>الصفحة الرئيسية</span>
+            <span>العودة للصفحة الرئيسية</span>
           </Link>
         </div>
       )}
@@ -710,60 +271,17 @@ export default function RegisterPage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        
-        select {
-          background-color: #1a1a2e !important;
-          color: white !important;
-        }
-        select option {
-          background-color: #1a1a2e !important;
-          color: white !important;
-          padding: 10px !important;
-        }
-        select option:hover {
-          background-color: #8b5cf6 !important;
-          color: white !important;
-        }
-        select:focus {
-          outline: 2px solid #8b5cf6 !important;
-        }
       `}</style>
     </div>
   );
 }
 
 const styles: any = {
-  container: {
-    minHeight: '100vh',
-    position: 'relative',
-    overflow: 'hidden',
-    fontFamily: '"Cairo", "Segoe UI", Tahoma, sans-serif',
-    direction: 'rtl',
-    background: 'linear-gradient(-45deg, #0a0a1a, #1a0a2e, #0d1b2a, #0a0a1a)',
-  },
-  background: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'linear-gradient(-45deg, #0a0a1a, #1a0a2e, #0d1b2a, #0a0a1a)',
-    backgroundSize: '400% 400%',
-    animation: 'gradientMove 20s ease infinite',
-    zIndex: 0,
-  },
-  backgroundOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 60%)',
-    zIndex: 1,
-  },
+  container: { minHeight: '100vh', position: 'relative', overflow: 'hidden', fontFamily: '"Cairo", "Segoe UI", Tahoma, sans-serif', direction: 'rtl' },
+  background: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(-45deg, #0b1120, #1a1f35, #1e1b4b, #0f172a)', backgroundSize: '400% 400%', animation: 'gradientMove 15s ease infinite', zIndex: 0 },
+  backgroundOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(circle at 30% 50%, rgba(37,99,235,0.15) 0%, transparent 60%)', zIndex: 1 },
   content: { position: 'relative', zIndex: 2, display: 'flex', minHeight: '100vh' },
   contentMobile: { position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', minHeight: '100vh' },
-
   rightPanel: { flex: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', position: 'relative', animation: 'fadeIn 0.8s ease-out' },
   rightPanelMobile: { flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative', animation: 'fadeIn 0.8s ease-out' },
   imageWrapper: { maxWidth: '600px', width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' },
@@ -775,290 +293,52 @@ const styles: any = {
   welcomeTitle: { fontSize: '28px', fontWeight: '600', marginBottom: '5px', opacity: 0.9 },
   platformName: { fontSize: '42px', fontWeight: '800', marginBottom: '15px', background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
   welcomeMessage: { fontSize: '18px', opacity: 0.8, lineHeight: 1.6 },
-
   rightPanelLinks: { display: 'flex', flexDirection: 'column', gap: '15px', width: '100%', maxWidth: '350px', marginTop: '20px' },
   mobileLinks: { position: 'relative', zIndex: 2, padding: '0 20px 30px 20px', display: 'flex', flexDirection: 'column', gap: '10px' },
   mobileLink: { width: '100%', padding: '14px', borderRadius: '50px', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.3s', border: 'none', cursor: 'pointer', textDecoration: 'none', boxSizing: 'border-box' },
-
   rightLink: { width: '100%', padding: '16px', borderRadius: '50px', fontSize: '16px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', transition: 'all 0.3s', border: 'none', cursor: 'pointer', textDecoration: 'none', boxSizing: 'border-box' },
-
   greenButton: { background: '#25D366', color: 'white', boxShadow: '0 5px 15px rgba(37, 211, 102, 0.3)' },
   greenButtonMobile: { background: '#25D366', color: 'white', boxShadow: '0 5px 15px rgba(37, 211, 102, 0.3)' },
-  whiteButton: { background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' },
-  whiteButtonMobile: { background: 'rgba(255,255,255,0.08)', color: 'white', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' },
+  whiteButton: { background: 'white', color: '#2563eb', border: '2px solid #2563eb' },
+  whiteButtonMobile: { background: 'white', color: '#2563eb', border: '2px solid #2563eb' },
   linkIcon: { fontSize: '18px' },
-
   leftPanel: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' },
   leftPanelMobile: { flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '0 20px 20px 20px' },
-  formCard: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    backdropFilter: 'blur(20px)',
-    borderRadius: '30px',
-    padding: '40px',
-    width: '100%',
-    maxWidth: '500px',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    boxShadow: '0 30px 60px rgba(0, 0, 0, 0.4)',
-    animation: 'fadeIn 0.8s ease-out 0.2s both',
-  },
+  formCard: { background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(20px)', borderRadius: '40px', padding: '40px', width: '100%', maxWidth: '500px', boxShadow: '0 30px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)', animation: 'fadeIn 0.8s ease-out 0.2s both' },
   formHeader: { textAlign: 'center', marginBottom: '30px' },
-  formTitle: { fontSize: '32px', fontWeight: '800', color: 'white', marginBottom: '5px' },
-  formSubtitle: { fontSize: '16px', color: 'rgba(255,255,255,0.6)' },
+  formTitle: { fontSize: '32px', fontWeight: '800', color: '#1f2937', marginBottom: '5px' },
+  formSubtitle: { fontSize: '16px', color: '#6b7280' },
   form: { display: 'flex', flexDirection: 'column', gap: '20px' },
   inputGroup: { marginBottom: '5px' },
-  label: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: '600', color: 'rgba(255,255,255,0.8)', fontSize: '14px' },
+  label: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' },
   labelIcon: { fontSize: '16px' },
   required: { color: '#ef4444', marginRight: '4px', fontSize: '16px' },
-
-  input: {
-    width: '100%',
-    padding: '14px 16px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: '16px',
-    fontSize: '15px',
-    transition: 'all 0.3s',
-    background: 'rgba(255,255,255,0.05)',
-    outline: 'none',
-    boxSizing: 'border-box',
-    color: 'white',
-  },
-
-  select: {
-    width: '100%',
-    padding: '14px 16px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: '16px',
-    fontSize: '15px',
-    transition: 'all 0.3s',
-    background: 'rgba(255,255,255,0.05)',
-    outline: 'none',
-    cursor: 'pointer',
-    appearance: 'none',
-    color: 'white',
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'left 16px center',
-    paddingLeft: '40px',
-  },
-
-  infoBox: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    padding: '12px 16px',
-    background: 'rgba(139, 92, 246, 0.08)',
-    border: '1px solid rgba(139, 92, 246, 0.15)',
-    borderRadius: '12px',
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: '14px',
-  },
-  infoIcon: {
-    fontSize: '18px',
-  },
-  infoText: {
-    fontSize: '14px',
-  },
-
+  input: { width: '100%', padding: '14px 16px', border: '2px solid #e5e7eb', borderRadius: '16px', fontSize: '15px', transition: 'all 0.3s', background: '#f9fafb', outline: 'none', boxSizing: 'border-box' },
+  hint: { display: 'block', fontSize: '12px', color: '#6b7280', marginTop: '6px' },
+  selectWrapper: { position: 'relative' },
+  select: { width: '100%', padding: '14px 16px', border: '2px solid #e5e7eb', borderRadius: '16px', fontSize: '15px', transition: 'all 0.3s', background: '#f9fafb', outline: 'none', cursor: 'pointer', appearance: 'none', color: '#1f2937' },
+  selectArrow: { position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', fontSize: '12px', pointerEvents: 'none' },
   passwordWrapper: { position: 'relative' },
-  passwordInput: {
-    width: '100%',
-    padding: '14px 45px 14px 16px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: '16px',
-    fontSize: '15px',
-    transition: 'all 0.3s',
-    background: 'rgba(255,255,255,0.05)',
-    outline: 'none',
-    boxSizing: 'border-box',
-    color: 'white',
-  },
-  passwordToggle: {
-    position: 'absolute',
-    left: '12px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '18px',
-    color: 'rgba(255,255,255,0.6)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  passwordInput: { width: '100%', padding: '14px 45px 14px 16px', border: '2px solid #e5e7eb', borderRadius: '16px', fontSize: '15px', transition: 'all 0.3s', background: '#f9fafb', outline: 'none', boxSizing: 'border-box' },
+  passwordToggle: { position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   passwordStrengthContainer: { marginTop: '8px' },
-  passwordStrength: { height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden', marginBottom: '4px' },
+  passwordStrength: { height: '4px', background: '#e5e7eb', borderRadius: '2px', overflow: 'hidden', marginBottom: '4px' },
   strengthBar: { height: '100%', transition: 'width 0.2s ease' },
-  passwordHint: { fontSize: '12px', color: 'rgba(255,255,255,0.4)', display: 'block' },
+  passwordHint: { fontSize: '12px', color: '#6b7280', display: 'block' },
+  confirmHint: { fontSize: '12px', color: '#6b7280', display: 'block', marginTop: '6px' },
   errorMessage: { display: 'block', fontSize: '12px', color: '#ef4444', marginTop: '6px' },
-
-  userTypeContainer: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
-  userTypeBtn: {
-    flex: 1,
-    padding: '10px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: '12px',
-    background: 'rgba(255,255,255,0.03)',
-    cursor: 'pointer',
-    fontWeight: '600',
-    fontSize: '14px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '6px',
-    transition: 'all 0.3s',
-    minWidth: '80px',
-    color: 'rgba(255,255,255,0.6)',
-  },
-  userTypeActive: {
-    borderColor: '#8b5cf6',
-    background: 'rgba(139, 92, 246, 0.15)',
-    color: '#a78bfa',
-    boxShadow: '0 0 30px rgba(139, 92, 246, 0.1)',
-  },
-
-  phoneWrapper: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  phoneInputContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: '16px',
-    overflow: 'hidden',
-    transition: 'all 0.3s',
-  },
-  countrySelect: {
-    padding: '14px 8px 14px 4px',
-    border: 'none',
-    background: 'transparent',
-    fontSize: '14px',
-    fontWeight: '600',
-    color: '#a78bfa',
-    outline: 'none',
-    cursor: 'pointer',
-    minWidth: '60px',
-    textAlign: 'center',
-  },
-  countrySeparator: {
-    color: 'rgba(255,255,255,0.15)',
-    fontSize: '18px',
-    fontWeight: '300',
-  },
-  phoneInput: {
-    flex: 1,
-    padding: '14px 12px',
-    border: 'none',
-    background: 'transparent',
-    fontSize: '15px',
-    outline: 'none',
-    color: 'white',
-    minWidth: '100px',
-  },
-  phoneErrorText: { display: 'block', fontSize: '11px', color: '#ef4444', marginTop: '4px', textAlign: 'right' },
-  phoneHelper: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    marginTop: '4px',
-  },
-  helperFlag: { fontSize: '14px' },
-  helperText: { fontSize: '12px', color: 'rgba(255,255,255,0.35)' },
-
-  parentWrapper: { display: 'flex', flexDirection: 'column', gap: '6px' },
-  parentRow: { display: 'flex', gap: '10px', alignItems: 'center' },
-  parentNameInput: {
-    flex: 1,
-    padding: '14px 16px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: '16px',
-    fontSize: '15px',
-    transition: 'all 0.3s',
-    background: 'rgba(255,255,255,0.05)',
-    outline: 'none',
-    color: 'white',
-  },
-
-  childrenSection: { marginBottom: '5px' },
-  childRow: { display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center', flexWrap: 'wrap' },
-  
-  childInputOnly: {
-    flex: 1,
-    padding: '10px 14px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: '12px',
-    fontSize: '14px',
-    background: 'rgba(255,255,255,0.05)',
-    outline: 'none',
-    color: 'white',
-    minWidth: '200px',
-  },
-  
-  childInput: {
-    flex: 1,
-    minWidth: '120px',
-    padding: '10px 14px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: '12px',
-    fontSize: '14px',
-    background: 'rgba(255,255,255,0.05)',
-    outline: 'none',
-    color: 'white',
-  },
-  childSelect: {
-    padding: '10px 14px',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: '12px',
-    fontSize: '14px',
-    background: 'rgba(255,255,255,0.05)',
-    outline: 'none',
-    cursor: 'pointer',
-    minWidth: '110px',
-    color: 'white',
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'left 12px center',
-    paddingLeft: '32px',
-  },
-  removeChildBtn: { padding: '8px 12px', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' },
-  addChildBtn: {
-    padding: '10px',
-    background: 'transparent',
-    color: '#a78bfa',
-    border: '1px dashed rgba(139, 92, 246, 0.3)',
-    borderRadius: '12px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '600',
-    width: '100%',
-  },
-
-  submitButton: {
-    width: '100%',
-    padding: '16px',
-    background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '50px',
-    fontSize: '18px',
-    fontWeight: '700',
-    cursor: 'pointer',
-    transition: 'all 0.3s',
-    marginTop: '10px',
-    boxShadow: '0 10px 30px rgba(124, 58, 237, 0.25)',
-  },
-  submitButtonLoading: { opacity: 0.7 },
+  submitButton: { width: '100%', padding: '16px', background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '18px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.3s', marginTop: '10px', boxShadow: '0 10px 20px rgba(37,99,235,0.3)' },
+  submitButtonLoading: { opacity: 0.8, background: 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)' },
   buttonContent: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' },
   buttonArrow: { fontSize: '20px' },
   spinner: { width: '20px', height: '20px', border: '3px solid rgba(255,255,255,0.3)', borderTopColor: '#ffffff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' },
-
   message: { marginTop: '20px', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '12px', fontWeight: '500', border: '1px solid', animation: 'fadeIn 0.3s ease' },
-  messageSuccess: { background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.2)', color: '#34d399' },
-  messageError: { background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)', color: '#f87171' },
-  messageInfo: { background: 'rgba(139, 92, 246, 0.1)', borderColor: 'rgba(139, 92, 246, 0.2)', color: '#a78bfa' },
+  messageSuccess: { background: '#ecfdf5', borderColor: '#a7f3d0', color: '#065f46' },
+  messageError: { background: '#fef2f2', borderColor: '#fecaca', color: '#991b1b' },
+  messageInfo: { background: '#eff6ff', borderColor: '#bfdbfe', color: '#1e40af' },
   messageIcon: { fontSize: '20px', flexShrink: 0 },
-
   footer: { marginTop: '25px', textAlign: 'center' },
   loginRow: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' },
-  loginText: { color: 'rgba(255,255,255,0.5)', fontSize: '15px' },
-  loginLink: { color: '#a78bfa', fontWeight: '700', textDecoration: 'none', fontSize: '15px' },
+  loginText: { color: '#4b5563', fontSize: '15px' },
+  loginLink: { color: '#2563eb', fontWeight: '700', textDecoration: 'none', fontSize: '15px' },
 };
