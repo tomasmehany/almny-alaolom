@@ -157,15 +157,6 @@ export default function AdminPage() {
           <Link href="/admin/send-notification" style={styles.notificationButton}>
             🔔 إشعارات
           </Link>
-          <Link href="/admin/bot-monitor" style={styles.botMonitorButton}>
-            🤖 مراقبة البوت
-          </Link>
-          <Link href="/admin/support-chat" style={styles.supportChatButton}>
-            💬 رسائل الدعم
-          </Link>
-          <Link href="/platform" style={styles.backButton}>
-            ← عرض المنصة
-          </Link>
           <Link href="/admin/open-course" style={styles.specialButton}>
             🎓 فتح كورس لطالب
           </Link>
