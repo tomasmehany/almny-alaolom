@@ -118,7 +118,6 @@ export default function AdminPage() {
     { id: 'open-course', name: 'فتح كورس', icon: '🎓' },
     { id: 'videos', name: 'الفيديوهات', icon: '🎬' },
     { id: 'devices', name: 'الأجهزة', icon: '📱' },
-    { id: 'settings', name: 'الإعدادات', icon: '⚙️' }
   ]
   
   return (
