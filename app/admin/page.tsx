@@ -7,7 +7,6 @@ import {
   deleteDoc, query, where, orderBy, serverTimestamp 
 } from 'firebase/firestore'
 import Link from 'next/link'
-import DeviceManagement from '@/app/admin/components/DeviceManagement'
 
 // بيانات تسجيل الدخول - حسب طلبك
 const ADMIN_EMAIL = "tomasmehany@almny"
@@ -100,7 +99,7 @@ export default function AdminPage() {
             </button>
 
             <div style={styles.loginHint}>
-              <p>بأمثلة الدخول:</p>
+              <p>بيانات الدخول:</p>
               <p><strong>البريد:</strong> admin@.com</p>
               <p><strong>كلمة المرور:</strong> 00000000000</p>
               <p style={styles.warningText}>⚠️ تأكد من كتابة الحروف الكبيرة والصغيرة</p>
@@ -111,6 +110,7 @@ export default function AdminPage() {
     )
   }
 
+  // ✅ تبويبات القائمة العلوية مع تبويب الأجهزة
   const tabs = [
     { id: 'dashboard', name: 'لوحة التحكم', icon: '🏠' },
     { id: 'students', name: 'الطلاب', icon: '👨‍🎓' },
@@ -119,7 +119,7 @@ export default function AdminPage() {
     { id: 'videos', name: 'الفيديوهات', icon: '🎬' },
     { id: 'upgrade', name: 'ترقية المراحل', icon: '🚀' },
     { id: 'teacher-logs', name: 'سجل المعلمين', icon: '👨‍🏫' },
-    { id: 'devices', name: 'الأجهزة', icon: '📱' }, // ✅ تبويب جديد
+    { id: 'devices', name: 'الأجهزة', icon: '📱' },
     { id: 'settings', name: 'الإعدادات', icon: '⚙️' }
   ]
   
@@ -205,10 +205,7 @@ export default function AdminPage() {
         {activeTab === 'videos' && <VideosTab />}
         {activeTab === 'upgrade' && <UpgradeTab />}
         {activeTab === 'teacher-logs' && <TeacherLogs />}
-        
-        {/* ✅ تبويب إدارة الأجهزة */}
         {activeTab === 'devices' && <DevicesTab />}
-        
         {activeTab === 'settings' && <SettingsTab />}
       </div>
     </div>
@@ -216,12 +213,15 @@ export default function AdminPage() {
 }
 
 // ============================================
-// ✅ DevicesTab - إدارة أجهزة الطلاب (معدل)
+// DevicesTab - إدارة أجهزة الطلاب (مع طلبات الأجهزة)
 // ============================================
 function DevicesTab() {
-  const [selectedGrade, setSelectedGrade] = useState<string>('all')
   const [students, setStudents] = useState<any[]>([])
+  const [pendingRequests, setPendingRequests] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingRequests, setLoadingRequests] = useState(false)
+  const [message, setMessage] = useState('')
+  const [selectedGrade, setSelectedGrade] = useState('all')
   const [showRequests, setShowRequests] = useState(false)
 
   const fetchStudents = async () => {
@@ -245,13 +245,71 @@ function DevicesTab() {
       setStudents(studentsList)
     } catch (error) {
       console.error('Error fetching students:', error)
+      setMessage('❌ حدث خطأ في جلب الطلاب')
     } finally {
       setLoading(false)
     }
   }
 
+  const fetchPendingRequests = async () => {
+    try {
+      setLoadingRequests(true)
+      const devicesRef = collection(db, "user_devices")
+      const q = query(devicesRef, where("status", "==", "pending"))
+      const snapshot = await getDocs(q)
+      
+      console.log('📊 عدد الطلبات المعلقة:', snapshot.size)
+      
+      const requests: any[] = []
+      for (const doc of snapshot.docs) {
+        const data = doc.data()
+        console.log('🔍 بيانات الطلب:', data)
+        
+        let studentName = 'غير معروف'
+        let studentPhone = 'غير معروف'
+        let studentGrade = 'غير محدد'
+        
+        try {
+          if (data.userId) {
+            console.log('🔍 جلب بيانات المستخدم:', data.userId)
+            const userDoc = await getDoc(doc(db, "users", data.userId))
+            if (userDoc.exists()) {
+              const userData = userDoc.data()
+              studentName = userData.name || 'غير معروف'
+              studentPhone = userData.phone || 'غير معروف'
+              studentGrade = userData.grade || 'غير محدد'
+              console.log('✅ تم جلب بيانات المستخدم:', studentName, studentPhone)
+            } else {
+              console.log('❌ المستخدم غير موجود:', data.userId)
+            }
+          } else {
+            console.log('❌ الطلب بدون userId')
+          }
+        } catch (e) {
+          console.error('Error fetching user:', e)
+        }
+        
+        requests.push({
+          id: doc.id,
+          ...data,
+          studentName,
+          studentPhone,
+          studentGrade,
+          requestDate: data.requestDate?.toDate?.() || data.requestDate
+        })
+      }
+      
+      setPendingRequests(requests)
+    } catch (error) {
+      console.error('Error fetching pending requests:', error)
+    } finally {
+      setLoadingRequests(false)
+    }
+  }
+
   useEffect(() => {
     fetchStudents()
+    fetchPendingRequests()
   }, [])
 
   const getGradeName = (gradeCode: string) => {
@@ -270,6 +328,59 @@ function DevicesTab() {
     ? students 
     : students.filter(s => s.grade === selectedGrade)
 
+  const filteredRequests = selectedGrade === 'all' 
+    ? pendingRequests 
+    : pendingRequests.filter(r => r.studentGrade === selectedGrade)
+
+  const getDeviceType = (platform: string) => {
+    if (!platform) return '📱 جهاز غير معروف'
+    if (platform.includes('iPhone')) return '📱 iPhone'
+    if (platform.includes('iPad')) return '📱 iPad'
+    if (platform.includes('Mac')) return '💻 Mac'
+    if (platform.includes('Windows')) return '💻 Windows'
+    if (platform.includes('Android')) return '📱 Android'
+    if (platform.includes('Linux')) return '🐧 Linux'
+    return '📱 جهاز'
+  }
+
+  const formatDate = (date: any) => {
+    if (!date) return 'غير معروف'
+    try {
+      return new Date(date).toLocaleString('ar-EG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch {
+      return 'غير معروف'
+    }
+  }
+
+  const handleApproveRequest = async (requestId: string, approve: boolean) => {
+    try {
+      const deviceRef = doc(db, "user_devices", requestId)
+      if (approve) {
+        await updateDoc(deviceRef, {
+          isActive: true,
+          status: 'approved',
+          approvedAt: serverTimestamp(),
+          deviceName: 'جهاز إضافي'
+        })
+        setMessage('✅ تمت الموافقة على الجهاز بنجاح')
+      } else {
+        await deleteDoc(deviceRef)
+        setMessage('❌ تم رفض الجهاز')
+      }
+      fetchPendingRequests()
+      fetchStudents()
+    } catch (error) {
+      console.error('Error approving request:', error)
+      setMessage('❌ حدث خطأ في معالجة الطلب')
+    }
+  }
+
   return (
     <div style={styles.tabContent}>
       <div style={styles.tabHeader}>
@@ -281,19 +392,107 @@ function DevicesTab() {
             background: showRequests ? '#f59e0b' : '#8b5cf6'
           }}
         >
-          {showRequests ? '📋 عرض الطلاب' : '📩 طلبات الأجهزة'}
+          {showRequests ? '📋 عرض الطلاب' : `📩 طلبات الأجهزة (${pendingRequests.length})`}
         </button>
       </div>
 
+      {message && (
+        <div style={{
+          ...styles.message,
+          background: message.includes('✅') ? '#d1fae5' : '#fee2e2',
+          color: message.includes('✅') ? '#065f46' : '#991b1b'
+        }}>
+          {message}
+        </div>
+      )}
+
       {showRequests ? (
-        <DeviceManagement isAdminView={true} />
-      ) : (
+        // ✅ عرض طلبات الأجهزة المعلقة
         <>
           <p style={{ color: '#6b7280', marginBottom: '20px' }}>
-            اختر طالباً لإدارة أجهزته (جهاز واحد افتراضي، يمكن إضافة جهاز ثاني بعد الموافقة)
+            طلبات إضافة أجهزة جديدة من الطلاب
+          </p>
+          
+          <div style={styles.filterBar}>
+            <label style={styles.filterLabel}>🔍 تصفية حسب المرحلة:</label>
+            <select
+              value={selectedGrade}
+              onChange={(e) => setSelectedGrade(e.target.value)}
+              style={styles.filterSelect}
+            >
+              <option value="all">📚 كل المراحل</option>
+              <option value="1-prep">أولى إعدادي</option>
+              <option value="2-prep">ثانية إعدادي</option>
+              <option value="3-prep">ثالثة إعدادي</option>
+              <option value="1-secondary">أولى ثانوي</option>
+              <option value="2-secondary">ثانية ثانوي</option>
+              <option value="3-secondary">ثالثة ثانوي</option>
+            </select>
+            <span style={styles.requestCount}>
+              📊 {filteredRequests.length} طلب معلق
+            </span>
+          </div>
+
+          {loadingRequests ? (
+            <p style={styles.loadingText}>جاري تحميل الطلبات...</p>
+          ) : filteredRequests.length === 0 ? (
+            <p style={styles.emptyText}>✨ لا توجد طلبات أجهزة معلقة</p>
+          ) : (
+            <div style={styles.requestsGrid}>
+              {filteredRequests.map(request => (
+                <div key={request.id} style={styles.requestCard}>
+                  <div style={styles.requestHeader}>
+                    <div style={styles.requestStudent}>
+                      <div style={styles.requestAvatar}>
+                        {request.studentName?.charAt(0) || 'ط'}
+                      </div>
+                      <div>
+                        <h4 style={styles.requestName}>{request.studentName || 'طالب غير معروف'}</h4>
+                        <p style={styles.requestDetail}>📱 {request.studentPhone || 'غير معروف'}</p>
+                        <p style={styles.requestDetail}>📚 {getGradeName(request.studentGrade || 'غير محدد')}</p>
+                      </div>
+                    </div>
+                    <div style={styles.requestDate}>
+                      📅 {formatDate(request.requestDate)}
+                    </div>
+                  </div>
+                  
+                  <div style={styles.requestDeviceInfo}>
+                    <p>📱 <strong>الجهاز:</strong> {getDeviceType(request.platform)}</p>
+                    <p>🌐 <strong>المتصفح:</strong> {request.userAgent?.substring(0, 50)}...</p>
+                    <p style={styles.requestDeviceId}>
+                      🆔 {request.deviceId?.substring(0, 20)}...
+                    </p>
+                  </div>
+
+                  <div style={styles.requestActions}>
+                    <button
+                      onClick={() => handleApproveRequest(request.id, true)}
+                      style={styles.approveButton}
+                    >
+                      ✅ موافقة
+                    </button>
+                    <button
+                      onClick={() => handleApproveRequest(request.id, false)}
+                      style={styles.rejectButton}
+                    >
+                      ❌ رفض
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        // ✅ عرض الطلاب
+        <>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+            اختر طالباً لإدارة أجهزته المسموحة
           </p>
 
           <div style={styles.filterBar}>
+            <label style={styles.filterLabel}>🔍 تصفية حسب المرحلة:</label>
             <select
               value={selectedGrade}
               onChange={(e) => setSelectedGrade(e.target.value)}
@@ -365,30 +564,29 @@ function UpgradeTab() {
   ]
 
   const fetchStudents = async () => {
-  try {
-    setLoading(true)
-    const snapshot = await getDocs(collection(db, "users"))
-    const studentsList = []
-    snapshot.forEach(doc => {
-      const data = doc.data()
-      if (data.status === 'active' || data.status === 'مفعل' || data.status === 'نشط') {
-        studentsList.push({
-          id: doc.id,
-          name: data.name,
-          grade: data.grade,
-          status: data.status
-        })
-      }
-    })
-    console.log('📊 عدد الطلاب:', studentsList.length)
-    console.log('📊 الطلاب:', studentsList)
-    setStudents(studentsList)
-  } catch (error) {
-    console.error(error)
-  } finally {
-    setLoading(false)
+    try {
+      setLoading(true)
+      const snapshot = await getDocs(collection(db, "users"))
+      const studentsList = []
+      snapshot.forEach(doc => {
+        const data = doc.data()
+        if (data.status === 'active' || data.status === 'مفعل' || data.status === 'نشط') {
+          studentsList.push({
+            id: doc.id,
+            name: data.name,
+            grade: data.grade,
+            status: data.status
+          })
+        }
+      })
+      console.log('📊 عدد الطلاب:', studentsList.length)
+      setStudents(studentsList)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   useEffect(() => {
     fetchStudents()
@@ -411,56 +609,57 @@ function UpgradeTab() {
   }
 
   const handleUpgrade = async (fromGrade) => {
-  const currentIndex = gradeOrder.findIndex(g => g.code === fromGrade)
-  if (currentIndex === gradeOrder.length - 1) {
-    alert('⚠️ هذه هي أعلى مرحلة، لا يمكن الترقية')
-    return
-  }
-
-  const toGrade = gradeOrder[currentIndex + 1]
-  const fromName = getGradeName(fromGrade)
-  const toName = getGradeName(toGrade.code)
-
-  const studentsToUpgrade = students.filter(s => s.grade === fromGrade)
-  console.log(`🔍 طلاب ${fromName}:`, studentsToUpgrade.length, studentsToUpgrade)
-
-  if (studentsToUpgrade.length === 0) {
-    setMessage(`❌ لا يوجد طلاب في ${fromName}`)
-    return
-  }
-
-  if (!confirm(`⚠️ هل أنت متأكد من ترقية ${studentsToUpgrade.length} طالب من ${fromName} إلى ${toName}؟\n\nهذا الإجراء لا يمكن التراجع عنه!`)) {
-    return
-  }
-
-  setUpgrading(true)
-  setMessage('')
-
-  try {
-    let updated = 0
-    for (const student of studentsToUpgrade) {
-      try {
-        console.log(`🔄 ترقية ${student.name} (${student.grade}) → ${toGrade.code}`)
-        await updateDoc(doc(db, "users", student.id), {
-          grade: toGrade.code,
-          year: toGrade.code,
-          updatedAt: serverTimestamp()
-        })
-        updated++
-      } catch (err) {
-        console.error(`❌ خطأ في ترقية ${student.name}:`, err)
-      }
+    const currentIndex = gradeOrder.findIndex(g => g.code === fromGrade)
+    if (currentIndex === gradeOrder.length - 1) {
+      alert('⚠️ هذه هي أعلى مرحلة، لا يمكن الترقية')
+      return
     }
 
-    setMessage(`✅ تم ترقية ${updated} طالب من ${fromName} إلى ${toName}`)
-    await fetchStudents()
-  } catch (error) {
-    console.error(error)
-    setMessage('❌ حدث خطأ في الترقية')
-  } finally {
-    setUpgrading(false)
+    const toGrade = gradeOrder[currentIndex + 1]
+    const fromName = getGradeName(fromGrade)
+    const toName = getGradeName(toGrade.code)
+
+    const studentsToUpgrade = students.filter(s => s.grade === fromGrade)
+    console.log(`🔍 طلاب ${fromName}:`, studentsToUpgrade.length)
+
+    if (studentsToUpgrade.length === 0) {
+      setMessage(`❌ لا يوجد طلاب في ${fromName}`)
+      return
+    }
+
+    if (!confirm(`⚠️ هل أنت متأكد من ترقية ${studentsToUpgrade.length} طالب من ${fromName} إلى ${toName}؟`)) {
+      return
+    }
+
+    setUpgrading(true)
+    setMessage('')
+
+    try {
+      let updated = 0
+      for (const student of studentsToUpgrade) {
+        try {
+          console.log(`🔄 ترقية ${student.name} (${student.grade}) → ${toGrade.code}`)
+          await updateDoc(doc(db, "users", student.id), {
+            grade: toGrade.code,
+            year: toGrade.code,
+            updatedAt: serverTimestamp()
+          })
+          updated++
+        } catch (err) {
+          console.error(`❌ خطأ في ترقية ${student.name}:`, err)
+        }
+      }
+
+      setMessage(`✅ تم ترقية ${updated} طالب من ${fromName} إلى ${toName}`)
+      await fetchStudents()
+    } catch (error) {
+      console.error(error)
+      setMessage('❌ حدث خطأ في الترقية')
+    } finally {
+      setUpgrading(false)
+    }
   }
-}
+
   if (loading) {
     return <div style={styles.loadingText}>جاري التحميل...</div>
   }
@@ -469,7 +668,7 @@ function UpgradeTab() {
     <div style={styles.tabContent}>
       <h2 style={styles.tabTitle}>🚀 ترقية المراحل الدراسية</h2>
       <p style={styles.upgradeDesc}>
-        اختر المرحلة التي تريد ترقية طلابها إلى المرحلة التالية (مثلاً: أولى إعدادي → ثانية إعدادي)
+        اختر المرحلة التي تريد ترقية طلابها إلى المرحلة التالية
       </p>
 
       {message && (
@@ -523,7 +722,7 @@ function UpgradeTab() {
 }
 
 // ============================================
-// TeacherLogs
+// TeacherLogs - سجل دخول المعلمين
 // ============================================
 function TeacherLogs() {
   const [logs, setLogs] = useState<any[]>([])
@@ -579,91 +778,98 @@ function TeacherLogs() {
 }
 
 // ============================================
-// StudentsTab
+// StudentsTab - المعدل (مع فلتر المراحل وكلمة المرور - من غير زر الأجهزة)
 // ============================================
 function StudentsTab() {
   const [students, setStudents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [activeStudentView, setActiveStudentView] = useState('pending')
+  
+  // ✅ فلتر المراحل
+  const [selectedGradeFilter, setSelectedGradeFilter] = useState('all')
+  const [editingPassword, setEditingPassword] = useState<{id: string, password: string} | null>(null)
+  const [showPasswordFor, setShowPasswordFor] = useState<string | null>(null)
 
   const formatLastLogin = (lastLogin) => {
-  if (!lastLogin) {
-    return '❌ لم يسجل دخول بعد';
-  }
-  
-  try {
-    let date = null;
-    
-    if (typeof lastLogin === 'string') {
-      date = new Date(lastLogin);
-    }
-    else if (lastLogin && typeof lastLogin === 'object' && lastLogin.seconds !== undefined) {
-      date = new Date(lastLogin.seconds * 1000);
-    }
-    else if (lastLogin && typeof lastLogin === 'object' && typeof lastLogin.toDate === 'function') {
-      date = lastLogin.toDate();
-    }
-    else {
-      return '❌ تاريخ غير صالح';
+    if (!lastLogin) {
+      return '❌ لم يسجل دخول بعد'
     }
     
-    if (!date || isNaN(date.getTime())) {
-      return '❌ تاريخ غير صالح';
-    }
-    
-    return `✅ ${date.toLocaleDateString('ar-EG', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })}`;
-    
-  } catch (error) {
-    console.error('❌ خطأ في تنسيق التاريخ:', error);
-    return '❌ تاريخ غير صالح';
-  }
-};
-  const fetchStudents = async () => {
-  try {
-    setLoading(true)
-    console.log('🔍 جاري جلب الطلاب...')
-    
-    const querySnapshot = await getDocs(collection(db, "users"))
-    const studentsList: any[] = []
-    
-    querySnapshot.forEach((doc) => {
-      const data = doc.data()
+    try {
+      let date = null
       
-      let lastLogin = data.lastLogin || null;
-      
-      if (typeof lastLogin === 'string' && (lastLogin.includes('لم يسجل') || lastLogin.includes('يسجل'))) {
-        lastLogin = null;
+      if (typeof lastLogin === 'string') {
+        date = new Date(lastLogin)
+      }
+      else if (lastLogin && typeof lastLogin === 'object' && lastLogin.seconds !== undefined) {
+        date = new Date(lastLogin.seconds * 1000)
+      }
+      else if (lastLogin && typeof lastLogin === 'object' && typeof lastLogin.toDate === 'function') {
+        date = lastLogin.toDate()
+      }
+      else {
+        return '❌ تاريخ غير صالح'
       }
       
-      studentsList.push({
-        id: doc.id,
-        name: data.name || 'غير معروف',
-        phone: data.phone || 'بدون رقم',
-        grade: data.grade || 'غير محدد',
-        status: data.status || 'pending',
-        createdAt: data.createdAt || new Date().toISOString(),
-        activatedAt: data.activatedAt || null,
-        lastLogin: lastLogin
-      })
-    })
-    
-    console.log('📊 عدد الطلاب:', studentsList.length)
-    setStudents(studentsList)
-    setMessage(`✅ تم تحميل ${studentsList.length} طالب`)
-  } catch (error) {
-    console.error('❌ خطأ:', error)
-    setMessage('❌ حدث خطأ في جلب البيانات')
-  } finally {
-    setLoading(false)
+      if (!date || isNaN(date.getTime())) {
+        return '❌ تاريخ غير صالح'
+      }
+      
+      return `✅ ${date.toLocaleDateString('ar-EG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}`
+      
+    } catch (error) {
+      console.error('❌ خطأ في تنسيق التاريخ:', error)
+      return '❌ تاريخ غير صالح'
+    }
   }
-};
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true)
+      console.log('🔍 جاري جلب الطلاب...')
+      
+      const querySnapshot = await getDocs(collection(db, "users"))
+      const studentsList: any[] = []
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data()
+        
+        let lastLogin = data.lastLogin || null
+        
+        if (typeof lastLogin === 'string' && (lastLogin.includes('لم يسجل') || lastLogin.includes('يسجل'))) {
+          lastLogin = null
+        }
+        
+        studentsList.push({
+          id: doc.id,
+          name: data.name || 'غير معروف',
+          phone: data.phone || 'بدون رقم',
+          grade: data.grade || 'غير محدد',
+          password: data.password || 'غير محدد',
+          status: data.status || 'pending',
+          createdAt: data.createdAt || new Date().toISOString(),
+          activatedAt: data.activatedAt || null,
+          lastLogin: lastLogin
+        })
+      })
+      
+      console.log('📊 عدد الطلاب:', studentsList.length)
+      setStudents(studentsList)
+      setMessage(`✅ تم تحميل ${studentsList.length} طالب`)
+    } catch (error) {
+      console.error('❌ خطأ:', error)
+      setMessage('❌ حدث خطأ في جلب البيانات')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const activateStudent = async (studentId: string, studentName: string) => {
     try {
@@ -702,13 +908,37 @@ function StudentsTab() {
     }
   }
 
+  // ✅ دالة تحديث كلمة المرور
+  const updatePassword = async (studentId: string, newPassword: string) => {
+    if (!newPassword || newPassword.length < 6) {
+      setMessage('❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل')
+      return
+    }
+    
+    try {
+      const studentRef = doc(db, "users", studentId)
+      await updateDoc(studentRef, { password: newPassword })
+      setMessage(`✅ تم تحديث كلمة المرور بنجاح`)
+      setEditingPassword(null)
+      setShowPasswordFor(null)
+      fetchStudents()
+    } catch (error) {
+      setMessage('❌ حدث خطأ في تحديث كلمة المرور')
+    }
+  }
+
   useEffect(() => {
     fetchStudents()
   }, [])
 
-  const pendingStudents = students.filter(s => s.status === 'pending')
-  const activeStudents = students.filter(s => s.status === 'active')
-  const rejectedStudents = students.filter(s => s.status === 'rejected')
+  const getFilteredStudents = (studentsList: any[]) => {
+    if (selectedGradeFilter === 'all') return studentsList
+    return studentsList.filter(s => s.grade === selectedGradeFilter)
+  }
+
+  const pendingStudents = getFilteredStudents(students.filter(s => s.status === 'pending'))
+  const activeStudents = getFilteredStudents(students.filter(s => s.status === 'active'))
+  const rejectedStudents = getFilteredStudents(students.filter(s => s.status === 'rejected'))
 
   const formatDate = (dateString: string) => {
     try {
@@ -734,6 +964,17 @@ function StudentsTab() {
     return grades[gradeCode] || gradeCode
   }
 
+  // ✅ قائمة المراحل للفلتر
+  const gradeOptions = [
+    { value: 'all', label: '📚 كل المراحل' },
+    { value: '1-prep', label: '📘 أولى إعدادي' },
+    { value: '2-prep', label: '📗 ثانية إعدادي' },
+    { value: '3-prep', label: '📙 ثالثة إعدادي' },
+    { value: '1-secondary', label: '📕 أولى ثانوي' },
+    { value: '2-secondary', label: '📓 ثانية ثانوي' },
+    { value: '3-secondary', label: '📒 ثالثة ثانوي' }
+  ]
+
   return (
     <div style={styles.tabContent}>
       <div style={styles.tabHeader}>
@@ -752,6 +993,20 @@ function StudentsTab() {
           {message}
         </div>
       )}
+
+      {/* ✅ فلتر المراحل */}
+      <div style={styles.filterBar}>
+        <label style={styles.filterLabel}>🔍 تصفية حسب المرحلة:</label>
+        <select
+          value={selectedGradeFilter}
+          onChange={(e) => setSelectedGradeFilter(e.target.value)}
+          style={styles.filterSelect}
+        >
+          {gradeOptions.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
 
       <div style={styles.viewTabs}>
         <button
@@ -805,6 +1060,7 @@ function StudentsTab() {
         </div>
       </div>
 
+      {/* عرض الطلبات المعلقة */}
       {activeStudentView === 'pending' && (
         <>
           <h3 style={styles.sectionTitle}>⏳ طلبات التسجيل المعلقة</h3>
@@ -821,6 +1077,7 @@ function StudentsTab() {
                     <th style={styles.th}>رقم الهاتف</th>
                     <th style={styles.th}>الصف</th>
                     <th style={styles.th}>تاريخ التسجيل</th>
+                    <th style={styles.th}>كلمة المرور</th>
                     <th style={styles.th}>الإجراءات</th>
                   </tr>
                 </thead>
@@ -838,6 +1095,72 @@ function StudentsTab() {
                       </td>
                       <td style={styles.td}>
                         {formatDate(student.createdAt)}
+                      </td>
+                      <td style={styles.td}>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap'}}>
+                          {showPasswordFor === student.id ? (
+                            editingPassword?.id === student.id ? (
+                              <>
+                                <input
+                                  type="text"
+                                  defaultValue={editingPassword.password || student.password}
+                                  style={{...styles.input, width: '120px', padding: '4px 8px'}}
+                                  ref={(el) => {
+                                    if (el) el.focus()
+                                  }}
+                                  onChange={(e) => setEditingPassword({id: student.id, password: e.target.value})}
+                                  id={`password-input-${student.id}`}
+                                />
+                                <button
+                                  onClick={() => {
+                                    if (editingPassword && editingPassword.password) {
+                                      updatePassword(student.id, editingPassword.password)
+                                    }
+                                  }}
+                                  style={styles.savePasswordBtn}
+                                >
+                                  💾 حفظ
+                                </button>
+                                <button
+                                  onClick={() => { setEditingPassword(null); setShowPasswordFor(null) }}
+                                  style={styles.cancelPasswordBtn}
+                                >
+                                  ❌ إلغاء
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <span style={{direction: 'ltr', display: 'inline-block', fontWeight: 'bold', color: '#1f2937'}}>
+                                  {student.password || 'غير محدد'}
+                                </span>
+                                <button
+                                  onClick={() => setEditingPassword({id: student.id, password: student.password || ''})}
+                                  style={styles.editPasswordBtn}
+                                >
+                                  ✏️ تعديل
+                                </button>
+                                <button
+                                  onClick={() => setShowPasswordFor(null)}
+                                  style={styles.hidePasswordBtn}
+                                >
+                                  🙈 إخفاء
+                                </button>
+                              </>
+                            )
+                          ) : (
+                            <>
+                              <span style={{direction: 'ltr', display: 'inline-block'}}>
+                                {student.password ? '••••••••' : 'غير محدد'}
+                              </span>
+                              <button
+                                onClick={() => setShowPasswordFor(student.id)}
+                                style={styles.showPasswordBtn}
+                              >
+                                👁️ عرض
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                       <td style={styles.td}>
                         <div style={styles.actions}>
@@ -864,6 +1187,7 @@ function StudentsTab() {
         </>
       )}
 
+      {/* عرض الطلاب المفعلين - من غير زر الأجهزة */}
       {activeStudentView === 'active' && (
         <>
           <h3 style={styles.sectionTitle}>✅ الطلاب المفعلين</h3>
@@ -881,6 +1205,7 @@ function StudentsTab() {
                     <th style={styles.th}>الصف</th>
                     <th style={styles.th}>تاريخ التفعيل</th>
                     <th style={styles.th}>آخر دخول</th>
+                    <th style={styles.th}>كلمة المرور</th>
                     <th style={styles.th}>الإجراءات</th>
                   </tr>
                 </thead>
@@ -927,6 +1252,72 @@ function StudentsTab() {
                         </span>
                        </td>
                       <td style={styles.td}>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap'}}>
+                          {showPasswordFor === student.id ? (
+                            editingPassword?.id === student.id ? (
+                              <>
+                                <input
+                                  type="text"
+                                  defaultValue={editingPassword.password || student.password}
+                                  style={{...styles.input, width: '120px', padding: '4px 8px'}}
+                                  ref={(el) => {
+                                    if (el) el.focus()
+                                  }}
+                                  onChange={(e) => setEditingPassword({id: student.id, password: e.target.value})}
+                                  id={`password-input-${student.id}`}
+                                />
+                                <button
+                                  onClick={() => {
+                                    if (editingPassword && editingPassword.password) {
+                                      updatePassword(student.id, editingPassword.password)
+                                    }
+                                  }}
+                                  style={styles.savePasswordBtn}
+                                >
+                                  💾 حفظ
+                                </button>
+                                <button
+                                  onClick={() => { setEditingPassword(null); setShowPasswordFor(null) }}
+                                  style={styles.cancelPasswordBtn}
+                                >
+                                  ❌ إلغاء
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <span style={{direction: 'ltr', display: 'inline-block', fontWeight: 'bold', color: '#1f2937'}}>
+                                  {student.password || 'غير محدد'}
+                                </span>
+                                <button
+                                  onClick={() => setEditingPassword({id: student.id, password: student.password || ''})}
+                                  style={styles.editPasswordBtn}
+                                >
+                                  ✏️ تعديل
+                                </button>
+                                <button
+                                  onClick={() => setShowPasswordFor(null)}
+                                  style={styles.hidePasswordBtn}
+                                >
+                                  🙈 إخفاء
+                                </button>
+                              </>
+                            )
+                          ) : (
+                            <>
+                              <span style={{direction: 'ltr', display: 'inline-block'}}>
+                                {student.password ? '••••••••' : 'غير محدد'}
+                              </span>
+                              <button
+                                onClick={() => setShowPasswordFor(student.id)}
+                                style={styles.showPasswordBtn}
+                              >
+                                👁️ عرض
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                      <td style={styles.td}>
                         <div style={styles.actions}>
                           <Link 
                             href={`/admin/open-course?studentId=${student.id}`}
@@ -934,12 +1325,7 @@ function StudentsTab() {
                           >
                             🎓 فتح كورس
                           </Link>
-                          <Link
-                            href={`/admin/device-management?studentId=${student.id}`}
-                            style={styles.deviceManageBtn}
-                          >
-                            📱 الأجهزة
-                          </Link>
+                          {/* ✅ تم إزالة زر الأجهزة من هنا */}
                           <button 
                             onClick={() => {
                               if (confirm(`هل تريد إلغاء تفعيل ${student.name}؟`)) {
@@ -971,6 +1357,7 @@ function StudentsTab() {
         </>
       )}
 
+      {/* عرض الطلاب المرفوضين */}
       {activeStudentView === 'rejected' && (
         <>
           <h3 style={styles.sectionTitle}>❌ الطلاب المرفوضين</h3>
@@ -1834,8 +2221,10 @@ const styles = {
     borderRadius: '10px',
     fontSize: '16px',
     background: 'white',
-    outline: 'none',
-    boxSizing: 'border-box' as const
+    '&:focus': {
+      outline: 'none',
+      borderColor: '#3b82f6'
+    }
   },
   inputPlaceholder: {
     width: '100%',
@@ -1855,7 +2244,10 @@ const styles = {
     fontWeight: 'bold' as const,
     cursor: 'pointer',
     transition: 'background 0.3s',
-    marginTop: '10px'
+    marginTop: '10px',
+    '&:hover': {
+      background: '#2563eb'
+    }
   },
   loginHint: {
     marginTop: '30px',
@@ -1898,7 +2290,10 @@ const styles = {
     borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '600' as const,
-    fontSize: '14px'
+    fontSize: '14px',
+    '&:hover': {
+      background: '#dc2626'
+    }
   },
   title: {
     fontSize: '32px',
@@ -2068,6 +2463,11 @@ const styles = {
     paddingBottom: '10px',
     borderBottom: '2px solid #e5e7eb'
   },
+  loadingText: {
+    textAlign: 'center' as const,
+    padding: '40px',
+    color: '#6b7280'
+  },
   emptyText: {
     textAlign: 'center' as const,
     padding: '40px',
@@ -2124,6 +2524,252 @@ const styles = {
     cursor: 'pointer',
     fontWeight: '600' as const
   },
+  // ✅ أنماط عرض/تعديل/إخفاء كلمة المرور
+  showPasswordBtn: {
+    padding: '4px 10px',
+    background: '#8b5cf6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '11px',
+    fontWeight: '600' as const,
+    whiteSpace: 'nowrap' as const
+  },
+  hidePasswordBtn: {
+    padding: '4px 10px',
+    background: '#6b7280',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '11px',
+    fontWeight: '600' as const,
+    whiteSpace: 'nowrap' as const
+  },
+  editPasswordBtn: {
+    padding: '4px 10px',
+    background: '#f59e0b',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '11px',
+    fontWeight: '600' as const,
+    whiteSpace: 'nowrap' as const
+  },
+  savePasswordBtn: {
+    padding: '4px 10px',
+    background: '#10b981',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '11px',
+    fontWeight: '600' as const,
+    whiteSpace: 'nowrap' as const
+  },
+  cancelPasswordBtn: {
+    padding: '4px 10px',
+    background: '#ef4444',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '11px',
+    fontWeight: '600' as const,
+    whiteSpace: 'nowrap' as const
+  },
+  // ✅ أنماط الفلتر
+  filterBar: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px',
+    marginBottom: '20px',
+    padding: '15px',
+    background: '#f8fafc',
+    borderRadius: '10px',
+    flexWrap: 'wrap' as const
+  },
+  filterLabel: {
+    fontSize: '14px',
+    fontWeight: '600' as const,
+    color: '#374151'
+  },
+  filterSelect: {
+    padding: '8px 16px',
+    border: '2px solid #e5e7eb',
+    borderRadius: '8px',
+    fontSize: '14px',
+    background: 'white',
+    outline: 'none',
+    minWidth: '180px',
+    '&:focus': {
+      borderColor: '#3b82f6'
+    }
+  },
+  // ✅ أنماط طلبات الأجهزة
+  requestsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+    gap: '20px',
+    marginTop: '15px'
+  },
+  requestCard: {
+    border: '2px solid #f59e0b',
+    borderRadius: '12px',
+    padding: '20px',
+    background: '#fffbeb'
+  },
+  requestHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '15px'
+  },
+  requestStudent: {
+    display: 'flex',
+    gap: '12px',
+    alignItems: 'center'
+  },
+  requestAvatar: {
+    width: '45px',
+    height: '45px',
+    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+    color: 'white',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '18px',
+    fontWeight: 'bold'
+  },
+  requestName: {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#1f2937',
+    margin: 0
+  },
+  requestDetail: {
+    fontSize: '13px',
+    color: '#6b7280',
+    margin: '2px 0'
+  },
+  requestDate: {
+    fontSize: '13px',
+    color: '#6b7280'
+  },
+  requestDeviceInfo: {
+    background: 'white',
+    borderRadius: '8px',
+    padding: '12px',
+    marginBottom: '15px'
+  },
+  requestDeviceId: {
+    fontSize: '12px',
+    color: '#9ca3af',
+    fontFamily: 'monospace'
+  },
+  requestActions: {
+    display: 'flex',
+    gap: '10px'
+  },
+  approveButton: {
+    padding: '10px 20px',
+    background: '#10b981',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    fontSize: '15px',
+    flex: 1
+  },
+  rejectButton: {
+    padding: '10px 20px',
+    background: '#ef4444',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    fontSize: '15px',
+    flex: 1
+  },
+  requestCount: {
+    background: '#eff6ff',
+    padding: '8px 16px',
+    borderRadius: '20px',
+    fontSize: '14px',
+    color: '#1e40af',
+    fontWeight: '600'
+  },
+  // ✅ أنماط تبويب الأجهزة
+  devicesStudentsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+    gap: '20px',
+    marginTop: '20px'
+  },
+  deviceStudentCard: {
+    background: '#f9fafb',
+    border: '2px solid #e5e7eb',
+    borderRadius: '12px',
+    padding: '20px',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '15px',
+    transition: 'all 0.3s'
+  },
+  deviceStudentInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px'
+  },
+  deviceStudentAvatar: {
+    width: '50px',
+    height: '50px',
+    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+    color: 'white',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '20px',
+    fontWeight: 'bold'
+  },
+  deviceStudentName: {
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#1f2937',
+    margin: '0 0 5px 0'
+  },
+  deviceStudentDetail: {
+    fontSize: '14px',
+    color: '#6b7280',
+    margin: '2px 0'
+  },
+  deviceManageButton: {
+    padding: '12px',
+    background: '#8b5cf6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '15px',
+    fontWeight: '600',
+    textAlign: 'center',
+    textDecoration: 'none',
+    transition: 'all 0.3s'
+  },
+  studentCount: {
+    background: '#eff6ff',
+    padding: '8px 16px',
+    borderRadius: '20px',
+    fontSize: '14px',
+    color: '#1e40af',
+    fontWeight: '600' as const
+  },
   formSection: {
     background: '#f9fafb',
     borderRadius: '10px',
@@ -2151,8 +2797,10 @@ const styles = {
     resize: 'vertical' as const,
     minHeight: '100px',
     gridColumn: 'span 2',
-    outline: 'none',
-    boxSizing: 'border-box' as const
+    '&:focus': {
+      outline: 'none',
+      borderColor: '#3b82f6'
+    }
   },
   checkboxGroup: {
     display: 'flex',
@@ -2179,7 +2827,14 @@ const styles = {
     fontWeight: 'bold' as const,
     cursor: 'pointer',
     transition: 'background 0.3s',
-    gridColumn: 'span 2'
+    gridColumn: 'span 2',
+    '&:hover:not(:disabled)': {
+      background: '#059669'
+    },
+    '&:disabled': {
+      background: '#9ca3af',
+      cursor: 'not-allowed'
+    }
   },
   updateButton: {
     padding: '14px',
@@ -2189,7 +2844,10 @@ const styles = {
     borderRadius: '8px',
     fontSize: '18px',
     fontWeight: 'bold' as const,
-    cursor: 'pointer'
+    cursor: 'pointer',
+    '&:hover': {
+      background: '#2563eb'
+    }
   },
   cancelButton: {
     padding: '14px',
@@ -2199,7 +2857,10 @@ const styles = {
     borderRadius: '8px',
     fontSize: '18px',
     fontWeight: 'bold' as const,
-    cursor: 'pointer'
+    cursor: 'pointer',
+    '&:hover': {
+      background: '#dc2626'
+    }
   },
   listSection: {
     marginTop: '30px'
@@ -2213,7 +2874,11 @@ const styles = {
     border: '2px solid #e5e7eb',
     borderRadius: '12px',
     padding: '25px',
-    transition: 'all 0.3s'
+    transition: 'all 0.3s',
+    '&:hover': {
+      boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
+      borderColor: '#3b82f6'
+    }
   },
   courseHeader: {
     display: 'flex',
@@ -2264,7 +2929,7 @@ const styles = {
     color: '#6b7280',
     fontSize: '15px',
     marginBottom: '20px',
-    lineHeight: 1.5
+    lineHeight: '1.5'
   },
   courseCardInfo: {
     display: 'flex',
@@ -2285,7 +2950,10 @@ const styles = {
     border: '1px solid #d1d5db',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '14px'
+    fontSize: '14px',
+    '&:hover': {
+      background: '#e5e7eb'
+    }
   },
   activateButton: {
     padding: '8px 16px',
@@ -2294,7 +2962,10 @@ const styles = {
     border: '1px solid #a7f3d0',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '14px'
+    fontSize: '14px',
+    '&:hover': {
+      background: '#a7f3d0'
+    }
   },
   deactivateButton: {
     padding: '8px 16px',
@@ -2303,7 +2974,10 @@ const styles = {
     border: '1px solid #fecaca',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '14px'
+    fontSize: '14px',
+    '&:hover': {
+      background: '#fecaca'
+    }
   },
   lessonsButton: {
     padding: '8px 16px',
@@ -2314,7 +2988,10 @@ const styles = {
     cursor: 'pointer',
     fontSize: '14px',
     textDecoration: 'none',
-    textAlign: 'center' as const
+    textAlign: 'center' as const,
+    '&:hover': {
+      background: '#2563eb'
+    }
   },
   deleteButton: {
     padding: '8px 16px',
@@ -2323,7 +3000,10 @@ const styles = {
     border: '1px solid #fecaca',
     borderRadius: '6px',
     cursor: 'pointer',
-    fontSize: '14px'
+    fontSize: '14px',
+    '&:hover': {
+      background: '#fecaca'
+    }
   },
   viewTabs: {
     display: 'flex',
@@ -2374,18 +3054,6 @@ const styles = {
   openCourseBtn: {
     padding: '6px 12px',
     background: '#3b82f6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '12px',
-    fontWeight: '600' as const,
-    textDecoration: 'none',
-    display: 'inline-block'
-  },
-  deviceManageBtn: {
-    padding: '6px 12px',
-    background: '#8b5cf6',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
@@ -2505,7 +3173,11 @@ const styles = {
     borderRadius: '10px',
     padding: '25px',
     textAlign: 'center' as const,
-    transition: 'all 0.3s'
+    transition: 'all 0.3s',
+    '&:hover': {
+      borderColor: '#3b82f6',
+      transform: 'translateY(-5px)'
+    }
   },
   quickIcon: {
     fontSize: '40px',
@@ -2565,8 +3237,10 @@ const styles = {
     borderRadius: '8px',
     fontSize: '16px',
     background: 'white',
-    outline: 'none',
-    boxSizing: 'border-box' as const
+    '&:focus': {
+      outline: 'none',
+      borderColor: '#3b82f6'
+    }
   },
   saveButton: {
     padding: '16px',
@@ -2577,7 +3251,10 @@ const styles = {
     fontSize: '18px',
     fontWeight: 'bold' as const,
     cursor: 'pointer',
-    marginTop: '20px'
+    marginTop: '20px',
+    '&:hover': {
+      background: '#059669'
+    }
   },
   gradeStatsSection: {
     marginTop: '40px',
@@ -2633,7 +3310,10 @@ const styles = {
     fontWeight: 'bold',
     cursor: 'pointer',
     transition: 'all 0.3s',
-    width: '100%'
+    width: '100%',
+    '&:hover': {
+      background: '#2563eb'
+    }
   },
   upgradeDisabled: {
     padding: '12px',
@@ -2643,63 +3323,5 @@ const styles = {
     textAlign: 'center',
     fontSize: '14px',
     fontWeight: 'bold'
-  },
-  // ✅ أنماط تبويب الأجهزة
-  devicesStudentsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: '20px',
-    marginTop: '20px'
-  },
-  deviceStudentCard: {
-    background: '#f9fafb',
-    border: '2px solid #e5e7eb',
-    borderRadius: '12px',
-    padding: '20px',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '15px',
-    transition: 'all 0.3s'
-  },
-  deviceStudentInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '15px'
-  },
-  deviceStudentAvatar: {
-    width: '50px',
-    height: '50px',
-    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-    color: 'white',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '20px',
-    fontWeight: 'bold'
-  },
-  deviceStudentName: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#1f2937',
-    margin: '0 0 5px 0'
-  },
-  deviceStudentDetail: {
-    fontSize: '14px',
-    color: '#6b7280',
-    margin: '2px 0'
-  },
-  deviceManageButton: {
-    padding: '12px',
-    background: '#8b5cf6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '15px',
-    fontWeight: '600',
-    textAlign: 'center',
-    textDecoration: 'none',
-    transition: 'all 0.3s'
   }
 }
