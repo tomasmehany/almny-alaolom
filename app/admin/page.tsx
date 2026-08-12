@@ -117,8 +117,6 @@ export default function AdminPage() {
     { id: 'courses', name: 'الكورسات', icon: '📚' },
     { id: 'open-course', name: 'فتح كورس', icon: '🎓' },
     { id: 'videos', name: 'الفيديوهات', icon: '🎬' },
-    { id: 'upgrade', name: 'ترقية المراحل', icon: '🚀' },
-    { id: 'teacher-logs', name: 'سجل المعلمين', icon: '👨‍🏫' },
     { id: 'devices', name: 'الأجهزة', icon: '📱' },
     { id: 'settings', name: 'الإعدادات', icon: '⚙️' }
   ]
