@@ -34,7 +34,7 @@ export default function PlatformPage() {
   
   const [headerOpacity, setHeaderOpacity] = useState(1)
 
-  const whatsappLink = 'https://wa.me/message/UKASWZCU5BNLN1?src=qr'
+  const whatsappLink = 'https://wa.me/+201210136240'
 
   useEffect(() => {
     const checkMobile = () => {
