@@ -5,16 +5,6 @@ import { loginUser } from '@/lib/firebase-auth'
 import { db } from '@/lib/firebase'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 import Link from 'next/link'
-import {
-  getDeviceId,
-  saveDeviceId,
-  generateDeviceId,
-  getDeviceFingerprint,
-  validateDeviceAccess,
-  registerFirstDevice,
-  requestNewDevice,
-  getDeviceIdFromDB
-} from '@/utils/deviceManager'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,14 +13,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [showRequestButton, setShowRequestButton] = useState(false)
-  const [requestLoading, setRequestLoading] = useState(false)
   const [formData, setFormData] = useState({
     phone: '',
     password: ''
   })
-  const [tempUserData, setTempUserData] = useState<any>(null)
-  const [tempUserId, setTempUserId] = useState<string>('')
 
   useEffect(() => {
     setMounted(true)
@@ -56,7 +42,6 @@ export default function LoginPage() {
       })
     }
     setError('')
-    setShowRequestButton(false)
   }
 
   const checkTeacher = async (phone, password) => {
@@ -77,139 +62,10 @@ export default function LoginPage() {
     }
   }
 
-  const handleRequestNewDevice = async () => {
-    if (!tempUserId) {
-      setError('❌ يرجى تسجيل الدخول أولاً')
-      return
-    }
-
-    setRequestLoading(true)
-    try {
-      const deviceId = getDeviceId() || generateDeviceId()
-      if (!getDeviceId()) {
-        saveDeviceId(deviceId)
-      }
-
-      const fingerprintData = await getDeviceFingerprint()
-
-      const result = await requestNewDevice(
-        tempUserId,
-        deviceId,
-        fingerprintData.fingerprint,
-        fingerprintData.userAgent,
-        fingerprintData.platform
-      )
-
-      if (result.success) {
-        setError('✅ ' + result.message)
-        setShowRequestButton(false)
-        localStorage.setItem('deviceRequestSent', 'true')
-      } else {
-        setError('❌ ' + result.message)
-      }
-    } catch (error) {
-      console.error('Error requesting device:', error)
-      setError('❌ حدث خطأ في طلب إضافة الجهاز')
-    } finally {
-      setRequestLoading(false)
-    }
-  }
-
-  const performLogin = async (userData: any, userId: string, role: 'student' | 'teacher') => {
-    try {
-      // ✅ 1. حاول تجيب deviceId من localStorage
-      let deviceId = getDeviceId()
-      
-      // ✅ 2. لو مش موجود، جيبه من قاعدة البيانات
-      if (!deviceId) {
-        deviceId = await getDeviceIdFromDB(userId)
-        if (deviceId) {
-          saveDeviceId(deviceId)
-        }
-      }
-      
-      // ✅ 3. لو لسة مش موجود، اعمل جهاز جديد
-      if (!deviceId) {
-        deviceId = generateDeviceId()
-        saveDeviceId(deviceId)
-      }
-
-      const fingerprintData = await getDeviceFingerprint()
-
-      const validation = await validateDeviceAccess(
-        userId,
-        deviceId,
-        fingerprintData.fingerprint
-      )
-
-      console.log('📱 التحقق من الجهاز:', validation)
-
-      if (validation.isFirstDevice && validation.allowed) {
-        const registerResult = await registerFirstDevice(
-          userId,
-          deviceId,
-          fingerprintData.fingerprint,
-          fingerprintData.userAgent,
-          fingerprintData.platform
-        )
-
-        if (!registerResult.success) {
-          setError('❌ ' + registerResult.message)
-          return
-        }
-
-        localStorage.setItem('currentUser', JSON.stringify({
-          ...userData,
-          userId: userId,
-          role: role
-        }))
-
-        setError('✅ تم تسجيل جهازك الأساسي بنجاح!')
-        setTimeout(() => {
-          window.location.href = role === 'student' ? '/platform' : '/teacher/dashboard'
-        }, 500)
-        return
-      }
-
-      if (validation.needsApproval && validation.hasRequest) {
-        setError(validation.message)
-        setShowRequestButton(false)
-        return
-      }
-
-      if (validation.needsApproval && !validation.hasRequest) {
-        setError('⚠️ ' + validation.message)
-        setShowRequestButton(true)
-        setTempUserData(userData)
-        setTempUserId(userId)
-        console.log('📱 تم حفظ userId للطلب:', userId)
-        return
-      }
-
-      if (validation.allowed) {
-        localStorage.setItem('currentUser', JSON.stringify({
-          ...userData,
-          userId: userId,
-          role: role
-        }))
-
-        setError('✅ تم تسجيل الدخول بنجاح!')
-        setTimeout(() => {
-          window.location.href = role === 'student' ? '/platform' : '/teacher/dashboard'
-        }, 500)
-      }
-
-    } catch (error) {
-      console.error('Error during login:', error)
-      setError('❌ حدث خطأ في التحقق من الجهاز')
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-    setShowRequestButton(false)
 
     if (formData.phone.length < 11) {
       setError('❌ رقم الهاتف يجب أن يكون 11 رقم')
@@ -218,23 +74,23 @@ export default function LoginPage() {
     }
 
     try {
+      // 1️⃣ التحقق من الطالب أولاً
       const studentResult = await loginUser(formData.phone, formData.password)
       
       if (studentResult.success) {
         console.log('✅ تسجيل دخول طالب:', studentResult.user.name)
-        const userId = studentResult.user.id || studentResult.user.userId || studentResult.user.uid
-        
-        if (!userId) {
-          setError('❌ لم يتم العثور على معرف المستخدم')
-          setLoading(false)
-          return
-        }
-
-        await performLogin(studentResult.user, userId, 'student')
+        localStorage.setItem('currentUser', JSON.stringify({
+          ...studentResult.user,
+          role: 'student'
+        }))
+        setTimeout(() => {
+          window.location.href = '/platform'
+        }, 500)
         setLoading(false)
         return
       }
 
+      // 2️⃣ التحقق من المعلم
       const teacher = await checkTeacher(formData.phone, formData.password)
       if (teacher) {
         console.log('✅ تسجيل دخول معلم:', teacher.name)
@@ -244,7 +100,6 @@ export default function LoginPage() {
           phone: teacher.phone,
           role: 'teacher'
         }))
-        setError('✅ تم تسجيل الدخول بنجاح!')
         setTimeout(() => {
           window.location.href = '/teacher/dashboard'
         }, 500)
@@ -265,10 +120,12 @@ export default function LoginPage() {
 
   return (
     <div style={styles.container}>
+      {/* خلفية متحركة */}
       <div style={styles.background}></div>
       <div style={styles.backgroundOverlay}></div>
       
       <div style={isMobile ? styles.contentMobile : styles.content}>
+        {/* الجهة اليمنى */}
         <div style={isMobile ? styles.rightPanelMobile : styles.rightPanel}>
           <div style={styles.imageWrapper}>
             <div style={styles.imageContainer}>
@@ -297,7 +154,7 @@ export default function LoginPage() {
                   <span style={styles.quickIcon}>✨</span>
                   <span>مشترك جديد؟</span>
                 </Link>
-                <button onClick={() => window.open('https://wa.me/message/UKASWZCU5BNLN1?src=qr', '_blank')} style={styles.quickLink}>
+                <button onClick={() => window.open('https://wa.me/+201210136240', '_blank')} style={styles.quickLink}>
                   <span style={styles.quickIcon}>💬</span>
                   <span>تواصل مع الأدمن</span>
                 </button>
@@ -306,6 +163,7 @@ export default function LoginPage() {
           </div>
         </div>
 
+        {/* الجهة اليسرى */}
         <div style={isMobile ? styles.leftPanelMobile : styles.leftPanel}>
           <div style={styles.formCard}>
             <div style={styles.formHeader}>
@@ -369,42 +227,13 @@ export default function LoginPage() {
                 <div style={{
                   ...styles.message,
                   ...(error.includes('✅') && styles.messageSuccess),
-                  ...(error.includes('❌') && styles.messageError),
-                  ...(error.includes('⚠️') && styles.messageWarning),
-                  ...(error.includes('⏳') && styles.messageInfo)
+                  ...(error.includes('❌') && styles.messageError)
                 }}>
                   <span style={styles.messageIcon}>
-                    {error.includes('✅') ? '✅' : 
-                     error.includes('❌') ? '❌' : 
-                     error.includes('⚠️') ? '⚠️' : 
-                     error.includes('⏳') ? '⏳' : 'ℹ️'}
+                    {error.includes('✅') ? '✅' : '⚠️'}
                   </span>
                   <span>{error}</span>
                 </div>
-              )}
-
-              {showRequestButton && (
-                <button
-                  type="button"
-                  onClick={handleRequestNewDevice}
-                  disabled={requestLoading}
-                  style={{
-                    ...styles.requestButton,
-                    opacity: requestLoading ? 0.7 : 1,
-                    cursor: requestLoading ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  {requestLoading ? (
-                    <span style={styles.buttonContent}>
-                      <span style={styles.spinner}></span>
-                      جاري إرسال الطلب...
-                    </span>
-                  ) : (
-                    <span style={styles.buttonContent}>
-                      <span>📱 طلب إضافة هذا الجهاز</span>
-                    </span>
-                  )}
-                </button>
               )}
 
               <button
@@ -452,7 +281,7 @@ export default function LoginPage() {
             <span style={styles.quickIcon}>✨</span>
             <span>مشترك جديد؟</span>
           </Link>
-          <button onClick={() => window.open('https://wa.me/message/UKASWZCU5BNLN1?src=qr', '_blank')} style={styles.quickLink}>
+          <button onClick={() => window.open('https://wa.me/+201210136240', '_blank')} style={styles.quickLink}>
             <span style={styles.quickIcon}>💬</span>
             <span>تواصل مع الأدمن</span>
           </button>
@@ -773,16 +602,6 @@ const styles: any = {
     borderColor: '#fecaca',
     color: '#991b1b',
   },
-  messageWarning: {
-    background: '#fffbeb',
-    borderColor: '#fde68a',
-    color: '#92400e',
-  },
-  messageInfo: {
-    background: '#eff6ff',
-    borderColor: '#bfdbfe',
-    color: '#1e40af',
-  },
   messageIcon: {
     fontSize: '20px',
     flexShrink: 0,
@@ -803,19 +622,6 @@ const styles: any = {
   },
   submitButtonLoading: {
     opacity: 0.8,
-  },
-  requestButton: {
-    width: '100%',
-    padding: '16px',
-    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '50px',
-    fontSize: '18px',
-    fontWeight: '700',
-    cursor: 'pointer',
-    transition: 'all 0.3s',
-    boxShadow: '0 10px 20px rgba(245, 158, 11, 0.3)',
   },
   buttonContent: {
     display: 'flex',
