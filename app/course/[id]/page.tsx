@@ -39,7 +39,7 @@ export default function CoursePage() {
   const playerContainerRef = useRef<HTMLDivElement>(null)
 
   const SUPPORT_LINKS = {
-    whatsapp: "https://wa.me/message/UKASWZCU5BNLN1",
+    whatsapp: "https://wa.me/+201210136240",
     telegram: "https://t.me/AskMrBishoy_bot"
   }
 
