@@ -9,8 +9,8 @@ import {
 import Link from 'next/link'
 
 // بيانات تسجيل الدخول - حسب طلبك
-const ADMIN_EMAIL = "tomasmehany@almny"
-const ADMIN_PASSWORD = "Tomasmehany@2009"
+const ADMIN_EMAIL = "Mr@almny"
+const ADMIN_PASSWORD = "MrBeshoy123"
 const AUTH_KEY = 'admin_authenticated'
 
 export default function AdminPage() {
