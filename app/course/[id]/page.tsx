@@ -33,14 +33,15 @@ export default function CoursePage() {
   const [isMuted, setIsMuted] = useState(false)
   const [player, setPlayer] = useState<any>(null)
   const [isPlayerReady, setIsPlayerReady] = useState(false)
+  const [showVideo, setShowVideo] = useState(true) // ✅ تغيير: الافتراضي true
   
   const videoContainerRef = useRef<HTMLDivElement>(null)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const playerContainerRef = useRef<HTMLDivElement>(null)
 
+  // ✅ تعديل: شيلنا التيجرام بس، خلي المساعد الذكي وواتساب
   const SUPPORT_LINKS = {
-    whatsapp: "https://wa.me/message/UKASWZCU5BNLN1",
-    telegram: "https://t.me/AskMrBishoy_bot"
+    whatsapp: "https://wa.me/message/UKASWZCU5BNLN1"
   }
 
   useEffect(() => {
@@ -321,6 +322,16 @@ export default function CoursePage() {
     return allLessons
   }
 
+  // ✅ دالة لفتح/إغلاق الفيديو
+  const toggleVideo = (lesson?: any) => {
+    if (lesson) {
+      setActiveLesson(lesson)
+      setShowVideo(true)
+    } else {
+      setShowVideo(!showVideo)
+    }
+  }
+
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
@@ -358,7 +369,7 @@ export default function CoursePage() {
               <Link href="/bot" style={styles.botButton}>
                 🤖 المساعد الذكي
               </Link>
-              <a href={SUPPORT_LINKS.telegram} target="_blank" style={styles.telegramButton}>📱 بوت التيلجرام</a>
+              <a href={SUPPORT_LINKS.whatsapp} target="_blank" style={styles.whatsappButton}>💬 تواصل مع الأدمن عبر واتساب</a>
             </div>
           </div>
         </main>
@@ -397,15 +408,18 @@ export default function CoursePage() {
               <Link href="/bot" style={styles.botButton}>
                 🤖 المساعد الذكي
               </Link>
-              <a href={SUPPORT_LINKS.whatsapp} target="_blank" style={styles.whatsappButton}>💬 تواصل على واتساب</a>
+              <a href={SUPPORT_LINKS.whatsapp} target="_blank" style={styles.whatsappButton}>💬 تواصل مع الأدمن عبر واتساب</a>
             </div>
           </div>
         ) : (
-          <div style={styles.content}>
-            {/* Video Section */}
-            <div style={styles.videoSection}>
-              <div style={styles.videoPlayer}>
-                {activeLesson?.videoUrl && isValidVideoUrl(activeLesson.videoUrl) ? (
+          <div style={isMobile ? styles.contentMobile : styles.content}>
+            {/* ✅ Video Section - تظهر دائماً للدرس المختار */}
+            {activeLesson?.videoUrl && isValidVideoUrl(activeLesson.videoUrl) && showVideo && (
+              <div style={styles.videoSection}>
+                <div style={styles.videoPlayer}>
+                  <div style={styles.videoCloseButtonContainer}>
+                    <button onClick={() => setShowVideo(false)} style={styles.videoCloseButton}>✕ إغلاق الفيديو</button>
+                  </div>
                   <div ref={videoContainerRef} style={styles.videoContainer} onMouseMove={resetControlsTimeout}>
                     <div style={styles.videoWrapper}>
                       <div ref={playerContainerRef} style={{ width: '100%', height: '100%' }} />
@@ -437,30 +451,25 @@ export default function CoursePage() {
                       )}
                     </div>
                   </div>
-                ) : (
-                  <div style={styles.videoPlaceholder}>
-                    <div style={styles.placeholderIcon}>🎬</div>
-                    <p style={styles.placeholderText}>اختر درساً لعرض الفيديو</p>
-                  </div>
-                )}
-                {activeLesson && (
-                  <div style={styles.currentLessonInfo}>
-                    <h2 style={styles.currentLessonTitle}>{activeLesson.title}</h2>
-                    {activeLesson.description && <p style={styles.currentLessonDesc}>{activeLesson.description}</p>}
-                    <div style={styles.lessonMeta}>
-                      {activeLesson.moduleTitle && <span style={styles.lessonDuration}>📚 {activeLesson.moduleTitle}</span>}
-                      <span style={styles.currentSpeedBadge}>السرعة: {playbackRate}x</span>
+                  {activeLesson && (
+                    <div style={styles.currentLessonInfo}>
+                      <h2 style={styles.currentLessonTitle}>{activeLesson.title}</h2>
+                      {activeLesson.description && <p style={styles.currentLessonDesc}>{activeLesson.description}</p>}
+                      <div style={styles.lessonMeta}>
+                        {activeLesson.moduleTitle && <span style={styles.lessonDuration}>📚 {activeLesson.moduleTitle}</span>}
+                        <span style={styles.currentSpeedBadge}>السرعة: {playbackRate}x</span>
+                      </div>
                     </div>
+                  )}
+                </div>
+                {activeLesson && (
+                  <div style={styles.actionsBar}>
+                    {activeLesson.assignmentLink && <a href={activeLesson.assignmentLink} target="_blank" style={styles.actionButton}>📝 الواجب</a>}
+                    {activeLesson.examLink && <a href={activeLesson.examLink} target="_blank" style={styles.actionButton}>📊 الامتحان</a>}
                   </div>
                 )}
               </div>
-              {activeLesson && (
-                <div style={styles.actionsBar}>
-                  {activeLesson.assignmentLink && <a href={activeLesson.assignmentLink} target="_blank" style={styles.actionButton}>📝 الواجب</a>}
-                  {activeLesson.examLink && <a href={activeLesson.examLink} target="_blank" style={styles.actionButton}>📊 الامتحان</a>}
-                </div>
-              )}
-            </div>
+            )}
 
             {/* Lessons List Section */}
             <div style={styles.lessonsSection}>
@@ -486,12 +495,36 @@ export default function CoursePage() {
                     {expandedModules.has(module.id) && (
                       <div style={styles.moduleLessons}>
                         {module.lessons?.map((lesson: any, idx: number) => (
-                          <div key={lesson.id} onClick={() => setActiveLesson(lesson)} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
+                          <div key={lesson.id} onClick={() => { setActiveLesson(lesson); setShowVideo(true); }} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
                             <div style={styles.lessonNumber}>{idx + 1}</div>
                             <div style={styles.lessonContent}>
                               <div style={styles.lessonTitleSmall}>{lesson.title}</div>
                               {lesson.description && <div style={styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
                             </div>
+                            {/* ✅ زر مشاهدة الفيديو - يفتح الفيديو للدرس ده */}
+                            {lesson.videoUrl && isValidVideoUrl(lesson.videoUrl) && (
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setActiveLesson(lesson)
+                                  setShowVideo(true)
+                                }} 
+                                style={styles.watchButton}
+                              >
+                                ▶️ مشاهدة
+                              </button>
+                            )}
+                            {/* ✅ زر الامتحان - يظهر لو فيه examLink */}
+                            {lesson.examLink && (
+                              <a 
+                                href={lesson.examLink} 
+                                target="_blank"
+                                style={styles.examButton}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                📝 امتحان
+                              </a>
+                            )}
                           </div>
                         ))}
                         {(!module.lessons || module.lessons.length === 0) && (
@@ -509,12 +542,36 @@ export default function CoursePage() {
                     </div>
                     <div style={styles.directLessons}>
                       {directLessons.map((lesson: any, idx: number) => (
-                        <div key={lesson.id} onClick={() => setActiveLesson(lesson)} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
+                        <div key={lesson.id} onClick={() => { setActiveLesson(lesson); setShowVideo(true); }} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
                           <div style={styles.lessonNumber}>{idx + 1}</div>
                           <div style={styles.lessonContent}>
                             <div style={styles.lessonTitleSmall}>{lesson.title}</div>
                             {lesson.description && <div style={styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
                           </div>
+                          {/* ✅ زر مشاهدة الفيديو - يفتح الفيديو للدرس ده */}
+                          {lesson.videoUrl && isValidVideoUrl(lesson.videoUrl) && (
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setActiveLesson(lesson)
+                                setShowVideo(true)
+                              }} 
+                              style={styles.watchButton}
+                            >
+                              ▶️ مشاهدة
+                            </button>
+                          )}
+                          {/* ✅ زر الامتحان - يظهر لو فيه examLink */}
+                          {lesson.examLink && (
+                            <a 
+                              href={lesson.examLink} 
+                              target="_blank"
+                              style={styles.examButton}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              📝 امتحان
+                            </a>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -528,7 +585,7 @@ export default function CoursePage() {
                   <Link href="/bot" style={styles.botButton}>
                     🤖 المساعد الذكي
                   </Link>
-                  <a href={SUPPORT_LINKS.telegram} target="_blank" style={styles.telegramSupportButton}>📱 تواصل عبر بوت التليجرام</a>
+                  <a href={SUPPORT_LINKS.whatsapp} target="_blank" style={styles.whatsappSupportButton}>💬 تواصل مع الأدمن عبر واتساب</a>
                 </div>
               </div>
             </div>
@@ -572,9 +629,15 @@ const styles: any = {
   emptyIcon: { fontSize: '4rem', color: '#9ca3af', marginBottom: '20px' },
   emptyTitle: { fontSize: '24px', color: '#1f2937', marginBottom: '15px' },
   emptyText: { fontSize: '16px', color: '#6b7280', marginBottom: '30px' },
+  // ✅ تعديل: العرض للشاشات الكبيرة
   content: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' },
+  // ✅ تعديل: العرض للشاشات الصغيرة (فيديو فوق ودروس تحت)
+  contentMobile: { display: 'flex', flexDirection: 'column', gap: '30px' },
+  
   videoSection: { display: 'flex', flexDirection: 'column', gap: '25px' },
   videoPlayer: { background: 'white', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
+  videoCloseButtonContainer: { padding: '10px 15px', background: '#f1f5f9', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'flex-end' },
+  videoCloseButton: { padding: '6px 16px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' },
   videoContainer: { width: '100%', height: '450px', overflow: 'hidden', position: 'relative', background: '#000' },
   videoWrapper: { position: 'relative', width: '100%', height: '100%' },
   protectionOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, cursor: 'pointer', background: 'transparent', zIndex: 2 },
@@ -619,21 +682,19 @@ const styles: any = {
   directIcon: { fontSize: '24px' },
   directTitle: { fontSize: '16px', fontWeight: '600', color: '#1f2937' },
   directLessons: { padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' },
-  lessonItem: { display: 'flex', alignItems: 'center', gap: '15px', padding: '12px 15px', border: '2px solid', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.3s' },
+  lessonItem: { display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 15px', border: '2px solid', borderRadius: '10px', cursor: 'pointer', transition: 'all 0.3s', flexWrap: 'wrap' },
   lessonNumber: { width: '30px', height: '30px', background: '#3b82f6', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold', flexShrink: 0 },
-  lessonContent: { flex: 1 },
+  lessonContent: { flex: 1, minWidth: '120px' },
   lessonTitleSmall: { fontSize: '15px', fontWeight: '600', color: '#1f2937', marginBottom: '4px' },
   lessonDescSmall: { fontSize: '12px', color: '#6b7280' },
+  watchButton: { padding: '6px 14px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', whiteSpace: 'nowrap' },
+  examButton: { padding: '6px 14px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', textDecoration: 'none', whiteSpace: 'nowrap' },
   supportSection: { background: 'white', padding: '25px', borderRadius: '12px', textAlign: 'center' },
   supportTitle: { fontSize: '20px', fontWeight: '600', color: '#1f2937', marginBottom: '15px' },
   supportButtons: { display: 'flex', flexDirection: 'column', gap: '15px' },
-  // Updated Button Styles
   botButton: { padding: '15px', background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center', boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)' },
   whatsappButton: { padding: '15px', background: '#25D366', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center' },
-  telegramButton: { padding: '15px', background: 'rgb(40, 22, 56)', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center' },
-  whatsappSupportButton: { padding: '15px', background: '#25D366', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' },
-  telegramSupportButton: { padding: '15px', background: '#0088cc', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600' },
-  
+  whatsappSupportButton: { padding: '15px', background: '#25D366', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: '600', fontSize: '16px', textAlign: 'center', boxShadow: '0 4px 15px rgba(37, 211, 102, 0.4)' },
   contactButtons: { display: 'flex', gap: '15px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' },
   contactButtonsMobile: { display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'stretch' },
   footer: { background: '#1f2937', marginTop: '50px', padding: '30px 0' },
