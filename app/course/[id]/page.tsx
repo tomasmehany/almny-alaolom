@@ -33,13 +33,15 @@ export default function CoursePage() {
   const [isMuted, setIsMuted] = useState(false)
   const [player, setPlayer] = useState<any>(null)
   const [isPlayerReady, setIsPlayerReady] = useState(false)
-  const [showVideo, setShowVideo] = useState(true) // ✅ تغيير: الافتراضي true
+  // ✅ تعديل: showVideo يكون false في البداية (الفيديو مش ظاهر)
+  const [showVideo, setShowVideo] = useState(false)
   
   const videoContainerRef = useRef<HTMLDivElement>(null)
+  const videoSectionRef = useRef<HTMLDivElement>(null)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const playerContainerRef = useRef<HTMLDivElement>(null)
+  const lessonsListRef = useRef<HTMLDivElement>(null)
 
-  // ✅ تعديل: شيلنا التيجرام بس، خلي المساعد الذكي وواتساب
   const SUPPORT_LINKS = {
     whatsapp: "https://wa.me/message/UKASWZCU5BNLN1"
   }
@@ -291,14 +293,12 @@ export default function CoursePage() {
           setModules(content.modules)
           setDirectLessons(content.directLessons)
           
+          // ✅ لا نختار درس تلقائياً - الفيديو مش هيظهر إلا لما المستخدم يدوس
           if (content.modules.length > 0) {
             setExpandedModules(new Set([content.modules[0].id]))
-            if (content.modules[0].lessons?.length > 0) {
-              setActiveLesson(content.modules[0].lessons[0])
-            }
-          } else if (content.directLessons.length > 0) {
-            setActiveLesson(content.directLessons[0])
           }
+          // ✅ نشيل الـ setActiveLesson التلقائي
+          // setActiveLesson(content.modules[0].lessons[0])
         }
       } catch (error) {
         console.error('❌ خطأ في جلب بيانات الكورس:', error)
@@ -322,14 +322,16 @@ export default function CoursePage() {
     return allLessons
   }
 
-  // ✅ دالة لفتح/إغلاق الفيديو
-  const toggleVideo = (lesson?: any) => {
-    if (lesson) {
-      setActiveLesson(lesson)
-      setShowVideo(true)
-    } else {
-      setShowVideo(!showVideo)
-    }
+  // ✅ دالة اختيار الدرس - تفتح الفيديو وتسحب للفوق
+  const selectLesson = (lesson: any) => {
+    setActiveLesson(lesson)
+    setShowVideo(true)
+    // ✅ سحب الصفحة لفوق الفيديو بعد شوية عشان يتحمل
+    setTimeout(() => {
+      if (videoSectionRef.current) {
+        videoSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 300)
   }
 
   if (loading) {
@@ -413,9 +415,9 @@ export default function CoursePage() {
           </div>
         ) : (
           <div style={isMobile ? styles.contentMobile : styles.content}>
-            {/* ✅ Video Section - تظهر دائماً للدرس المختار */}
-            {activeLesson?.videoUrl && isValidVideoUrl(activeLesson.videoUrl) && showVideo && (
-              <div style={styles.videoSection}>
+            {/* ✅ Video Section - تظهر بس لما المستخدم يختار درس */}
+            {showVideo && activeLesson?.videoUrl && isValidVideoUrl(activeLesson.videoUrl) && (
+              <div ref={videoSectionRef} style={styles.videoSection}>
                 <div style={styles.videoPlayer}>
                   <div style={styles.videoCloseButtonContainer}>
                     <button onClick={() => setShowVideo(false)} style={styles.videoCloseButton}>✕ إغلاق الفيديو</button>
@@ -481,40 +483,87 @@ export default function CoursePage() {
                 </div>
               </div>
 
-              <div style={styles.lessonsList}>
-                {modules.map(module => (
-                  <div key={module.id} style={styles.moduleItem}>
-                    <div onClick={() => toggleModule(module.id)} style={styles.moduleHeader}>
-                      <span style={styles.moduleIcon}>{expandedModules.has(module.id) ? '📚' : '📚'}</span>
-                      <div style={styles.moduleInfo}>
-                        <span style={styles.moduleTitle}>{module.title}</span>
-                        <span style={styles.moduleCount}>{module.lessons?.length || 0} دروس</span>
+              {/* ✅ قائمة الدروس مع scroll داخلي */}
+              <div ref={lessonsListRef} style={styles.lessonsListWrapper}>
+                <div style={styles.lessonsList}>
+                  {modules.map(module => (
+                    <div key={module.id} style={styles.moduleItem}>
+                      <div onClick={() => toggleModule(module.id)} style={styles.moduleHeader}>
+                        <span style={styles.moduleIcon}>{expandedModules.has(module.id) ? '📚' : '📚'}</span>
+                        <div style={styles.moduleInfo}>
+                          <span style={styles.moduleTitle}>{module.title}</span>
+                          <span style={styles.moduleCount}>{module.lessons?.length || 0} دروس</span>
+                        </div>
+                        <span style={styles.moduleArrow}>{expandedModules.has(module.id) ? '▲' : '▼'}</span>
                       </div>
-                      <span style={styles.moduleArrow}>{expandedModules.has(module.id) ? '▲' : '▼'}</span>
+                      {expandedModules.has(module.id) && (
+                        <div style={styles.moduleLessons}>
+                          {module.lessons?.map((lesson: any, idx: number) => (
+                            <div key={lesson.id} onClick={() => selectLesson(lesson)} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
+                              <div style={styles.lessonNumber}>{idx + 1}</div>
+                              <div style={styles.lessonContent}>
+                                <div style={styles.lessonTitleSmall}>{lesson.title}</div>
+                                {lesson.description && <div style={styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
+                              </div>
+                              {/* ✅ زر مشاهدة الفيديو */}
+                              {lesson.videoUrl && isValidVideoUrl(lesson.videoUrl) && (
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    selectLesson(lesson)
+                                  }} 
+                                  style={styles.watchButton}
+                                >
+                                  ▶️ مشاهدة
+                                </button>
+                              )}
+                              {/* ✅ زر الامتحان */}
+                              {lesson.examLink && (
+                                <a 
+                                  href={lesson.examLink} 
+                                  target="_blank"
+                                  style={styles.examButton}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  📝 امتحان
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                          {(!module.lessons || module.lessons.length === 0) && (
+                            <div style={{padding: '15px', textAlign: 'center', color: '#9ca3af'}}>📭 لا توجد دروس في هذه الوحدة بعد</div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    {expandedModules.has(module.id) && (
-                      <div style={styles.moduleLessons}>
-                        {module.lessons?.map((lesson: any, idx: number) => (
-                          <div key={lesson.id} onClick={() => { setActiveLesson(lesson); setShowVideo(true); }} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
+                  ))}
+                  {directLessons.length > 0 && (
+                    <div style={styles.directSection}>
+                      <div style={styles.directHeader}>
+                        <span style={styles.directIcon}>📖</span>
+                        <span style={styles.directTitle}>دروس مباشرة</span>
+                      </div>
+                      <div style={styles.directLessons}>
+                        {directLessons.map((lesson: any, idx: number) => (
+                          <div key={lesson.id} onClick={() => selectLesson(lesson)} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
                             <div style={styles.lessonNumber}>{idx + 1}</div>
                             <div style={styles.lessonContent}>
                               <div style={styles.lessonTitleSmall}>{lesson.title}</div>
                               {lesson.description && <div style={styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
                             </div>
-                            {/* ✅ زر مشاهدة الفيديو - يفتح الفيديو للدرس ده */}
+                            {/* ✅ زر مشاهدة الفيديو */}
                             {lesson.videoUrl && isValidVideoUrl(lesson.videoUrl) && (
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  setActiveLesson(lesson)
-                                  setShowVideo(true)
+                                  selectLesson(lesson)
                                 }} 
                                 style={styles.watchButton}
                               >
                                 ▶️ مشاهدة
                               </button>
                             )}
-                            {/* ✅ زر الامتحان - يظهر لو فيه examLink */}
+                            {/* ✅ زر الامتحان */}
                             {lesson.examLink && (
                               <a 
                                 href={lesson.examLink} 
@@ -527,56 +576,10 @@ export default function CoursePage() {
                             )}
                           </div>
                         ))}
-                        {(!module.lessons || module.lessons.length === 0) && (
-                          <div style={{padding: '15px', textAlign: 'center', color: '#9ca3af'}}>📭 لا توجد دروس في هذه الوحدة بعد</div>
-                        )}
                       </div>
-                    )}
-                  </div>
-                ))}
-                {directLessons.length > 0 && (
-                  <div style={styles.directSection}>
-                    <div style={styles.directHeader}>
-                      <span style={styles.directIcon}>📖</span>
-                      <span style={styles.directTitle}>دروس مباشرة</span>
                     </div>
-                    <div style={styles.directLessons}>
-                      {directLessons.map((lesson: any, idx: number) => (
-                        <div key={lesson.id} onClick={() => { setActiveLesson(lesson); setShowVideo(true); }} style={{ ...styles.lessonItem, background: activeLesson?.id === lesson.id ? '#f0f9ff' : 'white', borderColor: activeLesson?.id === lesson.id ? '#3b82f6' : '#e5e7eb' }}>
-                          <div style={styles.lessonNumber}>{idx + 1}</div>
-                          <div style={styles.lessonContent}>
-                            <div style={styles.lessonTitleSmall}>{lesson.title}</div>
-                            {lesson.description && <div style={styles.lessonDescSmall}>{lesson.description.substring(0, 60)}...</div>}
-                          </div>
-                          {/* ✅ زر مشاهدة الفيديو - يفتح الفيديو للدرس ده */}
-                          {lesson.videoUrl && isValidVideoUrl(lesson.videoUrl) && (
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setActiveLesson(lesson)
-                                setShowVideo(true)
-                              }} 
-                              style={styles.watchButton}
-                            >
-                              ▶️ مشاهدة
-                            </button>
-                          )}
-                          {/* ✅ زر الامتحان - يظهر لو فيه examLink */}
-                          {lesson.examLink && (
-                            <a 
-                              href={lesson.examLink} 
-                              target="_blank"
-                              style={styles.examButton}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              📝 امتحان
-                            </a>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
               <div style={styles.supportSection}>
@@ -629,9 +632,7 @@ const styles: any = {
   emptyIcon: { fontSize: '4rem', color: '#9ca3af', marginBottom: '20px' },
   emptyTitle: { fontSize: '24px', color: '#1f2937', marginBottom: '15px' },
   emptyText: { fontSize: '16px', color: '#6b7280', marginBottom: '30px' },
-  // ✅ تعديل: العرض للشاشات الكبيرة
   content: { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' },
-  // ✅ تعديل: العرض للشاشات الصغيرة (فيديو فوق ودروس تحت)
   contentMobile: { display: 'flex', flexDirection: 'column', gap: '30px' },
   
   videoSection: { display: 'flex', flexDirection: 'column', gap: '25px' },
@@ -668,7 +669,28 @@ const styles: any = {
   expandButtons: { display: 'flex', gap: '10px' },
   expandButton: { padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' },
   collapseButton: { padding: '8px 16px', background: '#6b7280', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' },
-  lessonsList: { display: 'flex', flexDirection: 'column', gap: '15px', maxHeight: '600px', overflowY: 'auto' },
+  // ✅ قائمة الدروس مع scroll داخلي
+  lessonsListWrapper: {
+    maxHeight: '500px',
+    overflowY: 'auto' as const,
+    position: 'relative' as const,
+    scrollBehavior: 'smooth' as const,
+    '&::-webkit-scrollbar': {
+      width: '6px'
+    },
+    '&::-webkit-scrollbar-track': {
+      background: '#f1f1f1',
+      borderRadius: '10px'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: '#888',
+      borderRadius: '10px'
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+      background: '#555'
+    }
+  },
+  lessonsList: { display: 'flex', flexDirection: 'column', gap: '15px' },
   moduleItem: { background: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb' },
   moduleHeader: { display: 'flex', alignItems: 'center', gap: '12px', padding: '15px 20px', cursor: 'pointer', background: '#f9fafb', borderBottom: '1px solid #e5e7eb' },
   moduleIcon: { fontSize: '24px' },
